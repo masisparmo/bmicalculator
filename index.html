@@ -7,9 +7,6 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- HTML2CANVAS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -45,6 +42,31 @@
             border-left: 8px solid transparent;
             border-right: 8px solid transparent;
             border-top: 12px solid #1f2937;
+        }
+
+        @media print {
+            body > *:not(#reportModal) { display: none !important; }
+            #reportModal {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                background: none !important;
+                overflow: visible !important;
+                z-index: 9999 !important;
+            }
+            #reportModal .fixed { display: none !important; }
+            #reportModal .h-24 { display: none !important; } /* Hide spacer */
+            #printableArea {
+                box-shadow: none !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+            }
+            /* Ensure background colors and graphics are printed */
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
 </head>
@@ -196,14 +218,16 @@
         </div>
 
         <!-- TOMBOL FIXED -->
-        <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t flex gap-3 z-[60] shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
-            <button onclick="saveAsImage()" id="btnSaveImg" class="flex-1 py-3.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg flex justify-center items-center gap-2 active:scale-95 transition text-sm">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                Simpan Gambar HD
-            </button>
-            <button onclick="closeModal()" class="flex-none px-6 py-3.5 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 text-sm border border-red-100">
-                Tutup
-            </button>
+        <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t z-[60] shadow-[0_-4px_10px_rgba(0,0,0,0.1)] flex justify-center">
+            <div class="w-full max-w-xl flex gap-3">
+                <button onclick="window.print()" id="btnPrint" class="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg flex justify-center items-center gap-2 active:scale-95 transition text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Cetak Laporan
+                </button>
+                <button onclick="closeModal()" class="flex-none px-6 py-3.5 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 text-sm border border-red-100">
+                    Tutup
+                </button>
+            </div>
         </div>
     </div>
 
@@ -348,21 +372,6 @@
 
                 document.getElementById('reportModal').classList.remove('hidden');
             }, 1000);
-        }
-
-        function saveAsImage() {
-            const btn = document.getElementById('btnSaveImg');
-            const oriTxt = btn.innerHTML;
-            btn.innerHTML = "Memproses...";
-            btn.disabled = true;
-            document.getElementById('reportModal').scrollTop = 0;
-            html2canvas(document.getElementById('printableArea'), {scale: 3, useCORS: true, backgroundColor: "#ffffff", logging: false}).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `BMI-${userData.l}-${Date.now()}.jpg`;
-                link.href = canvas.toDataURL('image/jpeg', 0.98);
-                link.click();
-                btn.innerHTML = oriTxt; btn.disabled = false;
-            }).catch(err => { alert("Gagal: "+err); btn.innerHTML = oriTxt; btn.disabled = false; });
         }
 
         function closeModal() { document.getElementById('reportModal').classList.add('hidden'); }
