@@ -217,14 +217,14 @@
             <div class="h-24 w-full"></div>
         </div>
 
-        <!-- TOMBOL FIXED -->
-        <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t z-[60] shadow-[0_-4px_10px_rgba(0,0,0,0.1)] flex justify-center">
-            <div class="flex gap-4 justify-center w-full">
-                <button onclick="window.print()" id="btnPrint" class="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg flex justify-center items-center gap-2 active:scale-95 transition text-sm">
+        <!-- TOMBOL FIXED FLOATING -->
+        <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[60]">
+            <div class="bg-white dark:bg-gray-800 p-2 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 flex gap-3 items-center">
+                <button onclick="window.print()" id="btnPrint" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg flex justify-center items-center gap-2 active:scale-95 transition text-sm">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                     Cetak Laporan
                 </button>
-                <button onclick="closeModal()" class="px-6 py-3.5 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 text-sm border border-red-100">
+                <button onclick="closeModal()" class="px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300 font-bold rounded-xl text-sm transition">
                     Tutup
                 </button>
             </div>
