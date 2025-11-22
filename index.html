@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BMI Pro Final V17</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HTML2CANVAS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#10B981',
+                        danger: '#EF4444',
+                        warning: '#F59E0B',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body, div, p, h1, h2, h3, h4, input, button, span { transition: all 0.3s ease; font-family: 'Inter', sans-serif; }
+        .fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        .rich-text strong { font-weight: 800; }
+        
+        /* Marker Segitiga Gelap */
+        .triangle-marker-dark {
+            width: 0; height: 0; 
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 12px solid #1f2937;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100 flex flex-col items-center min-h-screen font-sans py-6">
+
+    <!-- Container Utama -->
+    <div class="w-full max-w-md px-4 pb-20">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700">
+            
+            <!-- Header -->
+            <div class="p-5 flex justify-between items-center bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
+                <div>
+                    <h1 class="text-2xl font-black text-primary dark:text-indigo-400">BMI Pro</h1>
+                    <p class="text-xs text-gray-500">Final V17 Fixed Layout</p>
+                </div>
+                <button id="themeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
+                    <span class="dark:hidden">🌙</span><span class="hidden dark:block">☀️</span>
+                </button>
+            </div>
+
+            <!-- Form Input -->
+            <div class="p-5 space-y-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase">Gender</label>
+                    <div class="grid grid-cols-2 gap-3 mt-1">
+                        <label class="cursor-pointer"><input type="radio" name="gender" value="male" class="peer sr-only" checked><div class="p-3 rounded-xl border peer-checked:bg-primary/10 peer-checked:border-primary peer-checked:text-primary text-center transition font-semibold">👨 Pria</div></label>
+                        <label class="cursor-pointer"><input type="radio" name="gender" value="female" class="peer sr-only"><div class="p-3 rounded-xl border peer-checked:bg-pink-500/10 peer-checked:border-pink-500 peer-checked:text-pink-500 text-center transition font-semibold">👩 Wanita</div></label>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="col-span-3"><label class="text-xs font-bold text-gray-500 uppercase">Usia</label><input type="number" id="age" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-semibold" placeholder="25"></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase">Berat</label><input type="number" id="weight" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold" placeholder="kg"></div>
+                    <div class="col-span-2"><label class="text-xs font-bold text-gray-500 uppercase">Tinggi</label><input type="number" id="height" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold" placeholder="cm"></div>
+                </div>
+                <button onclick="calculateBMI()" class="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-lg active:scale-95 transition">Hitung & Analisa</button>
+            </div>
+
+            <!-- Hasil -->
+            <div id="resultArea" class="hidden bg-gray-50 dark:bg-gray-700/30 border-t p-6 rounded-b-2xl">
+                <div class="text-center mb-2">
+                    <h2 id="bmiValue" class="text-5xl font-black my-2">0.0</h2>
+                    <p id="bmiCategory" class="text-xl font-bold">Normal</p>
+                </div>
+                <button onclick="generateReport()" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-md flex justify-center items-center gap-2 active:scale-95 transition">
+                    <span>📄 Buka Laporan Lengkap</span>
+                </button>
+                <button onclick="resetForm()" class="mt-4 text-xs text-gray-400 underline w-full">Reset Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LAPORAN -->
+    <div id="reportModal" class="fixed inset-0 z-50 hidden bg-gray-900/95 backdrop-blur-sm overflow-y-auto">
+        <div class="min-h-screen w-full flex flex-col items-center justify-start pt-4 pb-24 px-2">
+            
+            <!-- AREA KERTAS -->
+            <div id="printableArea" class="w-full max-w-xl bg-white text-left rounded-xl shadow-2xl overflow-hidden relative mb-4 font-sans">
+                
+                <!-- HEADER -->
+                <div class="bg-primary p-6 pb-10 text-white relative overflow-hidden">
+                    <div class="absolute top-0 right-0 opacity-10 transform translate-x-10 -translate-y-10">
+                        <svg width="150" height="150" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                    </div>
+                    <div class="relative z-10 text-center">
+                        <h2 class="text-xl font-black uppercase tracking-wide leading-tight">Laporan Kesehatan</h2>
+                        <div class="flex items-center justify-center gap-2 mt-2 text-xs opacity-90 font-medium">
+                            <span id="reportProfile">Pria, 46 Th, 95kg</span>
+                        </div>
+                        <div class="text-xs opacity-75 mt-1" id="reportDate">22 Nov 2025</div>
+                    </div>
+                </div>
+
+                <!-- AREA SKOR (FIXED SPACING V17) -->
+                <div class="bg-white px-6 py-8 -mt-6 rounded-t-3xl relative z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+                    
+                    <!-- Flex Column dengan Gap Tegas -->
+                    <div class="flex flex-col items-center justify-center w-full">
+                        
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Angka BMI</p>
+                        
+                        <!-- SKOR (PADDING BAWAH & FONT SIZE DIKURANGI DIKIT) -->
+                        <p class="text-6xl font-black text-gray-800 mb-4 leading-normal tracking-tighter" id="reportScore">31.1</p>
+                        
+                        <!-- BADGE STATUS (MARGIN ATAS) -->
+                        <div class="mb-8">
+                            <span id="reportStatus" class="inline-block px-6 py-2 rounded-full text-sm font-extrabold uppercase tracking-widest border shadow-sm">OBESITAS</span>
+                        </div>
+
+                        <!-- GRAFIK BMI -->
+                        <div class="relative w-full px-1 mt-1">
+                            <!-- Marker Segitiga -->
+                            <div class="relative w-full h-4 mb-1">
+                                <div id="headerMarker" class="absolute bottom-0 transition-all duration-700 z-30" style="left: 50%;">
+                                    <div class="triangle-marker-dark transform -translate-x-1/2 drop-shadow-lg"></div>
+                                </div>
+                            </div>
+
+                            <!-- Bar Gradasi -->
+                            <div class="relative h-5 w-full bg-gray-100 rounded-full overflow-hidden shadow-inner border border-gray-200/50">
+                                <div class="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-r from-blue-400 via-green-400 via-yellow-400 to-red-500"></div>
+                                <div class="absolute top-0 bottom-0 w-0.5 bg-white/70 left-[18.5%]"></div>
+                                <div class="absolute top-0 bottom-0 w-0.5 bg-white/70 left-[40%]"></div>
+                                <div class="absolute top-0 bottom-0 w-0.5 bg-white/70 left-[60%]"></div>
+                            </div>
+                            
+                            <!-- Label Angka -->
+                            <div class="relative w-full h-4 mt-1.5 text-[9px] font-bold text-gray-500 font-mono">
+                                <span class="absolute left-0">15</span>
+                                <span class="absolute -translate-x-1/2" style="left: 14%;">18.5</span>
+                                <span class="absolute -translate-x-1/2" style="left: 40%;">25</span>
+                                <span class="absolute -translate-x-1/2" style="left: 60%;">30</span>
+                                <span class="absolute right-0">40</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Body Laporan -->
+                <div class="p-6 space-y-6 text-gray-800 bg-white pt-0">
+                    
+                    <!-- Analisa -->
+                    <div class="bg-blue-50 p-5 rounded-xl border-l-4 border-blue-500 shadow-sm">
+                        <h3 class="font-extrabold text-blue-800 text-sm mb-2 uppercase tracking-wide flex items-center gap-2">Analisa Metabolisme</h3>
+                        <p id="aiAnalysis" class="rich-text text-sm leading-relaxed text-gray-700 text-justify font-medium"></p>
+                    </div>
+
+                    <!-- Menu Makan -->
+                    <div>
+                        <h3 class="font-extrabold text-green-700 text-sm uppercase mb-4 border-b-2 border-green-100 pb-2 tracking-wide flex items-center gap-2">🥗 Rencana Menu 7 Hari</h3>
+                        <div class="grid grid-cols-2 gap-3" id="menuContainer"></div>
+                    </div>
+
+                    <!-- Olahraga -->
+                    <div class="bg-orange-50 p-5 rounded-xl border-l-4 border-orange-500 shadow-sm">
+                        <h3 class="font-extrabold text-orange-800 text-sm mb-2 uppercase tracking-wide flex items-center gap-2">Saran Aktivitas</h3>
+                        <p id="aiExercise" class="rich-text text-sm font-medium text-gray-700 leading-relaxed text-justify"></p>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="border-t-2 border-gray-100 pt-4 mt-6 flex flex-col items-center justify-center text-center">
+                        <p class="text-[9px] text-gray-400 font-black tracking-[0.25em] uppercase leading-none">BMI CALCULATOR PRO BY ISPARMO</p>
+                        <p class="text-[8px] text-gray-400 mt-1.5 font-medium leading-none">Dokumen ini dihasilkan oleh AI sebagai rekomendasi awal.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-24 w-full"></div>
+        </div>
+
+        <!-- TOMBOL FIXED -->
+        <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t flex gap-3 z-[60] shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
+            <button onclick="saveAsImage()" id="btnSaveImg" class="flex-1 py-3.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg flex justify-center items-center gap-2 active:scale-95 transition text-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                Simpan Gambar HD
+            </button>
+            <button onclick="closeModal()" class="flex-none px-6 py-3.5 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 text-sm border border-red-100">
+                Tutup
+            </button>
+        </div>
+    </div>
+
+    <div id="loadingOverlay" class="fixed inset-0 bg-black/90 z-[100] hidden flex-col items-center justify-center text-white">
+        <div class="flex gap-3 mb-4"><div class="w-4 h-4 bg-white rounded-full typing-dot"></div><div class="w-4 h-4 bg-gray-400 rounded-full typing-dot"></div><div class="w-4 h-4 bg-gray-600 rounded-full typing-dot"></div></div>
+        <h3 class="text-lg font-bold">Memproses Data AI...</h3>
+    </div>
+
+    <script>
+        const htmlEl = document.documentElement;
+        const themeToggleBtn = document.getElementById('themeToggle');
+        if(localStorage.getItem('theme') === 'dark') htmlEl.classList.add('dark');
+        themeToggleBtn.addEventListener('click', () => {
+            htmlEl.classList.toggle('dark');
+            localStorage.setItem('theme', htmlEl.classList.contains('dark') ? 'dark' : 'light');
+        });
+
+        let userData = {};
+
+        const weeklyPlans = {
+            underweight: [
+                {d:"Senin", m:["Roti Gandum Selai Kacang Extra + Susu Full Cream", "Nasi Padang Ayam Bakar Bumbu Rendang + Sayur Nangka", "Sate Ayam 10 Tusuk + Lontong Bumbu Kacang"]}, 
+                {d:"Selasa", m:["Bubur Ayam Komplit Telur Puyuh", "Nasi Goreng Spesial Sosis Bakso + Telur Dadar", "Martabak Telur Spesial Daging Sapi + Sup"]},
+                {d:"Rabu", m:["Pancake Pisang Madu + Yoghurt", "Mie Ayam Jamur Bakso Pangsit", "Ikan Gurame Goreng Tepung Asam Manis"]}, 
+                {d:"Kamis", m:["Omelet Keju Smoked Beef + Roti", "Nasi Uduk Ayam Goreng Lengkap", "Pasta Carbonara Creamy + Garlic Bread"]},
+                {d:"Jumat", m:["Sandwich Tuna Mayo Double", "Soto Betawi Daging Santan + Nasi", "Burger Sapi Homemade Cheese + Kentang"]}, 
+                {d:"Sabtu", m:["Smoothie Alpukat Coklat Tinggi Kalori", "Gulai Ikan Kakap + Nasi Putih", "Pizza Meat Lovers (3 Slice) + Salad"]}, 
+                {d:"Minggu", m:["Nasi Kuning Komplit Ayam Suwir", "Steak Daging Sapi Sirloin + Mashed Potato", "Sup Iga Sapi Kuah Kental + Nasi"]}
+            ],
+            normal: [
+                {d:"Senin", m:["Oatmeal Buah Beri & Madu", "Gado-gado Telur Rebus + Lontong", "Pepes Ikan Kembung + Nasi Merah"]}, 
+                {d:"Selasa", m:["Roti Gandum Telur Mata Sapi & Alpukat", "Soto Ayam Kampung Bening (Tanpa Santan)", "Tumis Brokoli Udang Bawang Putih"]},
+                {d:"Rabu", m:["Smoothie Bayam Nanas Segar", "Pepes Tahu Jamur + Sayur Asem", "Ayam Bakar Dada (Tanpa Kulit) + Lalap"]}, 
+                {d:"Kamis", m:["Telur Orak-arik Sayuran", "Pecel Sayur Bumbu Sedang + Tempe", "Sup Jamur Tahu Putih Bening"]},
+                {d:"Jumat", m:["Yoghurt Greek Plain + Granola", "Ikan Kembung Bakar Bumbu Kuning", "Capcay Kuah Ayam Sayur Lengkap"]}, 
+                {d:"Sabtu", m:["Bubur Manado Kaya Sayur", "Sushi Roll Salmon Alpukat", "Salad Ayam Panggang Dressing Lemon"]}, 
+                {d:"Minggu", m:["Pancake Oatmeal Pisang", "Steak Tempe Saus Lada Hitam", "Sapo Tahu Seafood Sayuran"]}
+            ],
+            overweight: [
+                {d:"Senin", m:["Telur Rebus 2 Butir + Teh Tawar", "Nasi Merah 5 Sdm + Ikan Bakar", "Sup Dada Ayam Jahe (Tanpa Nasi)"]}, 
+                {d:"Selasa", m:["Apel Merah + 1 sdm Selai Kacang", "Pepes Tahu Kemangi + Sayur Bening Bayam", "Tumis Buncis Tempe Rebus (Sedikit Minyak)"]},
+                {d:"Rabu", m:["Smoothie Hijau (Timun Seledri)", "Soto Ayam Bening (Pisah Kulit)", "Ikan Tim Kecap Jahe + Sawi Putih"]}, 
+                {d:"Kamis", m:["Ubi Rebus Ukuran Sedang", "Gado-gado (Bumbu Dipisah)", "Salad Telur Rebus Dressing Yoghurt"]},
+                {d:"Jumat", m:["Yoghurt Plain Rendah Lemak + Pir", "Ayam Suwir Pedas (Dada) + Tumis Tauge", "Sup Tahu Putih Sawi Hijau"]}, 
+                {d:"Sabtu", m:["Omelet Sayur Putih Telur", "Ikan Pepes Bumbu Merah (Kukus)", "Buah Potong Segar (Pepaya/Melon)"]}, 
+                {d:"Minggu", m:["Roti Gandum 1 Lembar Tanpa Selai", "Urab Sayuran + Tahu Rebus", "Kaldu Ayam Bening + Jamur Kuping"]}
+            ],
+            obese: [
+                {d:"Senin", m:["Kopi Hitam Tawar + 2 Putih Telur Rebus", "Shirataki Goreng Ayam Suwir + Sayur", "Salad Timun Tomat (Tanpa Dressing Minyak)"]}, 
+                {d:"Selasa", m:["Teh Hijau Panas + 1 Potong Pepaya", "Ikan Kukus Jahe Bawang Putih", "Sup Jamur Kuping Tahu Sutra Bening"]},
+                {d:"Rabu", m:["Chia Pudding Air Kelapa (Tanpa Gula)", "Pepes Jamur Tahu Kukus", "Tumis Bayam Bawang Putih Rebus (Air)"]}, 
+                {d:"Kamis", m:["Dadar Putih Telur + Tomat Panggang", "Sop Ikan Batam Kuah Bening Segar", "Brokoli Rebus + Sedikit Saus Tiram"]},
+                {d:"Jumat", m:["Jus Tomat Wortel Murni", "Ayam Pop Kukus (Tanpa Kulit)", "Edamame Rebus Tanpa Garam"]}, 
+                {d:"Sabtu", m:["Air Lemon Hangat + Apel Hijau", "Tahu Tempe Bacem Rebus (Bukan Goreng)", "Sup Oyong Soun Sedikit"]}, 
+                {d:"Minggu", m:["Puasa Intermittent (Jendela Makan 8 Jam)", "Protein Shake Whey Isolate Air Dingin", "Sayuran Kukus Lengkap (Wortel Buncis Kol)"]}
+            ]
+        };
+
+        const advice = {
+            underweight: { 
+                txt: "Metabolisme cepat. Wajib <strong class='text-indigo-700'>SURPLUS KALORI</strong>. Fokus pada makanan padat energi dan protein. Jangan skip jadwal makan utama.", 
+                ex: "<strong class='text-indigo-700'>Angkat Beban (Berat)</strong> 3x seminggu. Fokus repetisi 8-12 untuk hipertrofi." 
+            },
+            normal: { 
+                txt: "Kondisi Ideal. Pertahankan dengan pola makan <strong class='text-green-700'>Gizi Seimbang</strong>. Pastikan asupan serat dan protein cukup setiap hari.", 
+                ex: "Kombinasi <strong class='text-green-700'>Jogging/Renang</strong> & Latihan Kekuatan (Pushup/Plank) rutin." 
+            },
+            overweight: { 
+                txt: "Mulai <strong class='text-orange-700'>DEFISIT KALORI RINGAN</strong>. Kurangi porsi nasi putih dan makanan/minuman manis. Perbanyak sayuran hijau sebelum makan berat.", 
+                ex: "<strong class='text-orange-700'>Jalan Cepat</strong> 45 menit setiap pagi (Fasted Cardio) atau sore hari." 
+            },
+            obese: { 
+                txt: "Prioritas Kesehatan Utama. <strong class='text-red-700'>STRICT WHOLE FOOD DIET</strong>. Hindari gula cair, tepung terigu, dan makanan olahan pabrik sepenuhnya.", 
+                ex: "Aktivitas Low Impact: <strong class='text-red-700'>Berenang atau Sepeda Statis</strong> 30 menit/hari." 
+            }
+        };
+
+        function calculateBMI() {
+            const w = parseFloat(document.getElementById('weight').value);
+            const h = parseFloat(document.getElementById('height').value);
+            const a = parseInt(document.getElementById('age').value);
+            const g = document.querySelector('input[name="gender"]:checked').value;
+
+            if(!w || !h || !a) { alert("Data belum lengkap!"); return; }
+
+            const bmi = (w/((h/100)**2)).toFixed(1);
+            let k='', l='';
+            if(bmi<18.5){k='underweight';l='KURUS';} else if(bmi<25){k='normal';l='NORMAL';} 
+            else if(bmi<30){k='overweight';l='GEMUK';} else {k='obese';l='OBESITAS';}
+
+            userData = {w,h,a,g,bmi,k,l};
+            document.getElementById('bmiValue').innerText = bmi;
+            document.getElementById('bmiCategory').innerText = l;
+            document.getElementById('bmiCategory').className = `text-xl font-bold ${k==='underweight'?'text-blue-600':k==='normal'?'text-green-600':k==='overweight'?'text-yellow-600':'text-red-600'}`;
+            document.getElementById('resultArea').classList.remove('hidden');
+        }
+
+        function generateReport() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            document.getElementById('loadingOverlay').classList.add('flex');
+            
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                document.getElementById('loadingOverlay').classList.remove('flex');
+                
+                const today = new Date();
+                const d = today.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'});
+                const inf = advice[userData.k];
+                
+                document.getElementById('reportScore').innerText = userData.bmi;
+                document.getElementById('reportStatus').innerText = userData.l;
+                document.getElementById('reportProfile').innerText = `${userData.g=='male'?'Pria':'Wanita'}, ${userData.a} Th, ${userData.w}kg`;
+                document.getElementById('reportDate').innerText = d;
+                document.getElementById('aiAnalysis').innerHTML = inf.txt;
+                document.getElementById('aiExercise').innerHTML = inf.ex;
+
+                const bg = {underweight:'bg-blue-100 text-blue-800 border-blue-200', normal:'bg-green-100 text-green-800 border-green-200', overweight:'bg-yellow-100 text-yellow-800 border-yellow-200', obese:'bg-red-100 text-red-800 border-red-200'};
+                document.getElementById('reportStatus').className = `inline-block px-6 py-2 rounded-full text-sm font-extrabold uppercase tracking-widest border shadow-sm ${bg[userData.k]}`;
+
+                const mc = document.getElementById('menuContainer');
+                mc.innerHTML = '';
+                weeklyPlans[userData.k].forEach((m, i) => {
+                    const bgColor = i % 4 < 2 ? 'bg-white' : 'bg-gray-50/80';
+                    mc.innerHTML += `
+                    <div class="${bgColor} border border-gray-100 p-3 rounded-xl shadow-sm text-[11px] leading-snug font-medium relative overflow-hidden">
+                        <div class="font-bold text-primary mb-2 border-b border-gray-100 pb-1 text-xs flex justify-between">
+                            <span>${m.d}</span>
+                            <span class="text-gray-300 text-[10px]">Day ${i+1}</span>
+                        </div>
+                        <div class="space-y-2 text-gray-700">
+                            <div class="flex items-start gap-2 border-l-2 border-yellow-200 pl-2"><span class="font-bold text-gray-500 w-5 shrink-0">Pg</span><span class="break-words">${m.m[0]}</span></div>
+                            <div class="flex items-start gap-2 border-l-2 border-orange-200 pl-2"><span class="font-bold text-gray-500 w-5 shrink-0">Si</span><span class="break-words">${m.m[1]}</span></div>
+                            <div class="flex items-start gap-2 border-l-2 border-indigo-200 pl-2"><span class="font-bold text-gray-500 w-5 shrink-0">Ma</span><span class="break-words">${m.m[2]}</span></div>
+                        </div>
+                    </div>`;
+                });
+
+                const minG = 15; const maxG = 40;
+                let percent = ((userData.bmi - minG) / (maxG - minG)) * 100;
+                if (percent < 0) percent = 0; if (percent > 100) percent = 100;
+                document.getElementById('headerMarker').style.left = `${percent}%`;
+
+                document.getElementById('reportModal').classList.remove('hidden');
+            }, 1000);
+        }
+
+        function saveAsImage() {
+            const btn = document.getElementById('btnSaveImg');
+            const oriTxt = btn.innerHTML;
+            btn.innerHTML = "Memproses...";
+            btn.disabled = true;
+            document.getElementById('reportModal').scrollTop = 0;
+            html2canvas(document.getElementById('printableArea'), {scale: 3, useCORS: true, backgroundColor: "#ffffff", logging: false}).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `BMI-${userData.l}-${Date.now()}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.98);
+                link.click();
+                btn.innerHTML = oriTxt; btn.disabled = false;
+            }).catch(err => { alert("Gagal: "+err); btn.innerHTML = oriTxt; btn.disabled = false; });
+        }
+
+        function closeModal() { document.getElementById('reportModal').classList.add('hidden'); }
+        function resetForm() { document.getElementById('weight').value=''; document.getElementById('height').value=''; document.getElementById('resultArea').classList.add('hidden'); }
+    </script>
+</body>
+</html>
