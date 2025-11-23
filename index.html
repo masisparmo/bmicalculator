@@ -45,7 +45,10 @@
         }
 
         @media print {
-            html, body { background-color: white !important; color: black !important; }
+            html, body, #reportModal, #printableArea, #printableArea * {
+                background-color: white !important;
+                color: black !important;
+            }
             body > *:not(#reportModal) { display: none !important; }
             #reportModal {
                 position: absolute !important;
@@ -53,7 +56,7 @@
                 left: 0 !important;
                 width: 100% !important;
                 height: auto !important;
-                background: none !important;
+                background: white !important;
                 overflow: visible !important;
                 z-index: 9999 !important;
             }
@@ -118,14 +121,6 @@
                     <div class="relative w-full h-4 mb-1">
                         <div id="quickResultMarker" class="absolute bottom-0 transition-all duration-700 z-30" style="left: 50%;">
                             <div class="triangle-marker-dark transform -translate-x-1/2 drop-shadow-lg dark:border-t-gray-200" style="border-top-color: #374151;"></div>
-                            <!-- Fixed color for light mode, added inline style as fallback or use CSS class modification if needed.
-                                 Actually .triangle-marker-dark has fixed border-top color.
-                                 Let's keep it simple. The original CSS class .triangle-marker-dark uses #1f2937 (dark gray).
-                                 In dark mode, this might be hard to see against dark bg?
-                                 The original marker is visible in the modal (white bg).
-                                 Here the bg is gray-50 or gray-700/30.
-                                 We might need to adjust the marker color for dark mode.
-                            -->
                         </div>
                     </div>
 
@@ -259,7 +254,7 @@
             <div class="bg-white dark:bg-gray-800 p-2 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 flex gap-3 items-center">
                 <button onclick="window.print()" id="btnPrint" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg flex justify-center items-center gap-2 active:scale-95 transition text-sm">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                    Cetak Laporan
+                    PRINT
                 </button>
                 <button onclick="closeModal()" class="px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300 font-bold rounded-xl text-sm transition">
                     Tutup
