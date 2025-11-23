@@ -111,6 +111,42 @@
                     <h2 id="bmiValue" class="text-5xl font-black my-2">0.0</h2>
                     <p id="bmiCategory" class="text-xl font-bold">Normal</p>
                 </div>
+
+                <!-- GRAFIK BMI QUICK RESULT -->
+                <div class="relative w-full px-1 mt-6 mb-6">
+                    <!-- Marker Segitiga -->
+                    <div class="relative w-full h-4 mb-1">
+                        <div id="quickResultMarker" class="absolute bottom-0 transition-all duration-700 z-30" style="left: 50%;">
+                            <div class="triangle-marker-dark transform -translate-x-1/2 drop-shadow-lg dark:border-t-gray-200" style="border-top-color: #374151;"></div>
+                            <!-- Fixed color for light mode, added inline style as fallback or use CSS class modification if needed.
+                                 Actually .triangle-marker-dark has fixed border-top color.
+                                 Let's keep it simple. The original CSS class .triangle-marker-dark uses #1f2937 (dark gray).
+                                 In dark mode, this might be hard to see against dark bg?
+                                 The original marker is visible in the modal (white bg).
+                                 Here the bg is gray-50 or gray-700/30.
+                                 We might need to adjust the marker color for dark mode.
+                            -->
+                        </div>
+                    </div>
+
+                    <!-- Bar Gradasi -->
+                    <div class="relative h-5 w-full bg-gray-100 dark:bg-gray-600 rounded-full overflow-hidden shadow-inner border border-gray-200/50 dark:border-gray-500">
+                        <div class="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-r from-blue-400 via-green-400 via-yellow-400 to-red-500"></div>
+                        <div class="absolute top-0 bottom-0 w-0.5 bg-white/70 left-[18.5%]"></div>
+                        <div class="absolute top-0 bottom-0 w-0.5 bg-white/70 left-[40%]"></div>
+                        <div class="absolute top-0 bottom-0 w-0.5 bg-white/70 left-[60%]"></div>
+                    </div>
+
+                    <!-- Label Angka -->
+                    <div class="relative w-full h-4 mt-1.5 text-[9px] font-bold text-gray-500 dark:text-gray-400 font-mono">
+                        <span class="absolute left-0">15</span>
+                        <span class="absolute -translate-x-1/2" style="left: 14%;">18.5</span>
+                        <span class="absolute -translate-x-1/2" style="left: 40%;">25</span>
+                        <span class="absolute -translate-x-1/2" style="left: 60%;">30</span>
+                        <span class="absolute right-0">40</span>
+                    </div>
+                </div>
+
                 <button onclick="generateReport()" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-md flex justify-center items-center gap-2 active:scale-95 transition">
                     <span>📄 Buka Laporan Lengkap</span>
                 </button>
@@ -323,6 +359,13 @@
             document.getElementById('bmiValue').innerText = bmi;
             document.getElementById('bmiCategory').innerText = l;
             document.getElementById('bmiCategory').className = `text-xl font-bold ${k==='underweight'?'text-blue-600':k==='normal'?'text-green-600':k==='overweight'?'text-yellow-600':'text-red-600'}`;
+
+            // Update Quick Result Marker
+            const minG = 15; const maxG = 40;
+            let percent = ((bmi - minG) / (maxG - minG)) * 100;
+            if (percent < 0) percent = 0; if (percent > 100) percent = 100;
+            document.getElementById('quickResultMarker').style.left = `${percent}%`;
+
             document.getElementById('resultArea').classList.remove('hidden');
         }
 
