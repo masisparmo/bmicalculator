@@ -199,6 +199,8 @@
                     </div>
                 </div>
 
+                <div id="additionalMetrics" class="mb-6 empty:hidden"></div>
+
                 <button onclick="generateReport()" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-md flex justify-center items-center gap-2 active:scale-95 transition">
                     <span>📄 Buka Laporan Lengkap</span>
                 </button>
@@ -426,53 +428,99 @@
 
             userData = {w, h, a, g, bmi, k, l, deurenbergBF, rfm, waist};
 
-            // Display Logic
+            // Display Logic: ALWAYS BMI Main
             const resultValue = document.getElementById('bmiValue');
             const resultCategory = document.getElementById('bmiCategory');
 
-            // Reset additional info if exists
-            const existingExtra = document.getElementById('extraInfo');
-            if(existingExtra) existingExtra.remove();
+            // Tooltip for BMI (Main)
+            // Using a simple title attribute for basic functionality, or custom structure if strictly required by 'tooltips' request.
+            // The user asked for "tooltips pada istilah-istilah". I will use the custom structure below for consistent UI.
 
-            let extraHtml = '';
+            // 1. Set Main Value (Always BMI)
+            // Clear previous content to allow re-injection of tooltip structure
+            resultValue.innerHTML = '';
+            resultCategory.innerHTML = '';
+
+            // BMI Value with hidden tooltip logic? No, tooltip is on the TERM "BMI" usually.
+            // But here "bmiValue" is just the number. The term is likely in the header...
+            // Wait, the header of the main result isn't explicitly labelled "BMI" in the HTML, it's just the number.
+            // Let's look at the HTML structure:
+            // <div class="text-center mb-2"> <h2 id="bmiValue">...</h2> <p id="bmiCategory">...</p> </div>
+            // I should wrap the number or add a label "BMI" if I want a tooltip on "BMI".
+            // However, looking at the previous layout, it was just the number.
+            // I will just set the text for now, and handle tooltips in the "Additional Metrics" section where the labels are explicit.
+            // For the main BMI, I'll add a small label above it if needed, OR just leave it as the number.
+            // The prompt says "tooltips pada istilah-istilah: BMI, RFM dan DEURENBERG".
+            // Since "BMI" term isn't explicitly shown in the main result area (it's implied), I will add a small label "BMI SCORE" above the number to attach the tooltip.
+
+            resultValue.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 cursor-help group relative">
+                        BMI SCORE
+                        <div class="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 px-3 py-2 bg-gray-800 text-white text-[10px] rounded-lg w-48 text-center z-50 mb-2 shadow-xl leading-snug">
+                            Indeks Massa Tubuh: Mengukur berat badan ideal berdasarkan tinggi badan.
+                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-gray-800"></div>
+                        </div>
+                    </span>
+                    ${bmi}
+                </div>
+            `;
+
+            resultCategory.innerText = l;
+            resultCategory.className = `text-xl font-bold ${k==='underweight'?'text-blue-600':k==='normal'?'text-green-600':k==='overweight'?'text-yellow-600':'text-red-600'}`;
+
+            // 2. Prepare Additional Metrics (RFM & Deurenberg)
+            const metricsContainer = document.getElementById('additionalMetrics');
+            let metricsHtml = '';
+
+            // Helper for Tooltip
+            const createTooltip = (text) => `
+                <div class="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 px-3 py-2 bg-gray-800 text-white text-[10px] rounded-lg w-48 text-center z-50 mb-2 shadow-xl leading-snug">
+                    ${text}
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-gray-800"></div>
+                </div>
+            `;
+
+            const deurenbergBox = `
+                <div class="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm flex flex-col items-center justify-center relative group">
+                    <p class="text-[10px] text-gray-400 uppercase font-bold cursor-help mb-1 border-b border-dotted border-gray-300">
+                        Est. Deurenberg
+                        ${createTooltip("Rumus estimasi lemak tubuh berdasarkan BMI, usia, dan jenis kelamin.")}
+                    </p>
+                    <p class="text-xl font-black text-gray-700 dark:text-gray-200">${deurenbergBF}%</p>
+                </div>
+            `;
 
             if (rfm) {
-                // Skenario A: RFM Ada -> Tampilkan RFM sebagai Utama, BMI sebagai tambahan
-                resultValue.innerText = `${rfm}%`;
-                resultCategory.innerText = "Lemak Tubuh (RFM)";
-                resultCategory.className = "text-xl font-bold text-indigo-600";
+                // Two columns: RFM + Deurenberg
+                const rfmBox = `
+                    <div class="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm flex flex-col items-center justify-center relative group">
+                        <p class="text-[10px] text-gray-400 uppercase font-bold cursor-help mb-1 border-b border-dotted border-gray-300">
+                            Lemak Tubuh (RFM)
+                            ${createTooltip("Relative Fat Mass: Estimasi persentase lemak tubuh menggunakan lingkar pinggang.")}
+                        </p>
+                        <p class="text-xl font-black text-indigo-600">${rfm}%</p>
+                    </div>
+                `;
 
-                extraHtml = `
-                    <div id="extraInfo" class="mt-4 grid grid-cols-2 gap-2 text-center">
-                        <div class="bg-white p-2 rounded-lg border border-gray-100 shadow-sm">
-                            <p class="text-[10px] text-gray-400 uppercase font-bold">BMI Score</p>
-                            <p class="text-lg font-black text-gray-700">${bmi}</p>
-                            <p class="text-[9px] font-bold text-${k==='underweight'?'blue':k==='normal'?'green':k==='overweight'?'yellow':'red'}-500 uppercase">${l}</p>
-                        </div>
-                        <div class="bg-white p-2 rounded-lg border border-gray-100 shadow-sm">
-                            <p class="text-[10px] text-gray-400 uppercase font-bold">Est. Deurenberg</p>
-                            <p class="text-lg font-black text-gray-700">${deurenbergBF}%</p>
-                        </div>
+                metricsHtml = `
+                    <div class="grid grid-cols-2 gap-3">
+                        ${rfmBox}
+                        ${deurenbergBox}
                     </div>
                 `;
             } else {
-                // Skenario B: Tidak ada Lingkar Pinggang -> Tampilkan BMI Utama
-                resultValue.innerText = bmi;
-                resultCategory.innerText = l;
-                resultCategory.className = `text-xl font-bold ${k==='underweight'?'text-blue-600':k==='normal'?'text-green-600':k==='overweight'?'text-yellow-600':'text-red-600'}`;
-
-                extraHtml = `
-                    <div id="extraInfo" class="mt-4 text-center">
-                        <div class="inline-block bg-white px-4 py-2 rounded-lg border border-gray-100 shadow-sm">
-                            <p class="text-[10px] text-gray-400 uppercase font-bold">Est. Lemak Tubuh (Deurenberg)</p>
-                            <p class="text-xl font-black text-gray-700">${deurenbergBF}%</p>
+                // Single column: Deurenberg only
+                metricsHtml = `
+                    <div class="flex justify-center">
+                        <div class="w-1/2">
+                           ${deurenbergBox}
                         </div>
                     </div>
                 `;
             }
 
-            // Insert Extra Info
-            document.querySelector('#resultArea > div.text-center').insertAdjacentHTML('beforeend', extraHtml);
+            metricsContainer.innerHTML = metricsHtml;
 
             // Update Quick Result Marker (Use BMI for consistency on the specific BMI bar, or switch to Fat% bar?
             // Stick to BMI bar as layout is designed for BMI 15-40 range.
