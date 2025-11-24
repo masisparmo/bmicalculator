@@ -106,6 +106,16 @@
                     <div><label class="text-xs font-bold text-gray-500 uppercase">Tinggi</label><input type="number" id="height" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold" placeholder="cm"></div>
                     <div><label class="text-xs font-bold text-gray-500 uppercase text-[10px] leading-tight">L. Pinggang</label><input type="number" id="waist" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold placeholder-gray-400/50" placeholder="cm (Ops)"></div>
                 </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase">Aktivitas Harian</label>
+                    <select id="activity" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-medium text-sm mt-1">
+                        <option value="1.2">Sedentary (Jarang bergerak, kerja duduk)</option>
+                        <option value="1.375">Light Active (Olahraga ringan 1-3 hari/minggu)</option>
+                        <option value="1.55">Moderate Active (Olahraga sedang 3-5 hari/minggu)</option>
+                        <option value="1.725">Very Active (Olahraga berat 6-7 hari/minggu)</option>
+                        <option value="1.9">Extra Active (Fisik sangat berat/Atlet)</option>
+                    </select>
+                </div>
                 <button onclick="calculateBMI()" class="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-lg active:scale-95 transition">Hitung & Analisa</button>
 
                 <!-- Accordion Informasi BMI -->
@@ -157,6 +167,49 @@
                                 </div>
                             </div>
 
+                            <h3 class="font-bold text-gray-700 dark:text-gray-200 mt-6 border-b border-gray-100 dark:border-gray-700 pb-1">Konsep Metabolisme & Energi</h3>
+
+                            <div class="space-y-4 mt-3 mb-4">
+                                <!-- BMR -->
+                                <div>
+                                    <p class="font-bold text-pink-600">1. BMR (Basal Metabolic Rate)</p>
+                                    <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Biaya Operasional Tetap.</strong> Energi minimal untuk bertahan hidup saat diam total (jantung, otak, napas).</p>
+                                    <div class="bg-blue-50 dark:bg-gray-700/50 p-3 rounded-lg border-l-4 border-blue-400 text-[10px] space-y-1">
+                                        <p><strong>🚗 Analogi Mobil:</strong> Mesin dipanaskan di parkiran (Idling). Bensin terbakar tapi mobil tidak bergerak.</p>
+                                        <p class="text-red-500 dark:text-red-400"><strong>⚠️ Bahaya:</strong> Jangan makan di bawah BMR! Tubuh bisa masuk "Mode Kelaparan" dan merusak metabolisme.</p>
+                                    </div>
+                                </div>
+
+                                <!-- TDEE -->
+                                <div>
+                                    <p class="font-bold text-orange-600">2. TDEE (Total Daily Energy Expenditure)</p>
+                                    <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Total Pengeluaran Harian.</strong> BMR + Aktivitas Fisik + Energi Cerna Makanan.</p>
+                                    <div class="bg-orange-50 dark:bg-gray-700/50 p-3 rounded-lg border-l-4 border-orange-400 text-[10px]">
+                                        <p><strong>🚕 Analogi Mobil:</strong> Mobil keliling kota. AC nyala, gas, rem. Bensin lebih boros dari sekadar diam.</p>
+                                    </div>
+                                </div>
+
+                                <!-- STRATEGY -->
+                                <div>
+                                    <p class="font-bold text-purple-600">3. Matematika Diet (TDEE vs Intake)</p>
+                                    <ul class="list-disc pl-4 mt-1 space-y-1 text-[10px]">
+                                        <li><strong>Maintenance:</strong> Makan = TDEE (Berat Stabil)</li>
+                                        <li><strong>Surplus (Bulking):</strong> Makan > TDEE (Naik Berat)</li>
+                                        <li><strong>Defisit (Cutting):</strong> Makan < TDEE (Turun Berat). Target ideal: TDEE - 500 kkal.</li>
+                                    </ul>
+                                </div>
+
+                                <!-- FORMULA -->
+                                <div>
+                                    <p class="font-bold text-gray-500 text-[10px] uppercase">Rumus Perhitungan: Mifflin-St Jeor</p>
+                                    <div class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded mt-1 text-[9px] space-y-1">
+                                        <p>Pria: (10×BB) + (6.25×TB) - (5×Usia) + 5</p>
+                                        <p>Wanita: (10×BB) + (6.25×TB) - (5×Usia) - 161</p>
+                                        <p class="text-gray-400 mt-1">*TB dalam cm, BB dalam kg</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <p class="pt-2 border-t border-dashed border-gray-200 dark:border-gray-700 mt-2">
                                 Sumber Resmi: <a href="https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight" target="_blank" class="text-primary hover:underline font-bold">World Health Organization (WHO)</a>
                             </p>
@@ -200,6 +253,7 @@
                 </div>
 
                 <div id="additionalMetrics" class="mb-6 empty:hidden"></div>
+                <div id="calorieMetrics" class="mb-6 empty:hidden"></div>
 
                 <button onclick="generateReport()" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-md flex justify-center items-center gap-2 active:scale-95 transition">
                     <span>📄 Buka Laporan Lengkap</span>
@@ -426,7 +480,14 @@
                 rfm = (64 - (20 * (h / waist)) + (12 * rfmSex)).toFixed(1);
             }
 
-            userData = {w, h, a, g, bmi, k, l, deurenbergBF, rfm, waist};
+            // 4. BMR & TDEE Calculation (Mifflin-St Jeor)
+            const activity = parseFloat(document.getElementById('activity').value);
+            let bmr = (10 * w) + (6.25 * h) - (5 * a);
+            if (g === 'male') bmr += 5; else bmr -= 161;
+            bmr = Math.round(bmr);
+            const tdee = Math.round(bmr * activity);
+
+            userData = {w, h, a, g, bmi, k, l, deurenbergBF, rfm, waist, bmr, tdee, activity};
 
             // Display Logic: ALWAYS BMI Main
             const resultValue = document.getElementById('bmiValue');
@@ -521,6 +582,68 @@
             }
 
             metricsContainer.innerHTML = metricsHtml;
+
+            // 5. Render Calorie Metrics
+            const calorieContainer = document.getElementById('calorieMetrics');
+            const cutting = userData.tdee - 500;
+            const bulking = userData.tdee + 500;
+
+            calorieContainer.innerHTML = `
+                <div class="space-y-3">
+                    <!-- BMR & TDEE Grid -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-pink-50 dark:bg-pink-900/20 p-3 rounded-xl border border-pink-100 dark:border-pink-800 text-center relative group">
+                            <p class="text-[10px] font-bold text-pink-600 uppercase cursor-help mb-1 border-b border-dotted border-pink-300 inline-block">
+                                BMR
+                                ${createTooltip("Basal Metabolic Rate: Energi minimal untuk hidup saat diam.")}
+                            </p>
+                            <p class="text-lg font-black text-gray-800 dark:text-gray-100">${userData.bmr.toLocaleString('id-ID')}</p>
+                            <p class="text-[9px] text-gray-500">kkal/hari</p>
+                        </div>
+                        <div class="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-xl border border-orange-100 dark:border-orange-800 text-center relative group">
+                             <p class="text-[10px] font-bold text-orange-600 uppercase cursor-help mb-1 border-b border-dotted border-orange-300 inline-block">
+                                TDEE
+                                ${createTooltip("Total Daily Energy Expenditure: Total energi harian termasuk aktivitas.")}
+                            </p>
+                            <p class="text-lg font-black text-gray-800 dark:text-gray-100">${userData.tdee.toLocaleString('id-ID')}</p>
+                            <p class="text-[9px] text-gray-500">kkal/hari</p>
+                        </div>
+                    </div>
+
+                    <!-- Targets -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+                        <div class="p-3 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-700/50">
+                            <span class="text-xs font-bold text-gray-500 uppercase">Target Kalori Harian</span>
+                        </div>
+                        <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                            <!-- Cutting -->
+                            <div class="p-3 flex justify-between items-center bg-yellow-50/50 dark:bg-yellow-900/10">
+                                <div>
+                                    <p class="text-[11px] font-bold text-yellow-700 dark:text-yellow-400">Cutting (Turun Berat)</p>
+                                    <p class="text-[9px] text-gray-500">Defisit 500 kkal</p>
+                                </div>
+                                <p class="font-black text-yellow-600 dark:text-yellow-400 text-sm">${cutting.toLocaleString('id-ID')} kkal</p>
+                            </div>
+                            <!-- Maintenance -->
+                            <div class="p-3 flex justify-between items-center">
+                                <div>
+                                    <p class="text-[11px] font-bold text-green-700 dark:text-green-400">Maintenance (Stabil)</p>
+                                    <p class="text-[9px] text-gray-500">Sesuai TDEE</p>
+                                </div>
+                                <p class="font-black text-green-600 dark:text-green-400 text-sm">${userData.tdee.toLocaleString('id-ID')} kkal</p>
+                            </div>
+                            <!-- Bulking -->
+                            <div class="p-3 flex justify-between items-center">
+                                <div>
+                                    <p class="text-[11px] font-bold text-blue-700 dark:text-blue-400">Bulking (Naik Berat)</p>
+                                    <p class="text-[9px] text-gray-500">Surplus 500 kkal</p>
+                                </div>
+                                <p class="font-black text-blue-600 dark:text-blue-400 text-sm">${bulking.toLocaleString('id-ID')} kkal</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
 
             // Update Quick Result Marker (Use BMI for consistency on the specific BMI bar, or switch to Fat% bar?
             // Stick to BMI bar as layout is designed for BMI 15-40 range.
