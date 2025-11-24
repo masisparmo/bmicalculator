@@ -433,7 +433,12 @@
 
                     <!-- Menu Makan -->
                     <div>
-                        <h3 data-i18n="report_menu_title" class="font-extrabold text-green-700 text-sm uppercase mb-4 border-b-2 border-green-100 pb-2 tracking-wide flex items-center gap-2">🥗 Rencana Menu 7 Hari</h3>
+                        <div class="flex items-center justify-between mb-4 border-b-2 border-green-100 pb-2">
+                            <h3 data-i18n="report_menu_title" class="font-extrabold text-green-700 text-sm uppercase tracking-wide flex items-center gap-2">🥗 Rencana Menu 7 Hari</h3>
+                            <button onclick="regenerateMenu()" class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full hover:bg-green-200 transition flex items-center gap-1 shadow-sm active:scale-95">
+                                <span>🔄</span> <span data-i18n="btn_regen">Re-generate AI</span>
+                            </button>
+                        </div>
                         <div class="grid grid-cols-2 gap-3" id="menuContainer"></div>
                     </div>
 
@@ -674,7 +679,8 @@
                 tooltip_bmr: "Basal Metabolic Rate: Energi minimal untuk hidup saat diam.",
                 tooltip_tdee: "Total Daily Energy Expenditure: Total energi harian termasuk aktivitas.",
                 // New
-                btn_pdf: "DOWNLOAD PDF"
+                btn_pdf: "DOWNLOAD PDF",
+                btn_regen: "Re-generate AI"
             },
             en: {
                 subtitle: "Calculator: BMI, RFM, Deurenberg & Calorie Target",
@@ -789,7 +795,8 @@
                 tooltip_bmr: "Basal Metabolic Rate: Minimum energy to survive when resting.",
                 tooltip_tdee: "Total Daily Energy Expenditure: Total daily energy including activity.",
                 // New
-                btn_pdf: "DOWNLOAD PDF"
+                btn_pdf: "DOWNLOAD PDF",
+                btn_regen: "Re-generate AI"
             }
         };
 
@@ -889,45 +896,136 @@
             }
         };
 
-        // UPDATED WEEKLY PLANS WITH CALORIES
-        const weeklyPlans = {
-            underweight: [
-                {d:"Senin", m:["Roti Gandum Selai Kacang Extra + Susu Full Cream (~550 kkal)", "Nasi Padang Ayam Bakar Bumbu Rendang + Sayur Nangka (~850 kkal)", "Sate Ayam 10 Tusuk + Lontong Bumbu Kacang (~700 kkal)"]},
-                {d:"Selasa", m:["Bubur Ayam Komplit Telur Puyuh (~450 kkal)", "Nasi Goreng Spesial Sosis Bakso + Telur Dadar (~800 kkal)", "Martabak Telur Spesial Daging Sapi + Sup (~750 kkal)"]},
-                {d:"Rabu", m:["Pancake Pisang Madu + Yoghurt (~500 kkal)", "Mie Ayam Jamur Bakso Pangsit (~650 kkal)", "Ikan Gurame Goreng Tepung Asam Manis (~700 kkal)"]},
-                {d:"Kamis", m:["Omelet Keju Smoked Beef + Roti (~550 kkal)", "Nasi Uduk Ayam Goreng Lengkap (~850 kkal)", "Pasta Carbonara Creamy + Garlic Bread (~800 kkal)"]},
-                {d:"Jumat", m:["Sandwich Tuna Mayo Double (~500 kkal)", "Soto Betawi Daging Santan + Nasi (~750 kkal)", "Burger Sapi Homemade Cheese + Kentang (~900 kkal)"]},
-                {d:"Sabtu", m:["Smoothie Alpukat Coklat Tinggi Kalori (~400 kkal)", "Gulai Ikan Kakap + Nasi Putih (~700 kkal)", "Pizza Meat Lovers (3 Slice) + Salad (~800 kkal)"]},
-                {d:"Minggu", m:["Nasi Kuning Komplit Ayam Suwir (~700 kkal)", "Steak Daging Sapi Sirloin + Mashed Potato (~850 kkal)", "Sup Iga Sapi Kuah Kental + Nasi (~800 kkal)"]}
-            ],
-            normal: [
-                {d:"Senin", m:["Oatmeal Buah Beri & Madu (~350 kkal)", "Gado-gado Telur Rebus + Lontong (~450 kkal)", "Pepes Ikan Kembung + Nasi Merah (~400 kkal)"]},
-                {d:"Selasa", m:["Roti Gandum Telur Mata Sapi & Alpukat (~400 kkal)", "Soto Ayam Kampung Bening (Tanpa Santan) (~350 kkal)", "Tumis Brokoli Udang Bawang Putih (~300 kkal)"]},
-                {d:"Rabu", m:["Smoothie Bayam Nanas Segar (~250 kkal)", "Pepes Tahu Jamur + Sayur Asem (~350 kkal)", "Ayam Bakar Dada (Tanpa Kulit) + Lalap (~450 kkal)"]},
-                {d:"Kamis", m:["Telur Orak-arik Sayuran (~300 kkal)", "Pecel Sayur Bumbu Sedang + Tempe (~400 kkal)", "Sup Jamur Tahu Putih Bening (~250 kkal)"]},
-                {d:"Jumat", m:["Yoghurt Greek Plain + Granola (~300 kkal)", "Ikan Kembung Bakar Bumbu Kuning (~400 kkal)", "Capcay Kuah Ayam Sayur Lengkap (~350 kkal)"]},
-                {d:"Sabtu", m:["Bubur Manado Kaya Sayur (~350 kkal)", "Sushi Roll Salmon Alpukat (~500 kkal)", "Salad Ayam Panggang Dressing Lemon (~400 kkal)"]},
-                {d:"Minggu", m:["Pancake Oatmeal Pisang (~400 kkal)", "Steak Tempe Saus Lada Hitam (~350 kkal)", "Sapo Tahu Seafood Sayuran (~450 kkal)"]}
-            ],
-            overweight: [
-                {d:"Senin", m:["Telur Rebus 2 Butir + Teh Tawar (~150 kkal)", "Nasi Merah 5 Sdm + Ikan Bakar (~400 kkal)", "Sup Dada Ayam Jahe (Tanpa Nasi) (~300 kkal)"]},
-                {d:"Selasa", m:["Apel Merah + 1 sdm Selai Kacang (~200 kkal)", "Pepes Tahu Kemangi + Sayur Bening Bayam (~300 kkal)", "Tumis Buncis Tempe Rebus (Sedikit Minyak) (~350 kkal)"]},
-                {d:"Rabu", m:["Smoothie Hijau (Timun Seledri) (~150 kkal)", "Soto Ayam Bening (Pisah Kulit) (~350 kkal)", "Ikan Tim Kecap Jahe + Sawi Putih (~300 kkal)"]},
-                {d:"Kamis", m:["Ubi Rebus Ukuran Sedang (~150 kkal)", "Gado-gado (Bumbu Dipisah) (~350 kkal)", "Salad Telur Rebus Dressing Yoghurt (~250 kkal)"]},
-                {d:"Jumat", m:["Yoghurt Plain Rendah Lemak + Pir (~150 kkal)", "Ayam Suwir Pedas (Dada) + Tumis Tauge (~350 kkal)", "Sup Tahu Putih Sawi Hijau (~200 kkal)"]},
-                {d:"Sabtu", m:["Omelet Sayur Putih Telur (~200 kkal)", "Ikan Pepes Bumbu Merah (Kukus) (~300 kkal)", "Buah Potong Segar (Pepaya/Melon) (~100 kkal)"]},
-                {d:"Minggu", m:["Roti Gandum 1 Lembar Tanpa Selai (~100 kkal)", "Urab Sayuran + Tahu Rebus (~250 kkal)", "Kaldu Ayam Bening + Jamur Kuping (~200 kkal)"]}
-            ],
-            obese: [
-                {d:"Senin", m:["Kopi Hitam Tawar + 2 Putih Telur Rebus (~100 kkal)", "Shirataki Goreng Ayam Suwir + Sayur (~300 kkal)", "Salad Timun Tomat (Tanpa Dressing Minyak) (~150 kkal)"]},
-                {d:"Selasa", m:["Teh Hijau Panas + 1 Potong Pepaya (~80 kkal)", "Ikan Kukus Jahe Bawang Putih (~250 kkal)", "Sup Jamur Kuping Tahu Sutra Bening (~200 kkal)"]},
-                {d:"Rabu", m:["Chia Pudding Air Kelapa (Tanpa Gula) (~150 kkal)", "Pepes Jamur Tahu Kukus (~200 kkal)", "Tumis Bayam Bawang Putih Rebus (Air) (~100 kkal)"]},
-                {d:"Kamis", m:["Dadar Putih Telur + Tomat Panggang (~150 kkal)", "Sop Ikan Batam Kuah Bening Segar (~250 kkal)", "Brokoli Rebus + Sedikit Saus Tiram (~100 kkal)"]},
-                {d:"Jumat", m:["Jus Tomat Wortel Murni (~80 kkal)", "Ayam Pop Kukus (Tanpa Kulit) (~250 kkal)", "Edamame Rebus Tanpa Garam (~100 kkal)"]},
-                {d:"Sabtu", m:["Air Lemon Hangat + Apel Hijau (~60 kkal)", "Tahu Tempe Bacem Rebus (Bukan Goreng) (~200 kkal)", "Sup Oyong Soun Sedikit (~150 kkal)"]},
-                {d:"Minggu", m:["Puasa Intermittent (Jendela Makan 8 Jam) (0 kkal)", "Protein Shake Whey Isolate Air Dingin (~120 kkal)", "Sayuran Kukus Lengkap (Wortel Buncis Kol) (~150 kkal)"]}
-            ]
+        // MEAL DATABASE FOR RE-GENERATION
+        const mealDatabase = {
+            underweight: {
+                breakfast: [
+                    "Roti Gandum Selai Kacang Extra + Susu Full Cream (~550 kkal)", "Bubur Ayam Komplit Telur Puyuh (~450 kkal)", "Pancake Pisang Madu + Yoghurt (~500 kkal)",
+                    "Omelet Keju Smoked Beef + Roti (~550 kkal)", "Sandwich Tuna Mayo Double (~500 kkal)", "Smoothie Alpukat Coklat Tinggi Kalori (~400 kkal)", "Nasi Kuning Komplit Ayam Suwir (~700 kkal)",
+                    "Nasi Goreng Sosis + Telur Dadar (~600 kkal)", "Mie Goreng Spesial + Ayam (~550 kkal)"
+                ],
+                lunch: [
+                    "Nasi Padang Ayam Bakar Bumbu Rendang + Sayur Nangka (~850 kkal)", "Nasi Goreng Spesial Sosis Bakso + Telur Dadar (~800 kkal)", "Mie Ayam Jamur Bakso Pangsit (~650 kkal)",
+                    "Nasi Uduk Ayam Goreng Lengkap (~850 kkal)", "Soto Betawi Daging Santan + Nasi (~750 kkal)", "Gulai Ikan Kakap + Nasi Putih (~700 kkal)", "Steak Daging Sapi Sirloin + Mashed Potato (~850 kkal)",
+                    "Sate Kambing + Lontong (~800 kkal)", "Nasi Campur Bali Komplit (~750 kkal)"
+                ],
+                dinner: [
+                    "Sate Ayam 10 Tusuk + Lontong Bumbu Kacang (~700 kkal)", "Martabak Telur Spesial Daging Sapi + Sup (~750 kkal)", "Ikan Gurame Goreng Tepung Asam Manis (~700 kkal)",
+                    "Pasta Carbonara Creamy + Garlic Bread (~800 kkal)", "Burger Sapi Homemade Cheese + Kentang (~900 kkal)", "Pizza Meat Lovers (3 Slice) + Salad (~800 kkal)", "Sup Iga Sapi Kuah Kental + Nasi (~800 kkal)",
+                    "Ayam Geprek Mozzarella + Nasi (~750 kkal)", "Beef Teriyaki + Nasi (~700 kkal)"
+                ]
+            },
+            normal: {
+                breakfast: [
+                    "Oatmeal Buah Beri & Madu (~350 kkal)", "Roti Gandum Telur Mata Sapi & Alpukat (~400 kkal)", "Smoothie Bayam Nanas Segar (~250 kkal)", "Telur Orak-arik Sayuran (~300 kkal)",
+                    "Yoghurt Greek Plain + Granola (~300 kkal)", "Bubur Manado Kaya Sayur (~350 kkal)", "Pancake Oatmeal Pisang (~400 kkal)", "Roti Bakar Alpukat (~300 kkal)", "Bubur Kacang Hijau (Sedikit Santan) (~300 kkal)"
+                ],
+                lunch: [
+                    "Gado-gado Telur Rebus + Lontong (~450 kkal)", "Soto Ayam Kampung Bening (Tanpa Santan) (~350 kkal)", "Pepes Tahu Jamur + Sayur Asem (~350 kkal)", "Pecel Sayur Bumbu Sedang + Tempe (~400 kkal)",
+                    "Ikan Kembung Bakar Bumbu Kuning (~400 kkal)", "Sushi Roll Salmon Alpukat (~500 kkal)", "Steak Tempe Saus Lada Hitam (~350 kkal)", "Nasi Merah + Ayam Bakar (~450 kkal)", "Sup Ikan Patin Kuah Bening (~350 kkal)"
+                ],
+                dinner: [
+                    "Pepes Ikan Kembung + Nasi Merah (~400 kkal)", "Tumis Brokoli Udang Bawang Putih (~300 kkal)", "Ayam Bakar Dada (Tanpa Kulit) + Lalap (~450 kkal)", "Sup Jamur Tahu Putih Bening (~250 kkal)",
+                    "Capcay Kuah Ayam Sayur Lengkap (~350 kkal)", "Salad Ayam Panggang Dressing Lemon (~400 kkal)", "Sapo Tahu Seafood Sayuran (~450 kkal)", "Tumis Kangkung Belacan + Tempe (~300 kkal)", "Bistik Ayam Saus Mentega (~400 kkal)"
+                ]
+            },
+            overweight: {
+                breakfast: [
+                    "Telur Rebus 2 Butir + Teh Tawar (~150 kkal)", "Apel Merah + 1 sdm Selai Kacang (~200 kkal)", "Smoothie Hijau (Timun Seledri) (~150 kkal)", "Ubi Rebus Ukuran Sedang (~150 kkal)",
+                    "Yoghurt Plain Rendah Lemak + Pir (~150 kkal)", "Omelet Sayur Putih Telur (~200 kkal)", "Roti Gandum 1 Lembar Tanpa Selai (~100 kkal)", "Jus Alpukat Tanpa Gula (~180 kkal)", "Pisang Rebus (~120 kkal)"
+                ],
+                lunch: [
+                    "Nasi Merah 5 Sdm + Ikan Bakar (~400 kkal)", "Pepes Tahu Kemangi + Sayur Bening Bayam (~300 kkal)", "Soto Ayam Bening (Pisah Kulit) (~350 kkal)", "Gado-gado (Bumbu Dipisah) (~350 kkal)",
+                    "Ayam Suwir Pedas (Dada) + Tumis Tauge (~350 kkal)", "Ikan Pepes Bumbu Merah (Kukus) (~300 kkal)", "Urab Sayuran + Tahu Rebus (~250 kkal)", "Lotek Sayur (Sedikit Bumbu) (~350 kkal)", "Pindang Ikan (Tanpa Santan) (~300 kkal)"
+                ],
+                dinner: [
+                    "Sup Dada Ayam Jahe (Tanpa Nasi) (~300 kkal)", "Tumis Buncis Tempe Rebus (Sedikit Minyak) (~350 kkal)", "Ikan Tim Kecap Jahe + Sawi Putih (~300 kkal)", "Salad Telur Rebus Dressing Yoghurt (~250 kkal)",
+                    "Sup Tahu Putih Sawi Hijau (~200 kkal)", "Buah Potong Segar (Pepaya/Melon) (~100 kkal)", "Kaldu Ayam Bening + Jamur Kuping (~200 kkal)", "Tumis Labu Siam (~150 kkal)", "Edamame Rebus (~100 kkal)"
+                ]
+            },
+            obese: {
+                breakfast: [
+                    "Kopi Hitam Tawar + 2 Putih Telur Rebus (~100 kkal)", "Teh Hijau Panas + 1 Potong Pepaya (~80 kkal)", "Chia Pudding Air Kelapa (Tanpa Gula) (~150 kkal)", "Dadar Putih Telur + Tomat Panggang (~150 kkal)",
+                    "Jus Tomat Wortel Murni (~80 kkal)", "Air Lemon Hangat + Apel Hijau (~60 kkal)", "Puasa Intermittent (Jendela Makan 8 Jam) (0 kkal)", "Timun Rebus + Sambal Terasi (~50 kkal)", "Agar-agar Plain Tanpa Gula (~40 kkal)"
+                ],
+                lunch: [
+                    "Shirataki Goreng Ayam Suwir + Sayur (~300 kkal)", "Ikan Kukus Jahe Bawang Putih (~250 kkal)", "Pepes Jamur Tahu Kukus (~200 kkal)", "Sop Ikan Batam Kuah Bening Segar (~250 kkal)",
+                    "Ayam Pop Kukus (Tanpa Kulit) (~250 kkal)", "Tahu Tempe Bacem Rebus (Bukan Goreng) (~200 kkal)", "Protein Shake Whey Isolate Air Dingin (~120 kkal)", "Sayur Asem Tanpa Jagung (~150 kkal)", "Sup Ayam Kampung Ginseng (~250 kkal)"
+                ],
+                dinner: [
+                    "Salad Timun Tomat (Tanpa Dressing Minyak) (~150 kkal)", "Sup Jamur Kuping Tahu Sutra Bening (~200 kkal)", "Tumis Bayam Bawang Putih Rebus (Air) (~100 kkal)", "Brokoli Rebus + Sedikit Saus Tiram (~100 kkal)",
+                    "Edamame Rebus Tanpa Garam (~100 kkal)", "Sup Oyong Soun Sedikit (~150 kkal)", "Sayuran Kukus Lengkap (Wortel Buncis Kol) (~150 kkal)", "Sawi Putih Rebus Siram Kecap Asin (~80 kkal)", "Sup Asparagus Kepiting (~150 kkal)"
+                ]
+            }
         };
+
+        // INITIAL WEEKLY PLANS
+        let weeklyPlans = {
+            underweight: [], normal: [], overweight: [], obese: []
+        };
+
+        // Generate Initial Plans
+        function generateRandomPlan(category) {
+            const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+            const plan = [];
+            const opts = mealDatabase[category];
+
+            // Simple randomizer to ensure variety
+            // We shuffle a temp array of indices or just pick random
+            for(let i=0; i<7; i++) {
+                plan.push({
+                    d: days[i],
+                    m: [
+                        opts.breakfast[Math.floor(Math.random() * opts.breakfast.length)],
+                        opts.lunch[Math.floor(Math.random() * opts.lunch.length)],
+                        opts.dinner[Math.floor(Math.random() * opts.dinner.length)]
+                    ]
+                });
+            }
+            return plan;
+        }
+
+        // Initialize Plans
+        Object.keys(weeklyPlans).forEach(k => {
+            weeklyPlans[k] = generateRandomPlan(k);
+        });
+
+        function regenerateMenu() {
+            if(!userData || !userData.k) return;
+
+            // Add loading effect to button
+            const btn = document.querySelector('button[onclick="regenerateMenu()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<span>⏳</span> ...`;
+            btn.disabled = true;
+
+            setTimeout(() => {
+                // Re-randomize ONLY the current category to save resources? Or all? Just current is enough.
+                weeklyPlans[userData.k] = generateRandomPlan(userData.k);
+
+                // Re-render the menu container
+                const mc = document.getElementById('menuContainer');
+                mc.innerHTML = '';
+                weeklyPlans[userData.k].forEach((m, i) => {
+                    const bgColor = i % 4 < 2 ? 'bg-white' : 'bg-gray-50/80';
+                    mc.innerHTML += `
+                    <div class="${bgColor} border border-gray-100 p-3 rounded-xl shadow-sm text-[11px] leading-snug font-medium relative overflow-hidden fade-in-up" style="animation-delay: ${i*0.05}s">
+                        <div class="font-bold text-primary mb-2 border-b border-gray-100 pb-1 text-xs flex justify-between">
+                            <span>${m.d}</span>
+                            <span class="text-gray-300 text-[10px]">Day ${i+1}</span>
+                        </div>
+                        <div class="space-y-2 text-gray-700">
+                            <div class="flex items-start gap-2 border-l-2 border-yellow-200 pl-2"><span class="font-bold text-gray-500 w-5 shrink-0">Pg</span><span class="break-words">${m.m[0]}</span></div>
+                            <div class="flex items-start gap-2 border-l-2 border-orange-200 pl-2"><span class="font-bold text-gray-500 w-5 shrink-0">Si</span><span class="break-words">${m.m[1]}</span></div>
+                            <div class="flex items-start gap-2 border-l-2 border-indigo-200 pl-2"><span class="font-bold text-gray-500 w-5 shrink-0">Ma</span><span class="break-words">${m.m[2]}</span></div>
+                        </div>
+                    </div>`;
+                });
+
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 500); // Fake delay for UX
+        }
 
         function calculateBMI() {
             const w = parseFloat(document.getElementById('weight').value);
@@ -1340,10 +1438,10 @@
         function downloadPDF() {
             const element = document.getElementById('printableArea');
             const opt = {
-                margin: [10, 10, 10, 10],
+                margin: [0, 0, 0, 0],
                 filename: `BMI_Report_${userData.k}_${new Date().toISOString().slice(0,10)}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
             html2pdf().set(opt).from(element).save();
