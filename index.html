@@ -782,96 +782,128 @@
                 const d = today.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'});
                 const inf = advice[userData.k];
                 
-                // Header Report logic based on RFM vs BMI
+                // Header Report logic: ALWAYS BMI IS MAIN
                 let mainScore = userData.bmi;
                 let mainLabel = "ANGKA BMI";
-
-                if (userData.rfm) {
-                    mainScore = userData.rfm + "%";
-                    mainLabel = "LEMAK TUBUH (RFM)";
-                }
 
                 // Update DOM elements
                 const rScoreEl = document.getElementById('reportScore');
                 rScoreEl.innerText = mainScore;
-                rScoreEl.previousElementSibling.innerText = mainLabel; // Update label "Angka BMI" -> "Lemak Tubuh (RFM)"
+                rScoreEl.previousElementSibling.innerText = mainLabel;
 
                 document.getElementById('reportStatus').innerText = userData.l;
                 document.getElementById('reportProfile').innerText = `${userData.g=='male'?'Pria':'Wanita'}, ${userData.a} Th, ${userData.w}kg${userData.waist ? ', LP: '+userData.waist+'cm' : ''}`;
                 document.getElementById('reportDate').innerText = d;
 
                 // Add extended stats in Report (Custom Injection)
+                // NOW we put RFM and Deurenberg here as supporting data
                 const reportStatContainer = document.createElement('div');
-                reportStatContainer.className = "flex justify-center gap-4 mb-4";
-                reportStatContainer.innerHTML = `
-                    <div class="text-center">
-                        <p class="text-[10px] text-gray-400 font-bold uppercase">BMI</p>
-                        <p class="text-lg font-black text-gray-700">${userData.bmi}</p>
+                reportStatContainer.className = "flex justify-center gap-6 mb-4 mt-2";
+
+                let statsHtml = `
+                    <div class="text-center group">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase border-b border-dotted border-gray-300 inline-block mb-1">Deurenberg</p>
+                        <p class="text-xl font-black text-gray-700">${userData.deurenbergBF}%</p>
+                        <p class="text-[9px] font-bold ${userData.dColor} uppercase">${userData.dStatus}</p>
                     </div>
-                    <div class="text-center">
-                        <p class="text-[10px] text-gray-400 font-bold uppercase">Deurenberg</p>
-                        <p class="text-lg font-black text-gray-700">${userData.deurenbergBF}%</p>
-                    </div>
-                    ${userData.rfm ? `
-                    <div class="text-center">
-                        <p class="text-[10px] text-gray-400 font-bold uppercase">RFM</p>
-                        <p class="text-lg font-black text-indigo-600">${userData.rfm}%</p>
-                    </div>` : ''}
                 `;
+
+                if (userData.rfm) {
+                    statsHtml += `
+                    <div class="text-center group">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase border-b border-dotted border-gray-300 inline-block mb-1">RFM (Akurat)</p>
+                        <p class="text-xl font-black text-indigo-600">${userData.rfm}%</p>
+                        <p class="text-[9px] font-bold ${userData.rColor} uppercase">${userData.rStatus}</p>
+                    </div>`;
+                }
+
+                reportStatContainer.innerHTML = statsHtml;
 
                 // Insert stats before the Status Badge
                 const statusBadge = document.getElementById('reportStatus').parentElement;
-                if(!statusBadge.previousElementSibling.classList.contains('flex')) {
+                // Check if container already exists to avoid duplication on multiple clicks
+                if(statusBadge.previousElementSibling.id !== 'secondaryStats') {
+                    reportStatContainer.id = 'secondaryStats';
                     statusBadge.parentNode.insertBefore(reportStatContainer, statusBadge);
                 } else {
-                    // Update existing if re-generated
-                    statusBadge.previousElementSibling.innerHTML = reportStatContainer.innerHTML;
+                    statusBadge.previousElementSibling.innerHTML = statsHtml;
                 }
+
+                // --- NEW: INJECT LAYMAN EXPLANATION PARAGRAPH ---
+                // We inject this AFTER the slider/status area, but BEFORE the Energy Profile.
+                // The slider is inside the header part (white rounded top).
+                // The Energy Profile is the first child of the "Body Laporan" (white p-6).
+                // So we can inject it at the top of reportEnergyProfile container or create a new div above it.
+
+                const explanationHtml = `
+                    <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 mb-6 text-justify">
+                        <h4 class="text-xs font-extrabold text-indigo-800 uppercase mb-2 flex items-center gap-2">
+                            💡 PANDUAN MEMBACA HASIL
+                        </h4>
+                        <div class="space-y-3 text-[11px] text-gray-700 leading-relaxed font-medium">
+                            <p>
+                                <strong class="text-gray-900">1. BMI (Rapor Kepadatan):</strong>
+                                Ibarat menilai apakah sebuah truk kelebihan muatan atau tidak. Angka <strong>${userData.bmi}</strong> menunjukkan rasio berat Anda terhadap tinggi badan. Semakin tinggi angkanya, semakin "padat" tubuh Anda.
+                            </p>
+                            <p>
+                                <strong class="text-gray-900">2. Lemak Tubuh (Cek Fakta Komposisi):</strong>
+                                BMI saja bisa tertipu (misal: binaragawan berat karena otot). Maka kita cek <strong>RFM & Deurenberg</strong>. Ini membedakan apakah "berat" Anda berasal dari lemak jahat atau otot.
+                                <span class="block mt-1 text-indigo-700 italic">"Jika BMI Normal tapi Lemak Tinggi, itu tanda Skinny Fat. Jika BMI Besar tapi Lemak Rendah, Anda berotot."</span>
+                            </p>
+                        </div>
+                    </div>
+                `;
 
                 // --- NEW: INJECT ENERGY PROFILE TO REPORT ---
                 const cutTarget = userData.tdee - 500;
                 const bulkTarget = userData.tdee + 500;
 
                 const energyHtml = `
-                    <div class="bg-gray-50 p-4 border-b border-gray-100">
-                        <h3 class="font-extrabold text-gray-800 text-sm uppercase tracking-wide flex items-center gap-2">🔥 Profil Energi & Metabolisme</h3>
-                    </div>
-                    <div class="p-4 grid grid-cols-2 gap-4">
-                        <!-- BMR -->
-                        <div class="space-y-1">
-                             <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">BMR (Basic)</p>
-                             <p class="text-2xl font-black text-gray-800 tracking-tight">${userData.bmr.toLocaleString('id-ID')} <span class="text-xs font-bold text-gray-400">kkal</span></p>
-                             <div class="text-[9px] text-gray-500 bg-gray-100 p-2 rounded leading-tight border border-gray-200">
-                                <strong>🚗 Ibarat Mobil Parkir:</strong> Bensin minimal agar mesin tetap menyala walau tidak jalan.
-                             </div>
+                    ${explanationHtml}
+
+                    <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
+                        <div class="bg-gray-50 p-4 border-b border-gray-100">
+                            <h3 class="font-extrabold text-gray-800 text-sm uppercase tracking-wide flex items-center gap-2">🔥 Profil Energi & Metabolisme</h3>
                         </div>
-                        <!-- TDEE -->
-                        <div class="space-y-1">
-                             <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">TDEE (Total)</p>
-                             <p class="text-2xl font-black text-orange-600 tracking-tight">${userData.tdee.toLocaleString('id-ID')} <span class="text-xs font-bold text-orange-300">kkal</span></p>
-                             <div class="text-[9px] text-gray-500 bg-orange-50 p-2 rounded leading-tight border border-orange-100">
-                                <strong>🚕 Ibarat Mobil Jalan:</strong> Total bensin untuk aktivitas harian (Kerja + Olahraga).
-                             </div>
+                        <div class="p-4 grid grid-cols-2 gap-4">
+                            <!-- BMR -->
+                            <div class="space-y-1">
+                                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">BMR (Basic)</p>
+                                <p class="text-2xl font-black text-gray-800 tracking-tight">${userData.bmr.toLocaleString('id-ID')} <span class="text-xs font-bold text-gray-400">kkal</span></p>
+                                <div class="text-[9px] text-gray-500 bg-gray-100 p-2 rounded leading-tight border border-gray-200">
+                                    <strong>🚗 Ibarat Mobil Parkir:</strong> Bensin minimal agar mesin tetap menyala walau tidak jalan.
+                                </div>
+                            </div>
+                            <!-- TDEE -->
+                            <div class="space-y-1">
+                                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">TDEE (Total)</p>
+                                <p class="text-2xl font-black text-orange-600 tracking-tight">${userData.tdee.toLocaleString('id-ID')} <span class="text-xs font-bold text-orange-300">kkal</span></p>
+                                <div class="text-[9px] text-gray-500 bg-orange-50 p-2 rounded leading-tight border border-orange-100">
+                                    <strong>🚕 Ibarat Mobil Jalan:</strong> Total bensin untuk aktivitas harian (Kerja + Olahraga).
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <!-- Target Table -->
-                    <div class="bg-gray-50 p-3 border-t border-gray-100 grid grid-cols-3 divide-x divide-gray-200 text-center">
-                        <div>
-                            <p class="text-[9px] uppercase font-extrabold text-gray-400 mb-1">Cutting</p>
-                            <p class="font-black text-gray-800 text-sm">${cutTarget.toLocaleString('id-ID')}</p>
-                        </div>
-                        <div>
-                             <p class="text-[9px] uppercase font-extrabold text-green-600 mb-1">Stabil</p>
-                            <p class="font-black text-green-600 text-sm">${userData.tdee.toLocaleString('id-ID')}</p>
-                        </div>
-                        <div>
-                             <p class="text-[9px] uppercase font-extrabold text-gray-400 mb-1">Bulking</p>
-                            <p class="font-black text-gray-800 text-sm">${bulkTarget.toLocaleString('id-ID')}</p>
+                        <!-- Target Table -->
+                        <div class="bg-gray-50 p-3 border-t border-gray-100 grid grid-cols-3 divide-x divide-gray-200 text-center">
+                            <div>
+                                <p class="text-[9px] uppercase font-extrabold text-gray-400 mb-1">Cutting</p>
+                                <p class="font-black text-gray-800 text-sm">${cutTarget.toLocaleString('id-ID')}</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] uppercase font-extrabold text-green-600 mb-1">Stabil</p>
+                                <p class="font-black text-green-600 text-sm">${userData.tdee.toLocaleString('id-ID')}</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] uppercase font-extrabold text-gray-400 mb-1">Bulking</p>
+                                <p class="font-black text-gray-800 text-sm">${bulkTarget.toLocaleString('id-ID')}</p>
+                            </div>
                         </div>
                     </div>
                 `;
 
                 const repEnergy = document.getElementById('reportEnergyProfile');
+                // Remove border class from parent because we moved it to inner card
+                repEnergy.className = "hidden";
                 repEnergy.innerHTML = energyHtml;
                 repEnergy.classList.remove('hidden');
                 // ---------------------------------------------
