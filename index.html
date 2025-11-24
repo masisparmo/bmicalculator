@@ -103,7 +103,8 @@
                 <div class="grid grid-cols-3 gap-3">
                     <div class="col-span-3"><label class="text-xs font-bold text-gray-500 uppercase">Usia</label><input type="number" id="age" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-semibold" placeholder="25"></div>
                     <div><label class="text-xs font-bold text-gray-500 uppercase">Berat</label><input type="number" id="weight" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold" placeholder="kg"></div>
-                    <div class="col-span-2"><label class="text-xs font-bold text-gray-500 uppercase">Tinggi</label><input type="number" id="height" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold" placeholder="cm"></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase">Tinggi</label><input type="number" id="height" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold" placeholder="cm"></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase text-[10px] leading-tight">L. Pinggang</label><input type="number" id="waist" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold placeholder-gray-400/50" placeholder="cm (Ops)"></div>
                 </div>
                 <button onclick="calculateBMI()" class="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-lg active:scale-95 transition">Hitung & Analisa</button>
 
@@ -373,21 +374,87 @@
             const w = parseFloat(document.getElementById('weight').value);
             const h = parseFloat(document.getElementById('height').value);
             const a = parseInt(document.getElementById('age').value);
+            const waist = parseFloat(document.getElementById('waist').value);
             const g = document.querySelector('input[name="gender"]:checked').value;
 
             if(!w || !h || !a) { alert("Data belum lengkap!"); return; }
 
+            // 1. BMI Calculation
             const bmi = (w/((h/100)**2)).toFixed(1);
             let k='', l='';
             if(bmi<18.5){k='underweight';l='KURUS';} else if(bmi<25){k='normal';l='NORMAL';} 
             else if(bmi<30){k='overweight';l='GEMUK';} else {k='obese';l='OBESITAS';}
 
-            userData = {w,h,a,g,bmi,k,l};
-            document.getElementById('bmiValue').innerText = bmi;
-            document.getElementById('bmiCategory').innerText = l;
-            document.getElementById('bmiCategory').className = `text-xl font-bold ${k==='underweight'?'text-blue-600':k==='normal'?'text-green-600':k==='overweight'?'text-yellow-600':'text-red-600'}`;
+            // 2. Deurenberg Body Fat % Calculation
+            // Rumus: (1.20 * BMI) + (0.23 * Usia) - (10.8 * Sex) - 5.4
+            // Sex: Pria = 1, Wanita = 0
+            const deurenbergSex = g === 'male' ? 1 : 0;
+            const deurenbergBF = ((1.20 * bmi) + (0.23 * a) - (10.8 * deurenbergSex) - 5.4).toFixed(1);
 
-            // Update Quick Result Marker
+            // 3. RFM Calculation (Optional)
+            let rfm = null;
+            if (waist && waist > 0) {
+                // Rumus: 64 - (20 * (Tinggi/Lingkar Pinggang)) + (12 * Sex)
+                // Sex: Wanita = 1, Pria = 0
+                const rfmSex = g === 'female' ? 1 : 0;
+                rfm = (64 - (20 * (h / waist)) + (12 * rfmSex)).toFixed(1);
+            }
+
+            userData = {w, h, a, g, bmi, k, l, deurenbergBF, rfm, waist};
+
+            // Display Logic
+            const resultValue = document.getElementById('bmiValue');
+            const resultCategory = document.getElementById('bmiCategory');
+
+            // Reset additional info if exists
+            const existingExtra = document.getElementById('extraInfo');
+            if(existingExtra) existingExtra.remove();
+
+            let extraHtml = '';
+
+            if (rfm) {
+                // Skenario A: RFM Ada -> Tampilkan RFM sebagai Utama, BMI sebagai tambahan
+                resultValue.innerText = `${rfm}%`;
+                resultCategory.innerText = "Lemak Tubuh (RFM)";
+                resultCategory.className = "text-xl font-bold text-indigo-600";
+
+                extraHtml = `
+                    <div id="extraInfo" class="mt-4 grid grid-cols-2 gap-2 text-center">
+                        <div class="bg-white p-2 rounded-lg border border-gray-100 shadow-sm">
+                            <p class="text-[10px] text-gray-400 uppercase font-bold">BMI Score</p>
+                            <p class="text-lg font-black text-gray-700">${bmi}</p>
+                            <p class="text-[9px] font-bold text-${k==='underweight'?'blue':k==='normal'?'green':k==='overweight'?'yellow':'red'}-500 uppercase">${l}</p>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg border border-gray-100 shadow-sm">
+                            <p class="text-[10px] text-gray-400 uppercase font-bold">Est. Deurenberg</p>
+                            <p class="text-lg font-black text-gray-700">${deurenbergBF}%</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Skenario B: Tidak ada Lingkar Pinggang -> Tampilkan BMI Utama
+                resultValue.innerText = bmi;
+                resultCategory.innerText = l;
+                resultCategory.className = `text-xl font-bold ${k==='underweight'?'text-blue-600':k==='normal'?'text-green-600':k==='overweight'?'text-yellow-600':'text-red-600'}`;
+
+                extraHtml = `
+                    <div id="extraInfo" class="mt-4 text-center">
+                        <div class="inline-block bg-white px-4 py-2 rounded-lg border border-gray-100 shadow-sm">
+                            <p class="text-[10px] text-gray-400 uppercase font-bold">Est. Lemak Tubuh (Deurenberg)</p>
+                            <p class="text-xl font-black text-gray-700">${deurenbergBF}%</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Insert Extra Info
+            document.querySelector('#resultArea > div.text-center').insertAdjacentHTML('beforeend', extraHtml);
+
+            // Update Quick Result Marker (Use BMI for consistency on the specific BMI bar, or switch to Fat% bar?
+            // Stick to BMI bar as layout is designed for BMI 15-40 range.
+            // If RFM is shown, users might be confused if the bar shows BMI position.
+            // Let's keep the bar reflecting BMI position for now as it's "BMI Pro", but maybe hide it if RFM is main?
+            // User didn't specify to change the chart. I will keep it linked to BMI for consistency with the layout's scale.)
             const minG = 15; const maxG = 40;
             let percent = ((bmi - minG) / (maxG - minG)) * 100;
             if (percent < 0) percent = 0; if (percent > 100) percent = 100;
@@ -408,10 +475,52 @@
                 const d = today.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'});
                 const inf = advice[userData.k];
                 
-                document.getElementById('reportScore').innerText = userData.bmi;
+                // Header Report logic based on RFM vs BMI
+                let mainScore = userData.bmi;
+                let mainLabel = "ANGKA BMI";
+
+                if (userData.rfm) {
+                    mainScore = userData.rfm + "%";
+                    mainLabel = "LEMAK TUBUH (RFM)";
+                }
+
+                // Update DOM elements
+                const rScoreEl = document.getElementById('reportScore');
+                rScoreEl.innerText = mainScore;
+                rScoreEl.previousElementSibling.innerText = mainLabel; // Update label "Angka BMI" -> "Lemak Tubuh (RFM)"
+
                 document.getElementById('reportStatus').innerText = userData.l;
-                document.getElementById('reportProfile').innerText = `${userData.g=='male'?'Pria':'Wanita'}, ${userData.a} Th, ${userData.w}kg`;
+                document.getElementById('reportProfile').innerText = `${userData.g=='male'?'Pria':'Wanita'}, ${userData.a} Th, ${userData.w}kg${userData.waist ? ', LP: '+userData.waist+'cm' : ''}`;
                 document.getElementById('reportDate').innerText = d;
+
+                // Add extended stats in Report (Custom Injection)
+                const reportStatContainer = document.createElement('div');
+                reportStatContainer.className = "flex justify-center gap-4 mb-4";
+                reportStatContainer.innerHTML = `
+                    <div class="text-center">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase">BMI</p>
+                        <p class="text-lg font-black text-gray-700">${userData.bmi}</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase">Deurenberg</p>
+                        <p class="text-lg font-black text-gray-700">${userData.deurenbergBF}%</p>
+                    </div>
+                    ${userData.rfm ? `
+                    <div class="text-center">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase">RFM</p>
+                        <p class="text-lg font-black text-indigo-600">${userData.rfm}%</p>
+                    </div>` : ''}
+                `;
+
+                // Insert stats before the Status Badge
+                const statusBadge = document.getElementById('reportStatus').parentElement;
+                if(!statusBadge.previousElementSibling.classList.contains('flex')) {
+                    statusBadge.parentNode.insertBefore(reportStatContainer, statusBadge);
+                } else {
+                    // Update existing if re-generated
+                    statusBadge.previousElementSibling.innerHTML = reportStatContainer.innerHTML;
+                }
+
                 document.getElementById('aiAnalysis').innerHTML = inf.txt;
                 document.getElementById('aiExercise').innerHTML = inf.ex;
 
