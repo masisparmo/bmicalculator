@@ -7,6 +7,8 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HTML2PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -460,11 +462,15 @@
 
                 <div class="flex gap-3 items-center">
                     <button onclick="window.print()" id="btnPrint" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg flex justify-center items-center gap-2 active:scale-95 transition text-sm">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2H9a2 2 0 00-2-2H9a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                         PRINT
                     </button>
-                    <button onclick="closeModal()" data-i18n="btn_close" class="px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300 font-bold rounded-xl text-sm transition">
-                        Tutup
+                    <button onclick="downloadPDF()" id="btnPdf" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg flex justify-center items-center gap-2 active:scale-95 transition text-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <span data-i18n="btn_pdf">DOWNLOAD PDF</span>
+                    </button>
+                    <button onclick="closeModal()" class="w-12 h-12 bg-gray-100 hover:bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-full shadow flex items-center justify-center transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
                 <p data-i18n="lbl_drag" class="text-[8px] text-gray-400 mt-0.5">Geser tombol jika menghalangi</p>
@@ -491,6 +497,42 @@
 
         // Language Logic
         let currentLang = localStorage.getItem('lang') || 'id';
+
+        function updateLanguage() {
+            const T = translations[currentLang];
+
+            // Update Text Content
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if(T[key]) el.innerText = T[key];
+            });
+
+            // Update HTML Content
+            document.querySelectorAll('[data-i18n-html]').forEach(el => {
+                const key = el.getAttribute('data-i18n-html');
+                if(T[key]) el.innerHTML = T[key];
+            });
+
+            // Update Button Text
+            langToggleBtn.innerText = currentLang.toUpperCase();
+
+            // Update Input Placeholders (Optional refinement)
+            if(currentLang === 'id') {
+                document.getElementById('waist').placeholder = "cm (Ops)";
+            } else {
+                document.getElementById('waist').placeholder = "cm (Opt)";
+            }
+        }
+
+        langToggleBtn.addEventListener('click', () => {
+            currentLang = currentLang === 'id' ? 'en' : 'id';
+            localStorage.setItem('lang', currentLang);
+            updateLanguage();
+        });
+
+        // Initialize Language on Load
+        document.addEventListener('DOMContentLoaded', updateLanguage);
+
         const translations = {
             id: {
                 subtitle: "Calculator: BMI, RFM, Deurenberg & Target Kalori",
@@ -624,7 +666,15 @@
                 // Company Analogy
                 energy_analogy_company_bmr: "<strong>BMR</strong> ibarat <strong>'Biaya Sewa & Listrik'</strong> Perusahaan. Harus dibayar lunas setiap hari meskipun tubuh sedang istirahat total (tidur).",
                 energy_analogy_company_tdee: "<strong>TDEE</strong> ibarat <strong>'Total Biaya Operasional'</strong> saat perusahaan beroperasi penuh, termasuk biaya produksi untuk melayani pelanggan (Aktivitas Fisik).",
-                energy_analogy_header: "🏢 Analogi Perusahaan (Untuk Orang Awam)"
+                energy_analogy_header: "🏢 Analogi Perusahaan (Untuk Orang Awam)",
+                // Tooltips (Restored)
+                tooltip_bmi: "Indeks Massa Tubuh: Mengukur berat badan ideal berdasarkan tinggi badan.",
+                tooltip_deurenberg: "Rumus estimasi lemak tubuh berdasarkan BMI, usia, dan jenis kelamin.",
+                tooltip_rfm: "Relative Fat Mass: Estimasi persentase lemak tubuh menggunakan lingkar pinggang.",
+                tooltip_bmr: "Basal Metabolic Rate: Energi minimal untuk hidup saat diam.",
+                tooltip_tdee: "Total Daily Energy Expenditure: Total energi harian termasuk aktivitas.",
+                // New
+                btn_pdf: "DOWNLOAD PDF"
             },
             en: {
                 subtitle: "Calculator: BMI, RFM, Deurenberg & Calorie Target",
@@ -703,35 +753,8 @@
                 val_athlete: "Athlete",
                 val_fitness: "Fitness",
                 val_normal: "Normal",
-                acc_comparison: `<p class="font-bold text-yellow-700 dark:text-yellow-500 mb-1">💡 Why Different Results?</p>
-                                    <p class="text-gray-700 dark:text-gray-300 mb-2 text-justify">Body Fat Percentage (RFM/Deurenberg) is more <strong>honest</strong> than BMI.</p>
-                                    <ul class="list-disc pl-3 space-y-1 text-gray-600 dark:text-gray-400">
-                                        <li><strong>BMI:</strong> Only measures weight vs height. Heavy muscle can be flagged as fat.</li>
-                                        <li><strong>Body Fat:</strong> Directly points to fat storage.</li>
-                                    </ul>
-                                    <p class="mt-2 font-medium italic text-gray-500">"E.g. Male with 26% fat. BMI might say Overweight, but medically Obese."</p>`,
-                source_label: "Official Source:",
-                btn_report: "📄 Open Full Report",
-                btn_reset: "Reset Data",
-                report_title: "Health Report",
-                report_analysis_title: "Metabolic Analysis",
-                report_menu_title: "🥗 7-Day Meal Plan",
-                report_exercise_title: "Activity Advice",
-                report_footer: "This document is generated by AI as a preliminary recommendation.",
-                btn_close: "Close",
-                lbl_drag: "Drag button if obstructing",
-                loading: "Processing AI Data...",
-                // Dynamic
-                status_underweight: "UNDERWEIGHT",
-                status_normal: "NORMAL",
-                status_overweight: "OVERWEIGHT",
-                status_obese: "OBESE",
-                cat_essential: "Essential",
-                cat_athlete: "Athlete",
-                cat_fitness: "Fitness",
-                cat_normal: "Normal",
-                cat_obese: "Obese (ACE)",
-                cat_obese_rfm: "Obese (>{limit}%)",
+                acc_obese: "Obese (ACE)",
+                acc_obese_rfm: "Obese (>{limit}%)",
                 cal_cutting: "Cutting (Weight Loss)",
                 cal_maint: "Maintenance (Stable)",
                 cal_bulk: "Bulking (Weight Gain)",
@@ -758,99 +781,153 @@
                 // Company Analogy
                 energy_analogy_company_bmr: "<strong>BMR</strong> is like a Company's <strong>'Rent & Utilities'</strong>. Must be paid daily even if the body is resting (sleeping).",
                 energy_analogy_company_tdee: "<strong>TDEE</strong> is like <strong>'Total Operating Costs'</strong> when the business is fully active, including production costs to serve customers (Physical Activity).",
-                energy_analogy_header: "🏢 Company Analogy (Layman's Terms)"
+                energy_analogy_header: "🏢 Company Analogy (Layman's Terms)",
+                // Tooltips (Restored)
+                tooltip_bmi: "Body Mass Index: Measures ideal weight based on height.",
+                tooltip_deurenberg: "Body fat estimation formula based on BMI, age, and sex.",
+                tooltip_rfm: "Relative Fat Mass: Body fat percentage estimation using waist circumference.",
+                tooltip_bmr: "Basal Metabolic Rate: Minimum energy to survive when resting.",
+                tooltip_tdee: "Total Daily Energy Expenditure: Total daily energy including activity.",
+                // New
+                btn_pdf: "DOWNLOAD PDF"
             }
         };
 
-        function setLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('lang', lang);
-            langToggleBtn.innerText = lang.toUpperCase();
-
-            // Update static elements
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (translations[lang][key]) el.innerText = translations[lang][key];
-            });
-            document.querySelectorAll('[data-i18n-html]').forEach(el => {
-                const key = el.getAttribute('data-i18n-html');
-                if (translations[lang][key]) el.innerHTML = translations[lang][key];
-            });
-        }
-
-        langToggleBtn.addEventListener('click', () => {
-            const newLang = currentLang === 'id' ? 'en' : 'id';
-            setLanguage(newLang);
-            // Re-render report if open? No, user can just regenerate.
-            // Or maybe nice to have. But generateReport depends on form values.
-            // If resultArea is visible, we might want to re-run calculations but it's simpler to just let user click again.
-        });
-
-        // Init Language
-        setLanguage(currentLang);
-
-
-        let userData = {};
-
-        // Advice text needs dual language too
+        // ADVICE CONTENT (MISSING IN PREVIOUS VERSION)
         const advice = {
             id: {
-                underweight: { txt: "Metabolisme cepat. Wajib <strong class='text-indigo-700'>SURPLUS KALORI</strong>. Fokus pada makanan padat energi dan protein. Jangan skip jadwal makan utama.", ex: "<strong class='text-indigo-700'>Angkat Beban (Berat)</strong> 3x seminggu. Fokus repetisi 8-12 untuk hipertrofi." },
-                normal: { txt: "Kondisi Ideal. Pertahankan dengan pola makan <strong class='text-green-700'>Gizi Seimbang</strong>. Pastikan asupan serat dan protein cukup setiap hari.", ex: "Kombinasi <strong class='text-green-700'>Jogging/Renang</strong> & Latihan Kekuatan (Pushup/Plank) rutin." },
-                overweight: { txt: "Mulai <strong class='text-orange-700'>DEFISIT KALORI RINGAN</strong>. Kurangi porsi nasi putih dan makanan/minuman manis. Perbanyak sayuran hijau sebelum makan berat.", ex: "<strong class='text-orange-700'>Jalan Cepat</strong> 45 menit setiap pagi (Fasted Cardio) atau sore hari." },
-                obese: { txt: "Prioritas Kesehatan Utama. <strong class='text-red-700'>STRICT WHOLE FOOD DIET</strong>. Hindari gula cair, tepung terigu, dan makanan olahan pabrik sepenuhnya.", ex: "Aktivitas Low Impact: <strong class='text-red-700'>Berenang atau Sepeda Statis</strong> 30 menit/hari." }
+                underweight: {
+                    txt: `<p><strong>Tubuh Anda kekurangan 'bahan bakar' cadangan.</strong></p>
+                          <p>Kondisi ini berisiko menurunkan imunitas, massa otot, dan energi harian. Fokus utama Anda adalah <strong>Surplus Kalori</strong> dengan makanan padat gizi.</p>
+                          <ul class="list-disc pl-4 mt-2">
+                            <li>Tambah frekuensi makan (5-6x sehari).</li>
+                            <li>Pilih karbohidrat kompleks & protein tinggi.</li>
+                            <li>Jangan minum air sebelum makan agar lambung tidak penuh.</li>
+                          </ul>`,
+                    ex: `<p><strong>Latihan Beban (Strength Training)</strong> adalah kunci. Kardio berlebihan akan membakar kalori yang seharusnya disimpan.</p>
+                         <p>Lakukan angkat beban 3-4x seminggu untuk memicu pertumbuhan otot (hipertrofi).</p>`
+                },
+                normal: {
+                    txt: `<p><strong>Mesin tubuh Anda berjalan efisien!</strong></p>
+                          <p>Proporsi berat dan tinggi badan seimbang. Tantangan Anda adalah <strong>mempertahankan</strong> kondisi ini (Maintenance).</p>
+                          <ul class="list-disc pl-4 mt-2">
+                            <li>Makan sesuai angka TDEE.</li>
+                            <li>Jaga asupan protein (1.2g - 1.5g per kg berat badan).</li>
+                            <li>Variasikan sumber makanan agar nutrisi mikro terpenuhi.</li>
+                          </ul>`,
+                    ex: `<p>Kombinasi <strong>Kardio</strong> (Jantung) dan <strong>Latihan Beban</strong> (Otot) secara seimbang.</p>
+                         <p>Contoh: Jogging 30 menit (2x seminggu) + Gym/Calisthenics (3x seminggu).</p>`
+                },
+                overweight: {
+                    txt: `<p><strong>Peringatan Lampu Kuning!</strong></p>
+                          <p>Ada kelebihan muatan energi yang mulai disimpan sebagai lemak. Jika dibiarkan, ini pintu gerbang menuju Obesitas.</p>
+                          <ul class="list-disc pl-4 mt-2">
+                            <li>Segera lakukan <strong>Defisit Kalori Ringan</strong> (kurangi 300-500 kkal dari TDEE).</li>
+                            <li>Kurangi gula sederhana dan tepung-tepungan.</li>
+                            <li>Perbanyak serat (sayur) di setiap makan.</li>
+                          </ul>`,
+                    ex: `<p>Tingkatkan aktivitas harian (NEAT) seperti jalan kaki, naik tangga, bersih-bersih rumah.</p>
+                         <p>Mulai rutin Kardio Low Impact (Jalan Cepat, Berenang) durasi 45 menit.</p>`
+                },
+                obese: {
+                    txt: `<p><strong>Peringatan Merah (Red Alert)!</strong></p>
+                          <p>Beban berlebih membebani jantung, sendi, dan organ vital secara signifikan. Penurunan berat badan bukan lagi pilihan gaya hidup, tapi <strong>keharusan medis</strong>.</p>
+                          <ul class="list-disc pl-4 mt-2">
+                            <li>Wajib <strong>Defisit Kalori</strong> (Konsisten di angka BMR s.d. TDEE-500).</li>
+                            <li>Konsultasikan dengan dokter/ahli gizi jika perlu.</li>
+                            <li>Fokus pada "Whole Foods" (makanan utuh), hindari makanan kemasan.</li>
+                          </ul>`,
+                    ex: `<p><strong>Jalan Kaki Rutin</strong> adalah olahraga terbaik saat ini. Durasi 45-60 menit setiap hari.</p>
+                         <p>Hindari lari atau lompat (High Impact) untuk melindungi lutut Anda dari cedera.</p>`
+                }
             },
             en: {
-                underweight: { txt: "Fast metabolism. Must <strong class='text-indigo-700'>CALORIE SURPLUS</strong>. Focus on energy-dense foods and protein. Do not skip main meals.", ex: "<strong class='text-indigo-700'>Heavy Lifting</strong> 3x a week. Focus on 8-12 reps for hypertrophy." },
-                normal: { txt: "Ideal Condition. Maintain with a <strong class='text-green-700'>Balanced Diet</strong>. Ensure sufficient fiber and protein intake daily.", ex: "Combine <strong class='text-green-700'>Jogging/Swimming</strong> & Strength Training (Pushups/Plank) routinely." },
-                overweight: { txt: "Start <strong class='text-orange-700'>SLIGHT CALORIE DEFICIT</strong>. Reduce white rice and sugary drinks/foods. Eat more green veggies before heavy meals.", ex: "<strong class='text-orange-700'>Brisk Walking</strong> 45 mins every morning (Fasted Cardio) or evening." },
-                obese: { txt: "Top Health Priority. <strong class='text-red-700'>STRICT WHOLE FOOD DIET</strong>. Avoid liquid sugar, flour, and processed foods completely.", ex: "Low Impact Activity: <strong class='text-red-700'>Swimming or Stationary Bike</strong> 30 mins/day." }
+                underweight: {
+                    txt: `<p><strong>Your body lacks reserve 'fuel'.</strong></p>
+                          <p>This risks lowered immunity, muscle loss, and low energy. Your focus is <strong>Calorie Surplus</strong> with nutrient-dense foods.</p>
+                          <ul class="list-disc pl-4 mt-2">
+                            <li>Increase meal frequency (5-6x daily).</li>
+                            <li>Choose complex carbs & high protein.</li>
+                            <li>Avoid drinking water before meals to keep stomach room.</li>
+                          </ul>`,
+                    ex: `<p><strong>Strength Training</strong> is key. Excessive cardio will burn calories meant for storage.</p>
+                         <p>Lift weights 3-4x a week to trigger muscle growth (hypertrophy).</p>`
+                },
+                normal: {
+                    txt: `<p><strong>Your body engine is running efficiently!</strong></p>
+                          <p>Weight and height proportion is balanced. Your challenge is to <strong>maintain</strong> this condition.</p>
+                          <ul class="list-disc pl-4 mt-2">
+                            <li>Eat according to TDEE.</li>
+                            <li>Maintain protein intake (1.2g - 1.5g per kg body weight).</li>
+                            <li>Vary food sources for micronutrients.</li>
+                          </ul>`,
+                    ex: `<p>Combine <strong>Cardio</strong> (Heart) and <strong>Strength Training</strong> (Muscle) balancedly.</p>
+                         <p>Example: Jogging 30 mins (2x week) + Gym/Calisthenics (3x week).</p>`
+                },
+                overweight: {
+                    txt: `<p><strong>Yellow Light Warning!</strong></p>
+                          <p>Excess energy load is starting to be stored as fat. If left unchecked, this is the gateway to Obesity.</p>
+                          <ul class="list-disc pl-4 mt-2">
+                            <li>Start a <strong>Slight Calorie Deficit</strong> immediately (reduce 300-500 kcal from TDEE).</li>
+                            <li>Reduce simple sugars and refined flour.</li>
+                            <li>Increase fiber (vegetables) in every meal.</li>
+                          </ul>`,
+                    ex: `<p>Increase daily activity (NEAT) like walking, taking stairs, house cleaning.</p>
+                         <p>Start routine Low Impact Cardio (Brisk Walk, Swimming) for 45 mins.</p>`
+                },
+                obese: {
+                    txt: `<p><strong>Red Alert!</strong></p>
+                          <p>Excess load significantly burdens heart, joints, and vital organs. Weight loss is no longer a lifestyle choice, but a <strong>medical necessity</strong>.</p>
+                          <ul class="list-disc pl-4 mt-2">
+                            <li>Mandatory <strong>Calorie Deficit</strong> (Consistent at BMR to TDEE-500).</li>
+                            <li>Consult a doctor/nutritionist if needed.</li>
+                            <li>Focus on "Whole Foods", avoid processed foods.</li>
+                          </ul>`,
+                    ex: `<p><strong>Routine Walking</strong> is the best exercise right now. Duration 45-60 mins daily.</p>
+                         <p>Avoid running or jumping (High Impact) to protect your knees from injury.</p>`
+                }
             }
         };
 
+        // UPDATED WEEKLY PLANS WITH CALORIES
         const weeklyPlans = {
             underweight: [
-                {d:"Senin", m:["Roti Gandum Selai Kacang Extra + Susu Full Cream", "Nasi Padang Ayam Bakar Bumbu Rendang + Sayur Nangka", "Sate Ayam 10 Tusuk + Lontong Bumbu Kacang"]}, 
-                {d:"Selasa", m:["Bubur Ayam Komplit Telur Puyuh", "Nasi Goreng Spesial Sosis Bakso + Telur Dadar", "Martabak Telur Spesial Daging Sapi + Sup"]},
-                {d:"Rabu", m:["Pancake Pisang Madu + Yoghurt", "Mie Ayam Jamur Bakso Pangsit", "Ikan Gurame Goreng Tepung Asam Manis"]}, 
-                {d:"Kamis", m:["Omelet Keju Smoked Beef + Roti", "Nasi Uduk Ayam Goreng Lengkap", "Pasta Carbonara Creamy + Garlic Bread"]},
-                {d:"Jumat", m:["Sandwich Tuna Mayo Double", "Soto Betawi Daging Santan + Nasi", "Burger Sapi Homemade Cheese + Kentang"]}, 
-                {d:"Sabtu", m:["Smoothie Alpukat Coklat Tinggi Kalori", "Gulai Ikan Kakap + Nasi Putih", "Pizza Meat Lovers (3 Slice) + Salad"]}, 
-                {d:"Minggu", m:["Nasi Kuning Komplit Ayam Suwir", "Steak Daging Sapi Sirloin + Mashed Potato", "Sup Iga Sapi Kuah Kental + Nasi"]}
+                {d:"Senin", m:["Roti Gandum Selai Kacang Extra + Susu Full Cream (~550 kkal)", "Nasi Padang Ayam Bakar Bumbu Rendang + Sayur Nangka (~850 kkal)", "Sate Ayam 10 Tusuk + Lontong Bumbu Kacang (~700 kkal)"]},
+                {d:"Selasa", m:["Bubur Ayam Komplit Telur Puyuh (~450 kkal)", "Nasi Goreng Spesial Sosis Bakso + Telur Dadar (~800 kkal)", "Martabak Telur Spesial Daging Sapi + Sup (~750 kkal)"]},
+                {d:"Rabu", m:["Pancake Pisang Madu + Yoghurt (~500 kkal)", "Mie Ayam Jamur Bakso Pangsit (~650 kkal)", "Ikan Gurame Goreng Tepung Asam Manis (~700 kkal)"]},
+                {d:"Kamis", m:["Omelet Keju Smoked Beef + Roti (~550 kkal)", "Nasi Uduk Ayam Goreng Lengkap (~850 kkal)", "Pasta Carbonara Creamy + Garlic Bread (~800 kkal)"]},
+                {d:"Jumat", m:["Sandwich Tuna Mayo Double (~500 kkal)", "Soto Betawi Daging Santan + Nasi (~750 kkal)", "Burger Sapi Homemade Cheese + Kentang (~900 kkal)"]},
+                {d:"Sabtu", m:["Smoothie Alpukat Coklat Tinggi Kalori (~400 kkal)", "Gulai Ikan Kakap + Nasi Putih (~700 kkal)", "Pizza Meat Lovers (3 Slice) + Salad (~800 kkal)"]},
+                {d:"Minggu", m:["Nasi Kuning Komplit Ayam Suwir (~700 kkal)", "Steak Daging Sapi Sirloin + Mashed Potato (~850 kkal)", "Sup Iga Sapi Kuah Kental + Nasi (~800 kkal)"]}
             ],
             normal: [
-                {d:"Senin", m:["Oatmeal Buah Beri & Madu", "Gado-gado Telur Rebus + Lontong", "Pepes Ikan Kembung + Nasi Merah"]}, 
-                {d:"Selasa", m:["Roti Gandum Telur Mata Sapi & Alpukat", "Soto Ayam Kampung Bening (Tanpa Santan)", "Tumis Brokoli Udang Bawang Putih"]},
-                {d:"Rabu", m:["Smoothie Bayam Nanas Segar", "Pepes Tahu Jamur + Sayur Asem", "Ayam Bakar Dada (Tanpa Kulit) + Lalap"]}, 
-                {d:"Kamis", m:["Telur Orak-arik Sayuran", "Pecel Sayur Bumbu Sedang + Tempe", "Sup Jamur Tahu Putih Bening"]},
-                {d:"Jumat", m:["Yoghurt Greek Plain + Granola", "Ikan Kembung Bakar Bumbu Kuning", "Capcay Kuah Ayam Sayur Lengkap"]}, 
-                {d:"Sabtu", m:["Bubur Manado Kaya Sayur", "Sushi Roll Salmon Alpukat", "Salad Ayam Panggang Dressing Lemon"]}, 
-                {d:"Minggu", m:["Pancake Oatmeal Pisang", "Steak Tempe Saus Lada Hitam", "Sapo Tahu Seafood Sayuran"]}
+                {d:"Senin", m:["Oatmeal Buah Beri & Madu (~350 kkal)", "Gado-gado Telur Rebus + Lontong (~450 kkal)", "Pepes Ikan Kembung + Nasi Merah (~400 kkal)"]},
+                {d:"Selasa", m:["Roti Gandum Telur Mata Sapi & Alpukat (~400 kkal)", "Soto Ayam Kampung Bening (Tanpa Santan) (~350 kkal)", "Tumis Brokoli Udang Bawang Putih (~300 kkal)"]},
+                {d:"Rabu", m:["Smoothie Bayam Nanas Segar (~250 kkal)", "Pepes Tahu Jamur + Sayur Asem (~350 kkal)", "Ayam Bakar Dada (Tanpa Kulit) + Lalap (~450 kkal)"]},
+                {d:"Kamis", m:["Telur Orak-arik Sayuran (~300 kkal)", "Pecel Sayur Bumbu Sedang + Tempe (~400 kkal)", "Sup Jamur Tahu Putih Bening (~250 kkal)"]},
+                {d:"Jumat", m:["Yoghurt Greek Plain + Granola (~300 kkal)", "Ikan Kembung Bakar Bumbu Kuning (~400 kkal)", "Capcay Kuah Ayam Sayur Lengkap (~350 kkal)"]},
+                {d:"Sabtu", m:["Bubur Manado Kaya Sayur (~350 kkal)", "Sushi Roll Salmon Alpukat (~500 kkal)", "Salad Ayam Panggang Dressing Lemon (~400 kkal)"]},
+                {d:"Minggu", m:["Pancake Oatmeal Pisang (~400 kkal)", "Steak Tempe Saus Lada Hitam (~350 kkal)", "Sapo Tahu Seafood Sayuran (~450 kkal)"]}
             ],
             overweight: [
-                {d:"Senin", m:["Telur Rebus 2 Butir + Teh Tawar", "Nasi Merah 5 Sdm + Ikan Bakar", "Sup Dada Ayam Jahe (Tanpa Nasi)"]}, 
-                {d:"Selasa", m:["Apel Merah + 1 sdm Selai Kacang", "Pepes Tahu Kemangi + Sayur Bening Bayam", "Tumis Buncis Tempe Rebus (Sedikit Minyak)"]},
-                {d:"Rabu", m:["Smoothie Hijau (Timun Seledri)", "Soto Ayam Bening (Pisah Kulit)", "Ikan Tim Kecap Jahe + Sawi Putih"]}, 
-                {d:"Kamis", m:["Ubi Rebus Ukuran Sedang", "Gado-gado (Bumbu Dipisah)", "Salad Telur Rebus Dressing Yoghurt"]},
-                {d:"Jumat", m:["Yoghurt Plain Rendah Lemak + Pir", "Ayam Suwir Pedas (Dada) + Tumis Tauge", "Sup Tahu Putih Sawi Hijau"]}, 
-                {d:"Sabtu", m:["Omelet Sayur Putih Telur", "Ikan Pepes Bumbu Merah (Kukus)", "Buah Potong Segar (Pepaya/Melon)"]}, 
-                {d:"Minggu", m:["Roti Gandum 1 Lembar Tanpa Selai", "Urab Sayuran + Tahu Rebus", "Kaldu Ayam Bening + Jamur Kuping"]}
+                {d:"Senin", m:["Telur Rebus 2 Butir + Teh Tawar (~150 kkal)", "Nasi Merah 5 Sdm + Ikan Bakar (~400 kkal)", "Sup Dada Ayam Jahe (Tanpa Nasi) (~300 kkal)"]},
+                {d:"Selasa", m:["Apel Merah + 1 sdm Selai Kacang (~200 kkal)", "Pepes Tahu Kemangi + Sayur Bening Bayam (~300 kkal)", "Tumis Buncis Tempe Rebus (Sedikit Minyak) (~350 kkal)"]},
+                {d:"Rabu", m:["Smoothie Hijau (Timun Seledri) (~150 kkal)", "Soto Ayam Bening (Pisah Kulit) (~350 kkal)", "Ikan Tim Kecap Jahe + Sawi Putih (~300 kkal)"]},
+                {d:"Kamis", m:["Ubi Rebus Ukuran Sedang (~150 kkal)", "Gado-gado (Bumbu Dipisah) (~350 kkal)", "Salad Telur Rebus Dressing Yoghurt (~250 kkal)"]},
+                {d:"Jumat", m:["Yoghurt Plain Rendah Lemak + Pir (~150 kkal)", "Ayam Suwir Pedas (Dada) + Tumis Tauge (~350 kkal)", "Sup Tahu Putih Sawi Hijau (~200 kkal)"]},
+                {d:"Sabtu", m:["Omelet Sayur Putih Telur (~200 kkal)", "Ikan Pepes Bumbu Merah (Kukus) (~300 kkal)", "Buah Potong Segar (Pepaya/Melon) (~100 kkal)"]},
+                {d:"Minggu", m:["Roti Gandum 1 Lembar Tanpa Selai (~100 kkal)", "Urab Sayuran + Tahu Rebus (~250 kkal)", "Kaldu Ayam Bening + Jamur Kuping (~200 kkal)"]}
             ],
             obese: [
-                {d:"Senin", m:["Kopi Hitam Tawar + 2 Putih Telur Rebus", "Shirataki Goreng Ayam Suwir + Sayur", "Salad Timun Tomat (Tanpa Dressing Minyak)"]}, 
-                {d:"Selasa", m:["Teh Hijau Panas + 1 Potong Pepaya", "Ikan Kukus Jahe Bawang Putih", "Sup Jamur Kuping Tahu Sutra Bening"]},
-                {d:"Rabu", m:["Chia Pudding Air Kelapa (Tanpa Gula)", "Pepes Jamur Tahu Kukus", "Tumis Bayam Bawang Putih Rebus (Air)"]}, 
-                {d:"Kamis", m:["Dadar Putih Telur + Tomat Panggang", "Sop Ikan Batam Kuah Bening Segar", "Brokoli Rebus + Sedikit Saus Tiram"]},
-                {d:"Jumat", m:["Jus Tomat Wortel Murni", "Ayam Pop Kukus (Tanpa Kulit)", "Edamame Rebus Tanpa Garam"]}, 
-                {d:"Sabtu", m:["Air Lemon Hangat + Apel Hijau", "Tahu Tempe Bacem Rebus (Bukan Goreng)", "Sup Oyong Soun Sedikit"]}, 
-                {d:"Minggu", m:["Puasa Intermittent (Jendela Makan 8 Jam)", "Protein Shake Whey Isolate Air Dingin", "Sayuran Kukus Lengkap (Wortel Buncis Kol)"]}
+                {d:"Senin", m:["Kopi Hitam Tawar + 2 Putih Telur Rebus (~100 kkal)", "Shirataki Goreng Ayam Suwir + Sayur (~300 kkal)", "Salad Timun Tomat (Tanpa Dressing Minyak) (~150 kkal)"]},
+                {d:"Selasa", m:["Teh Hijau Panas + 1 Potong Pepaya (~80 kkal)", "Ikan Kukus Jahe Bawang Putih (~250 kkal)", "Sup Jamur Kuping Tahu Sutra Bening (~200 kkal)"]},
+                {d:"Rabu", m:["Chia Pudding Air Kelapa (Tanpa Gula) (~150 kkal)", "Pepes Jamur Tahu Kukus (~200 kkal)", "Tumis Bayam Bawang Putih Rebus (Air) (~100 kkal)"]},
+                {d:"Kamis", m:["Dadar Putih Telur + Tomat Panggang (~150 kkal)", "Sop Ikan Batam Kuah Bening Segar (~250 kkal)", "Brokoli Rebus + Sedikit Saus Tiram (~100 kkal)"]},
+                {d:"Jumat", m:["Jus Tomat Wortel Murni (~80 kkal)", "Ayam Pop Kukus (Tanpa Kulit) (~250 kkal)", "Edamame Rebus Tanpa Garam (~100 kkal)"]},
+                {d:"Sabtu", m:["Air Lemon Hangat + Apel Hijau (~60 kkal)", "Tahu Tempe Bacem Rebus (Bukan Goreng) (~200 kkal)", "Sup Oyong Soun Sedikit (~150 kkal)"]},
+                {d:"Minggu", m:["Puasa Intermittent (Jendela Makan 8 Jam) (0 kkal)", "Protein Shake Whey Isolate Air Dingin (~120 kkal)", "Sayuran Kukus Lengkap (Wortel Buncis Kol) (~150 kkal)"]}
             ]
         };
-
-        // Note: Weekly plans are hardcoded in Indonesian. Translating them all is huge.
-        // For V1, I will keep the menu in ID as they are specific local foods (Nasi Padang, Gado-gado).
-        // The prompt asked for "mode dual bahasa Inggris & Indonesia", but food names are cultural.
-        // I will focus on translating UI and Explanations first.
 
         function calculateBMI() {
             const w = parseFloat(document.getElementById('weight').value);
@@ -862,6 +939,14 @@
             if(!w || !h || !a) { alert("Data belum lengkap!"); return; }
 
             const T = translations[currentLang];
+
+            // Helper Tooltip
+            const createTooltip = (text) => `
+                <div class="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 px-3 py-2 bg-gray-800 text-white text-[10px] rounded-lg w-48 text-center z-50 mb-2 shadow-xl leading-snug">
+                    ${text}
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-gray-800"></div>
+                </div>
+            `;
 
             // 1. BMI Calculation
             const bmi = (w/((h/100)**2)).toFixed(1);
@@ -925,6 +1010,7 @@
                 <div class="flex flex-col items-center">
                     <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 cursor-help group relative">
                         BMI SCORE
+                        ${createTooltip(T.tooltip_bmi)}
                     </span>
                     ${bmi}
                 </div>
@@ -938,8 +1024,9 @@
 
             const deurenbergBox = `
                 <div class="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm flex flex-col items-center justify-center relative group">
-                    <p class="text-[10px] text-gray-400 uppercase font-bold mb-1 border-b border-dotted border-gray-300">
+                    <p class="text-[10px] text-gray-400 uppercase font-bold cursor-help mb-1 border-b border-dotted border-gray-300">
                         Est. Deurenberg
+                        ${createTooltip(T.tooltip_deurenberg)}
                     </p>
                     <p class="text-xl font-black text-gray-700 dark:text-gray-200">${deurenbergBF}%</p>
                     <p class="text-[9px] font-bold ${dColor} uppercase mt-1">${dStatus}</p>
@@ -949,8 +1036,9 @@
             if (rfm) {
                 const rfmBox = `
                     <div class="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm flex flex-col items-center justify-center relative group">
-                        <p class="text-[10px] text-gray-400 uppercase font-bold mb-1 border-b border-dotted border-gray-300">
+                        <p class="text-[10px] text-gray-400 uppercase font-bold cursor-help mb-1 border-b border-dotted border-gray-300">
                             RFM
+                            ${createTooltip(T.tooltip_rfm)}
                         </p>
                         <p class="text-xl font-black text-indigo-600">${rfm}%</p>
                         <p class="text-[9px] font-bold ${rColor} uppercase mt-1">${rStatus}</p>
@@ -983,12 +1071,18 @@
                 <div class="space-y-3">
                     <div class="grid grid-cols-2 gap-3">
                         <div class="bg-pink-50 dark:bg-pink-900/20 p-3 rounded-xl border border-pink-100 dark:border-pink-800 text-center relative group">
-                            <p class="text-[10px] font-bold text-pink-600 uppercase mb-1 border-b border-dotted border-pink-300 inline-block">BMR</p>
+                            <p class="text-[10px] font-bold text-pink-600 uppercase cursor-help mb-1 border-b border-dotted border-pink-300 inline-block">
+                                BMR
+                                ${createTooltip(T.tooltip_bmr)}
+                            </p>
                             <p class="text-lg font-black text-gray-800 dark:text-gray-100">${userData.bmr.toLocaleString('id-ID')}</p>
                             <p class="text-[9px] text-gray-500">kkal</p>
                         </div>
                         <div class="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-xl border border-orange-100 dark:border-orange-800 text-center relative group">
-                             <p class="text-[10px] font-bold text-orange-600 uppercase mb-1 border-b border-dotted border-orange-300 inline-block">TDEE</p>
+                             <p class="text-[10px] font-bold text-orange-600 uppercase cursor-help mb-1 border-b border-dotted border-orange-300 inline-block">
+                                TDEE
+                                ${createTooltip(T.tooltip_tdee)}
+                            </p>
                             <p class="text-lg font-black text-gray-800 dark:text-gray-100">${userData.tdee.toLocaleString('id-ID')}</p>
                             <p class="text-[9px] text-gray-500">kkal</p>
                         </div>
@@ -1227,6 +1321,103 @@
 
         function closeModal() { document.getElementById('reportModal').classList.add('hidden'); }
         function resetForm() { document.getElementById('weight').value=''; document.getElementById('height').value=''; document.getElementById('resultArea').classList.add('hidden'); }
+
+        function toggleInfo() {
+            const content = document.getElementById('infoContent');
+            const icon = document.getElementById('infoIcon');
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                content.classList.add('fade-in-up');
+                icon.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                content.classList.remove('fade-in-up');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('printableArea');
+            const opt = {
+                margin: [10, 10, 10, 10],
+                filename: `BMI_Report_${userData.k}_${new Date().toISOString().slice(0,10)}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // --- DRAG LOGIC FOR FLOATING ACTIONS ---
+        const floatBtn = document.getElementById('floatingActions');
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        const handleStart = (e) => {
+            // Allow dragging only if target is NOT a button
+            // Actually, user might want to drag from anywhere.
+            // But clicking a button should fire the button action, not start dragging immediately if it's a tap.
+            // However, standard behavior for floating widgets is draggable from the container area.
+            // If I prevent default on button, click won't work.
+            // So: Only start drag if not clicking a button? Or distinguish click vs drag?
+            // Simple approach: Drag starts, but if movement is small (< 5px), it's a click.
+            // But here we are attaching handlers to the container.
+
+            if (e.target.tagName.toLowerCase() === 'button' || e.target.closest('button')) {
+                // e.preventDefault(); // If we do this, buttons won't click on mobile?
+                // Let buttons handle themselves?
+                // If we return here, we can't drag from the button area. That's fine.
+                // Let's allow dragging only from the "handle" or the empty space.
+                // But the handle is small.
+                // Better: Standard drag logic.
+            }
+
+            isDragging = true;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const rect = floatBtn.getBoundingClientRect();
+
+            if (floatBtn.style.transform !== 'none') {
+                floatBtn.style.left = rect.left + 'px';
+                floatBtn.style.top = rect.top + 'px';
+                floatBtn.style.bottom = 'auto';
+                floatBtn.style.transform = 'none';
+            }
+
+            offsetX = clientX - rect.left;
+            offsetY = clientY - rect.top;
+
+            floatBtn.classList.add('cursor-grabbing');
+            floatBtn.classList.remove('cursor-grab');
+        };
+
+        const handleMove = (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            floatBtn.style.left = `${clientX - offsetX}px`;
+            floatBtn.style.top = `${clientY - offsetY}px`;
+        };
+
+        const handleEnd = () => {
+            isDragging = false;
+            floatBtn.classList.remove('cursor-grabbing');
+            floatBtn.classList.add('cursor-grab');
+        };
+
+        floatBtn.addEventListener('mousedown', handleStart);
+        document.addEventListener('mousemove', handleMove);
+        document.addEventListener('mouseup', handleEnd);
+
+        floatBtn.addEventListener('touchstart', handleStart, {passive: false});
+        document.addEventListener('touchmove', handleMove, {passive: false});
+        document.addEventListener('touchend', handleEnd);
+
     </script>
 </body>
 </html>
