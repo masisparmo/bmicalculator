@@ -173,10 +173,10 @@
                                 <!-- BMR -->
                                 <div>
                                     <p class="font-bold text-pink-600">1. BMR (Basal Metabolic Rate)</p>
-                                    <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Biaya Operasional Tetap.</strong> Energi minimal untuk bertahan hidup saat diam total (jantung, otak, napas).</p>
-                                    <div class="bg-blue-50 dark:bg-gray-700/50 p-3 rounded-lg border-l-4 border-blue-400 text-[10px] space-y-1">
-                                        <p><strong>🚗 Analogi Mobil:</strong> Mesin dipanaskan di parkiran (Idling). Bensin terbakar tapi mobil tidak bergerak.</p>
-                                        <p class="text-red-500 dark:text-red-400"><strong>⚠️ Bahaya:</strong> Jangan makan di bawah BMR! Tubuh bisa masuk "Mode Kelaparan" dan merusak metabolisme.</p>
+                                    <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Biaya Operasional Tetap.</strong> Jumlah kalori minimal untuk sekadar bertahan hidup (jantung, otak, napas).</p>
+                                    <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border-l-4 border-red-500 text-[10px] space-y-1">
+                                        <p><strong>🚗 Analogi Mobil:</strong> Mobil dipanaskan (Idling) di parkiran. Mesin nyala, bensin terbakar, tapi tidak bergerak.</p>
+                                        <p class="text-red-600 dark:text-red-400 font-bold"><strong>⚠️ ZONA BAHAYA:</strong> Jangan makan di bawah angka BMR! Tubuh akan masuk "Mode Kelaparan" (menyimpan lemak) dan merusak metabolisme.</p>
                                     </div>
                                 </div>
 
@@ -184,19 +184,25 @@
                                 <div>
                                     <p class="font-bold text-orange-600">2. TDEE (Total Daily Energy Expenditure)</p>
                                     <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Total Pengeluaran Harian.</strong> BMR + Aktivitas Fisik + Energi Cerna Makanan.</p>
-                                    <div class="bg-orange-50 dark:bg-gray-700/50 p-3 rounded-lg border-l-4 border-orange-400 text-[10px]">
-                                        <p><strong>🚕 Analogi Mobil:</strong> Mobil keliling kota. AC nyala, gas, rem. Bensin lebih boros dari sekadar diam.</p>
+                                    <div class="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border-l-4 border-orange-400 text-[10px]">
+                                        <p><strong>🚕 Analogi Mobil:</strong> Mobil keliling kota. AC nyala, gas, rem. Bensin lebih boros daripada saat diam.</p>
                                     </div>
                                 </div>
 
                                 <!-- STRATEGY -->
                                 <div>
-                                    <p class="font-bold text-purple-600">3. Matematika Diet (TDEE vs Intake)</p>
-                                    <ul class="list-disc pl-4 mt-1 space-y-1 text-[10px]">
-                                        <li><strong>Maintenance:</strong> Makan = TDEE (Berat Stabil)</li>
-                                        <li><strong>Surplus (Bulking):</strong> Makan > TDEE (Naik Berat)</li>
-                                        <li><strong>Defisit (Cutting):</strong> Makan < TDEE (Turun Berat). Target ideal: TDEE - 500 kkal.</li>
-                                    </ul>
+                                    <p class="font-bold text-purple-600">3. Strategi "Matematika Diet"</p>
+                                    <div class="mt-1 space-y-2 text-[10px]">
+                                        <div class="bg-green-50 dark:bg-green-900/20 p-2 rounded border border-green-100 dark:border-green-800">
+                                            <p class="font-bold text-green-700 dark:text-green-400">✅ ZONA AMAN DIET</p>
+                                            <p>Makanlah di antara <strong>BMR</strong> s.d. <strong>TDEE</strong>.</p>
+                                        </div>
+                                        <ul class="list-disc pl-4 space-y-1">
+                                            <li><strong>Maintenance:</strong> Makan = TDEE (Berat Stabil)</li>
+                                            <li><strong>Cutting (Turun):</strong> Makan < TDEE (Ideal: TDEE - 500)</li>
+                                            <li><strong>Bulking (Naik):</strong> Makan > TDEE (Simpan Otot/Lemak)</li>
+                                        </ul>
+                                    </div>
                                 </div>
 
                                 <!-- FORMULA -->
@@ -443,16 +449,22 @@
             <div class="h-24 w-full"></div>
         </div>
 
-        <!-- TOMBOL FIXED FLOATING -->
-        <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[60]">
-            <div class="bg-white dark:bg-gray-800 p-2 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 flex gap-3 items-center">
-                <button onclick="window.print()" id="btnPrint" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg flex justify-center items-center gap-2 active:scale-95 transition text-sm">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                    PRINT
-                </button>
-                <button onclick="closeModal()" class="px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300 font-bold rounded-xl text-sm transition">
-                    Tutup
-                </button>
+        <!-- TOMBOL FIXED FLOATING (DRAGGABLE) -->
+        <div id="floatingActions" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[60] cursor-grab active:cursor-grabbing touch-none">
+            <div class="bg-white dark:bg-gray-800 p-2 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 flex flex-col gap-1 items-center">
+                <!-- Drag Handle -->
+                <div class="w-12 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full mb-1"></div>
+
+                <div class="flex gap-3 items-center">
+                    <button onclick="window.print()" id="btnPrint" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg flex justify-center items-center gap-2 active:scale-95 transition text-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        PRINT
+                    </button>
+                    <button onclick="closeModal()" class="px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300 font-bold rounded-xl text-sm transition">
+                        Tutup
+                    </button>
+                </div>
+                <p class="text-[8px] text-gray-400 mt-0.5">Geser tombol jika menghalangi</p>
             </div>
         </div>
     </div>
@@ -865,37 +877,69 @@
                         <div class="bg-gray-50 p-4 border-b border-gray-100">
                             <h3 class="font-extrabold text-gray-800 text-sm uppercase tracking-wide flex items-center gap-2">🔥 Profil Energi & Metabolisme</h3>
                         </div>
-                        <div class="p-4 grid grid-cols-2 gap-4">
-                            <!-- BMR -->
-                            <div class="space-y-1">
-                                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">BMR (Basic)</p>
-                                <p class="text-2xl font-black text-gray-800 tracking-tight">${userData.bmr.toLocaleString('id-ID')} <span class="text-xs font-bold text-gray-400">kkal</span></p>
-                                <div class="text-[9px] text-gray-500 bg-gray-100 p-2 rounded leading-tight border border-gray-200">
-                                    <strong>🚗 Ibarat Mobil Parkir:</strong> Bensin minimal agar mesin tetap menyala walau tidak jalan.
+
+                        <!-- Intro Edukasi -->
+                        <div class="px-4 pt-4 pb-2 text-[10px] text-gray-600 border-b border-dashed border-gray-200">
+                            <p class="mb-1"><strong>Apa maksud angka-angka ini?</strong></p>
+                            <p>Tubuh Anda seperti mesin yang butuh anggaran bensin (kalori) harian. Angka ini membantu Anda menentukan <strong>berapa banyak yang harus dimakan</strong> agar berat badan terkontrol.</p>
+                        </div>
+
+                        <div class="p-4 grid grid-cols-1 gap-4">
+                            <!-- BMR ROW -->
+                            <div class="flex items-start gap-3 bg-red-50 p-3 rounded-lg border border-red-100">
+                                <div class="w-16 h-16 rounded-full bg-white border-2 border-red-200 flex flex-col items-center justify-center shrink-0 shadow-sm">
+                                    <span class="text-[8px] font-bold text-red-400">BMR</span>
+                                    <span class="text-xs font-black text-red-600">${userData.bmr.toLocaleString('id-ID')}</span>
+                                </div>
+                                <div class="text-[10px] leading-snug">
+                                    <p class="font-bold text-red-700 mb-0.5">ZONA BAHAYA (Batas Minimal)</p>
+                                    <p class="text-gray-600 mb-1">Biaya Operasional Tetap (Tidur/Napas). Ibarat mobil <i>idling</i>.</p>
+                                    <p class="text-red-700 bg-red-100 inline-block px-2 py-1 rounded border border-red-200 font-bold">
+                                        ⛔ JANGAN makan di bawah angka ini!
+                                    </p>
                                 </div>
                             </div>
-                            <!-- TDEE -->
-                            <div class="space-y-1">
-                                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">TDEE (Total)</p>
-                                <p class="text-2xl font-black text-orange-600 tracking-tight">${userData.tdee.toLocaleString('id-ID')} <span class="text-xs font-bold text-orange-300">kkal</span></p>
-                                <div class="text-[9px] text-gray-500 bg-orange-50 p-2 rounded leading-tight border border-orange-100">
-                                    <strong>🚕 Ibarat Mobil Jalan:</strong> Total bensin untuk aktivitas harian (Kerja + Olahraga).
+
+                            <!-- ZONA AMAN DIET ROW -->
+                            <div class="flex items-start gap-3 bg-green-50 p-3 rounded-lg border border-green-100">
+                                <div class="w-16 h-16 rounded-full bg-white border-2 border-green-200 flex flex-col items-center justify-center shrink-0 shadow-sm">
+                                    <span class="text-[8px] font-bold text-green-600">ZONA AMAN</span>
+                                    <span class="text-[9px] font-black text-green-700 text-center leading-tight mt-0.5">
+                                        ${userData.bmr.toLocaleString('id-ID')} - ${userData.tdee.toLocaleString('id-ID')}
+                                    </span>
+                                </div>
+                                <div class="text-[10px] leading-snug">
+                                    <p class="font-bold text-green-800 mb-0.5">Zona Aman Diet</p>
+                                    <p class="text-gray-600 mb-1">Rentang kalori ideal untuk diet sehat tanpa merusak metabolisme.</p>
+                                    <ul class="list-disc pl-3 text-gray-500 space-y-0.5">
+                                        <li><strong>Batas Atas:</strong> ${userData.tdee.toLocaleString('id-ID')} (TDEE/Maintenance)</li>
+                                        <li><strong>Target Ideal:</strong> ${cutTarget.toLocaleString('id-ID')} (Defisit)</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
-                        <!-- Target Table -->
-                        <div class="bg-gray-50 p-3 border-t border-gray-100 grid grid-cols-3 divide-x divide-gray-200 text-center">
-                            <div>
+
+                        <!-- Target Table Header -->
+                        <div class="bg-gray-50 px-4 py-2 border-t border-gray-100 border-b border-gray-100">
+                             <p class="text-[9px] font-bold text-gray-500 uppercase tracking-wider text-center">🎯 Menu Pilihan Anda (Target Harian)</p>
+                        </div>
+
+                        <!-- Target Table Body -->
+                        <div class="grid grid-cols-3 divide-x divide-gray-100 text-center">
+                            <div class="p-3 bg-yellow-50/30 hover:bg-yellow-50 transition">
                                 <p class="text-[9px] uppercase font-extrabold text-gray-400 mb-1">Cutting</p>
                                 <p class="font-black text-gray-800 text-sm">${cutTarget.toLocaleString('id-ID')}</p>
+                                <p class="text-[8px] text-gray-400 mt-1">Turun Berat</p>
                             </div>
-                            <div>
+                            <div class="p-3 bg-green-50/30 hover:bg-green-50 transition">
                                 <p class="text-[9px] uppercase font-extrabold text-green-600 mb-1">Stabil</p>
                                 <p class="font-black text-green-600 text-sm">${userData.tdee.toLocaleString('id-ID')}</p>
+                                <p class="text-[8px] text-green-500 mt-1">Jaga Berat</p>
                             </div>
-                            <div>
+                            <div class="p-3 bg-blue-50/30 hover:bg-blue-50 transition">
                                 <p class="text-[9px] uppercase font-extrabold text-gray-400 mb-1">Bulking</p>
                                 <p class="font-black text-gray-800 text-sm">${bulkTarget.toLocaleString('id-ID')}</p>
+                                <p class="text-[8px] text-gray-400 mt-1">Naik Berat</p>
                             </div>
                         </div>
                     </div>
@@ -975,6 +1019,67 @@
                 icon.classList.remove('rotate-180');
             }
         }
+
+        // --- DRAG LOGIC FOR FLOATING ACTIONS ---
+        const floatBtn = document.getElementById('floatingActions');
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+
+        const handleStart = (e) => {
+            isDragging = true;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            // Get current computed position
+            const rect = floatBtn.getBoundingClientRect();
+
+            // Note: We need to handle the transform -translate-x-1/2 which messes up simple offsets.
+            // Strategy: Switch to fixed Top/Left on first drag and remove transform.
+
+            if (floatBtn.style.transform !== 'none') {
+                floatBtn.style.left = rect.left + 'px';
+                floatBtn.style.top = rect.top + 'px';
+                floatBtn.style.bottom = 'auto'; // clear bottom-6
+                floatBtn.style.transform = 'none'; // clear centering
+            }
+
+            startX = clientX;
+            startY = clientY;
+            initialLeft = floatBtn.offsetLeft;
+            initialTop = floatBtn.offsetTop;
+
+            floatBtn.classList.add('cursor-grabbing');
+            floatBtn.classList.remove('cursor-grab');
+        };
+
+        const handleMove = (e) => {
+            if (!isDragging) return;
+            e.preventDefault(); // Prevent scrolling while dragging
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const dx = clientX - startX;
+            const dy = clientY - startY;
+
+            floatBtn.style.left = `${initialLeft + dx}px`;
+            floatBtn.style.top = `${initialTop + dy}px`;
+        };
+
+        const handleEnd = () => {
+            isDragging = false;
+            floatBtn.classList.remove('cursor-grabbing');
+            floatBtn.classList.add('cursor-grab');
+        };
+
+        floatBtn.addEventListener('mousedown', handleStart);
+        document.addEventListener('mousemove', handleMove);
+        document.addEventListener('mouseup', handleEnd);
+
+        floatBtn.addEventListener('touchstart', handleStart, {passive: false});
+        document.addEventListener('touchmove', handleMove, {passive: false});
+        document.addEventListener('touchend', handleEnd);
+
     </script>
 </body>
 </html>
