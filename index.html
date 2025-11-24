@@ -210,6 +210,84 @@
                                 </div>
                             </div>
 
+                            <h3 class="font-bold text-gray-700 dark:text-gray-200 mt-6 border-b border-gray-100 dark:border-gray-700 pb-1">Panduan Kategori Lemak Tubuh</h3>
+                            <div class="space-y-4 mt-3 text-[10px] leading-tight">
+
+                                <!-- RFM 30/40 -->
+                                <div>
+                                    <p class="font-bold text-indigo-600 mb-1">1. Kategori RFM (Aturan 30/40)</p>
+                                    <p class="mb-2 text-gray-600 dark:text-gray-400">Batas sederhana untuk diagnosa obesitas oleh Woolcott & Bergman.</p>
+                                    <div class="grid grid-cols-3 gap-0 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden text-center">
+                                        <div class="bg-gray-100 dark:bg-gray-700 p-1.5 font-bold">Status</div>
+                                        <div class="bg-gray-100 dark:bg-gray-700 p-1.5 font-bold">Pria</div>
+                                        <div class="bg-gray-100 dark:bg-gray-700 p-1.5 font-bold">Wanita</div>
+
+                                        <div class="p-1.5 border-t border-gray-100 dark:border-gray-600">Sehat</div>
+                                        <div class="p-1.5 border-t border-gray-100 dark:border-gray-600 text-green-600 font-bold">&lt; 30%</div>
+                                        <div class="p-1.5 border-t border-gray-100 dark:border-gray-600 text-green-600 font-bold">&lt; 40%</div>
+
+                                        <div class="p-1.5 border-t border-gray-100 dark:border-gray-600 bg-red-50 dark:bg-red-900/10">Obesitas</div>
+                                        <div class="p-1.5 border-t border-gray-100 dark:border-gray-600 bg-red-50 dark:bg-red-900/10 text-red-600 font-bold">≥ 30%</div>
+                                        <div class="p-1.5 border-t border-gray-100 dark:border-gray-600 bg-red-50 dark:bg-red-900/10 text-red-600 font-bold">≥ 40%</div>
+                                    </div>
+                                </div>
+
+                                <!-- ACE TABLE -->
+                                <div>
+                                    <p class="font-bold text-green-600 mb-1">2. Kategori Deurenberg (Standar ACE)</p>
+                                    <p class="mb-2 text-gray-600 dark:text-gray-400">Standar internasional American Council on Exercise.</p>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-left border-collapse border border-gray-200 dark:border-gray-600 text-[9px]">
+                                            <thead class="bg-gray-100 dark:bg-gray-700">
+                                                <tr>
+                                                    <th class="p-1.5 border border-gray-200 dark:border-gray-600">Kategori</th>
+                                                    <th class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">Pria</th>
+                                                    <th class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">Wanita</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-blue-600 font-bold">Esensial (Kritis)</td>
+                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">2-5%</td>
+                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">10-13%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 font-medium">Atlet</td>
+                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">6-13%</td>
+                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">14-20%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-green-600 font-bold">Fitness</td>
+                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">14-17%</td>
+                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">21-24%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600">Normal</td>
+                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">18-24%</td>
+                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">25-31%</td>
+                                                </tr>
+                                                <tr class="bg-red-50 dark:bg-red-900/10">
+                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-red-600 font-bold">Obesitas</td>
+                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center font-bold">25%+</td>
+                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center font-bold">32%+</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Comparison Logic -->
+                                <div class="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-100 dark:border-yellow-700">
+                                    <p class="font-bold text-yellow-700 dark:text-yellow-500 mb-1">💡 Mengapa Hasilnya Beda?</p>
+                                    <p class="text-gray-700 dark:text-gray-300 mb-2 text-justify">Kategori Persentase Lemak (RFM/Deurenberg) lebih <strong>jujur</strong> daripada BMI.</p>
+                                    <ul class="list-disc pl-3 space-y-1 text-gray-600 dark:text-gray-400">
+                                        <li><strong>BMI:</strong> Hanya ukur berat vs tinggi. Otot berat bisa dianggap gemuk.</li>
+                                        <li><strong>Body Fat:</strong> Langsung menunjuk timbunan lemak.</li>
+                                    </ul>
+                                    <p class="mt-2 font-medium italic text-gray-500">"Misal Pria dengan 26% lemak. Di BMI mungkin hanya Overweight, tapi secara medis sudah Obesitas."</p>
+                                </div>
+                            </div>
+
                             <p class="pt-2 border-t border-dashed border-gray-200 dark:border-gray-700 mt-2">
                                 Sumber Resmi: <a href="https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight" target="_blank" class="text-primary hover:underline font-bold">World Health Organization (WHO)</a>
                             </p>
@@ -471,13 +549,42 @@
             const deurenbergSex = g === 'male' ? 1 : 0;
             const deurenbergBF = ((1.20 * bmi) + (0.23 * a) - (10.8 * deurenbergSex) - 5.4).toFixed(1);
 
+            // Deurenberg Categorization (ACE Standards)
+            let dStatus = 'Normal', dColor = 'text-green-600';
+            const bf = parseFloat(deurenbergBF);
+            if (g === 'male') {
+                if (bf < 6) { dStatus = 'Esensial'; dColor = 'text-blue-600'; }
+                else if (bf < 14) { dStatus = 'Atlet'; dColor = 'text-green-600'; }
+                else if (bf < 18) { dStatus = 'Fitness'; dColor = 'text-green-600'; }
+                else if (bf < 25) { dStatus = 'Normal'; dColor = 'text-yellow-600'; }
+                else { dStatus = 'Obesitas (ACE)'; dColor = 'text-red-600'; }
+            } else {
+                if (bf < 14) { dStatus = 'Esensial'; dColor = 'text-blue-600'; }
+                else if (bf < 21) { dStatus = 'Atlet'; dColor = 'text-green-600'; }
+                else if (bf < 25) { dStatus = 'Fitness'; dColor = 'text-green-600'; }
+                else if (bf < 32) { dStatus = 'Normal'; dColor = 'text-yellow-600'; }
+                else { dStatus = 'Obesitas (ACE)'; dColor = 'text-red-600'; }
+            }
+
             // 3. RFM Calculation (Optional)
             let rfm = null;
+            let rStatus = '', rColor = '';
             if (waist && waist > 0) {
                 // Rumus: 64 - (20 * (Tinggi/Lingkar Pinggang)) + (12 * Sex)
                 // Sex: Wanita = 1, Pria = 0
                 const rfmSex = g === 'female' ? 1 : 0;
                 rfm = (64 - (20 * (h / waist)) + (12 * rfmSex)).toFixed(1);
+
+                // RFM Categorization (30/40 Rule)
+                const rfmVal = parseFloat(rfm);
+                const limit = g === 'male' ? 30 : 40;
+                if (rfmVal >= limit) {
+                    rStatus = 'Obesitas (>'+limit+'%)';
+                    rColor = 'text-red-600';
+                } else {
+                    rStatus = 'Normal';
+                    rColor = 'text-green-600';
+                }
             }
 
             // 4. BMR & TDEE Calculation (Mifflin-St Jeor)
@@ -487,7 +594,7 @@
             bmr = Math.round(bmr);
             const tdee = Math.round(bmr * activity);
 
-            userData = {w, h, a, g, bmi, k, l, deurenbergBF, rfm, waist, bmr, tdee, activity};
+            userData = {w, h, a, g, bmi, k, l, deurenbergBF, dStatus, dColor, rfm, rStatus, rColor, waist, bmr, tdee, activity};
 
             // Display Logic: ALWAYS BMI Main
             const resultValue = document.getElementById('bmiValue');
@@ -549,6 +656,7 @@
                         ${createTooltip("Rumus estimasi lemak tubuh berdasarkan BMI, usia, dan jenis kelamin.")}
                     </p>
                     <p class="text-xl font-black text-gray-700 dark:text-gray-200">${deurenbergBF}%</p>
+                    <p class="text-[9px] font-bold ${dColor} uppercase mt-1">${dStatus}</p>
                 </div>
             `;
 
@@ -561,6 +669,7 @@
                             ${createTooltip("Relative Fat Mass: Estimasi persentase lemak tubuh menggunakan lingkar pinggang.")}
                         </p>
                         <p class="text-xl font-black text-indigo-600">${rfm}%</p>
+                        <p class="text-[9px] font-bold ${rColor} uppercase mt-1">${rStatus}</p>
                     </div>
                 `;
 
@@ -716,7 +825,24 @@
                     statusBadge.previousElementSibling.innerHTML = reportStatContainer.innerHTML;
                 }
 
-                document.getElementById('aiAnalysis').innerHTML = inf.txt;
+                let analysisText = inf.txt;
+                // Check for Hidden Obesity (BMI < Obese BUT Body Fat >= Obese)
+                // BMI Obese is >= 30.
+                // Deurenberg Obese: Male >= 25, Female >= 32
+                // RFM Obese: Male >= 30, Female >= 40
+
+                const bmiVal = parseFloat(userData.bmi);
+                const isBmiObese = bmiVal >= 30;
+
+                let isFatObese = false;
+                if (userData.dStatus.includes('Obesitas')) isFatObese = true;
+                if (userData.rfm && userData.rStatus.includes('Obesitas')) isFatObese = true;
+
+                if (!isBmiObese && isFatObese) {
+                    analysisText += ` <br><br><strong class="text-red-600">⚠️ PERINGATAN:</strong> Meskipun BMI Anda belum Obesitas, namun Persentase Lemak Tubuh Anda sudah masuk kategori <strong>OBESITAS</strong>. Ini sering disebut "Skinny Fat" atau "Normal Weight Obesity". Fokuslah menurunkan lemak (Cutting) daripada sekadar menurunkan berat badan.`;
+                }
+
+                document.getElementById('aiAnalysis').innerHTML = analysisText;
                 document.getElementById('aiExercise').innerHTML = inf.ex;
 
                 const bg = {underweight:'bg-blue-100 text-blue-800 border-blue-200', normal:'bg-green-100 text-green-800 border-green-200', overweight:'bg-yellow-100 text-yellow-800 border-yellow-200', obese:'bg-red-100 text-red-800 border-red-200'};
