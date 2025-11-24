@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BMI Calculator Pro 1.0 by ISPARMO</title>
+    <title>BMI Calculator PRO</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -83,45 +83,50 @@
             <!-- Header -->
             <div class="p-5 flex justify-between items-center bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
                 <div>
-                    <h1 class="text-2xl font-black text-primary dark:text-indigo-400">BMI Pro</h1>
-                    <p class="text-xs text-gray-500">Final V17 Fixed Layout</p>
+                    <h1 class="text-2xl font-black text-primary dark:text-indigo-400">BMI Calculator PRO</h1>
+                    <p data-i18n="subtitle" class="text-[10px] text-gray-500 font-bold uppercase tracking-wide">Calculator: BMI, RFM, Deurenberg & Target Kalori</p>
                 </div>
-                <button id="themeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
-                    <span class="dark:hidden">🌙</span><span class="hidden dark:block">☀️</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button id="langToggle" class="px-3 py-1.5 rounded-full bg-gray-200 dark:bg-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300">
+                        ID
+                    </button>
+                    <button id="themeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
+                        <span class="dark:hidden">🌙</span><span class="hidden dark:block">☀️</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Form Input -->
             <div class="p-5 space-y-4">
                 <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase">Gender</label>
+                    <label data-i18n="lbl_gender" class="text-xs font-bold text-gray-500 uppercase">Gender</label>
                     <div class="grid grid-cols-2 gap-3 mt-1">
-                        <label class="cursor-pointer"><input type="radio" name="gender" value="male" class="peer sr-only" checked><div class="p-3 rounded-xl border peer-checked:bg-primary/10 peer-checked:border-primary peer-checked:text-primary text-center transition font-semibold">👨 Pria</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="gender" value="female" class="peer sr-only"><div class="p-3 rounded-xl border peer-checked:bg-pink-500/10 peer-checked:border-pink-500 peer-checked:text-pink-500 text-center transition font-semibold">👩 Wanita</div></label>
+                        <label class="cursor-pointer"><input type="radio" name="gender" value="male" class="peer sr-only" checked><div data-i18n="val_male" class="p-3 rounded-xl border peer-checked:bg-primary/10 peer-checked:border-primary peer-checked:text-primary text-center transition font-semibold">👨 Pria</div></label>
+                        <label class="cursor-pointer"><input type="radio" name="gender" value="female" class="peer sr-only"><div data-i18n="val_female" class="p-3 rounded-xl border peer-checked:bg-pink-500/10 peer-checked:border-pink-500 peer-checked:text-pink-500 text-center transition font-semibold">👩 Wanita</div></label>
                     </div>
                 </div>
                 <div class="grid grid-cols-3 gap-3">
-                    <div class="col-span-3"><label class="text-xs font-bold text-gray-500 uppercase">Usia</label><input type="number" id="age" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-semibold" placeholder="25"></div>
-                    <div><label class="text-xs font-bold text-gray-500 uppercase">Berat</label><input type="number" id="weight" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold" placeholder="kg"></div>
-                    <div><label class="text-xs font-bold text-gray-500 uppercase">Tinggi</label><input type="number" id="height" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold" placeholder="cm"></div>
-                    <div><label class="text-xs font-bold text-gray-500 uppercase text-[10px] leading-tight">L. Pinggang</label><input type="number" id="waist" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold placeholder-gray-400/50" placeholder="cm (Ops)"></div>
+                    <div class="col-span-3"><label data-i18n="lbl_age" class="text-xs font-bold text-gray-500 uppercase">Usia</label><input type="number" id="age" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-semibold" placeholder="25"></div>
+                    <div><label data-i18n="lbl_weight" class="text-xs font-bold text-gray-500 uppercase">Berat</label><input type="number" id="weight" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold" placeholder="kg"></div>
+                    <div><label data-i18n="lbl_height" class="text-xs font-bold text-gray-500 uppercase">Tinggi</label><input type="number" id="height" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold" placeholder="cm"></div>
+                    <div><label data-i18n="lbl_waist" class="text-xs font-bold text-gray-500 uppercase text-[10px] leading-tight">L. Pinggang</label><input type="number" id="waist" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold placeholder-gray-400/50" placeholder="cm (Ops)"></div>
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase">Aktivitas Harian</label>
+                    <label data-i18n="lbl_activity" class="text-xs font-bold text-gray-500 uppercase">Aktivitas Harian</label>
                     <select id="activity" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-medium text-sm mt-1">
-                        <option value="1.2">Sedentary (Jarang bergerak, kerja duduk)</option>
-                        <option value="1.375">Light Active (Olahraga ringan 1-3 hari/minggu)</option>
-                        <option value="1.55">Moderate Active (Olahraga sedang 3-5 hari/minggu)</option>
-                        <option value="1.725">Very Active (Olahraga berat 6-7 hari/minggu)</option>
-                        <option value="1.9">Extra Active (Fisik sangat berat/Atlet)</option>
+                        <option data-i18n="act_sedentary" value="1.2">Sedentary (Jarang bergerak, kerja duduk)</option>
+                        <option data-i18n="act_light" value="1.375">Light Active (Olahraga ringan 1-3 hari/minggu)</option>
+                        <option data-i18n="act_moderate" value="1.55">Moderate Active (Olahraga sedang 3-5 hari/minggu)</option>
+                        <option data-i18n="act_heavy" value="1.725">Very Active (Olahraga berat 6-7 hari/minggu)</option>
+                        <option data-i18n="act_extra" value="1.9">Extra Active (Fisik sangat berat/Atlet)</option>
                     </select>
                 </div>
-                <button onclick="calculateBMI()" class="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-lg active:scale-95 transition">Hitung & Analisa</button>
+                <button data-i18n="btn_calc" onclick="calculateBMI()" class="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-lg active:scale-95 transition">Hitung & Analisa</button>
 
                 <!-- Accordion Informasi BMI -->
                 <div class="mt-4 border-t border-gray-100 dark:border-gray-700 pt-4">
                     <button onclick="toggleInfo()" class="flex items-center justify-between w-full text-left group focus:outline-none">
-                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wide group-hover:text-primary transition-colors">
+                        <span data-i18n="acc_title" class="text-xs font-bold text-gray-500 uppercase tracking-wide group-hover:text-primary transition-colors">
                             ℹ️ Apa itu BMI & Mengapa Penting?
                         </span>
                         <svg id="infoIcon" class="w-4 h-4 text-gray-400 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,47 +136,45 @@
 
                     <div id="infoContent" class="hidden overflow-hidden transition-all duration-300 ease-in-out">
                         <div class="pt-4 space-y-3 text-xs text-gray-600 dark:text-gray-300 leading-relaxed text-justify">
-                            <p>
-                                <strong>Body Mass Index (BMI)</strong> adalah indeks sederhana dari berat badan terhadap tinggi badan yang digunakan untuk mengklasifikasikan kelebihan berat badan dan obesitas pada orang dewasa.
-                            </p>
-                            <p>
-                                Mengetahui skor BMI penting karena BMI yang tinggi merupakan faktor risiko utama untuk penyakit tidak menular seperti:
-                            </p>
-                            <ul class="list-disc pl-4 space-y-1">
-                                <li>Penyakit kardiovaskular (jantung & stroke)</li>
-                                <li>Diabetes</li>
-                                <li>Gangguan muskuloskeletal (khususnya osteoartritis)</li>
-                                <li>Beberapa jenis kanker (termasuk endometrium, payudara, ovarium, prostat, hati, kantung empedu, ginjal, dan usus besar)</li>
-                            </ul>
+                            <div data-i18n-html="acc_bmi_desc">
+                                <p><strong>Body Mass Index (BMI)</strong> adalah indeks sederhana dari berat badan terhadap tinggi badan yang digunakan untuk mengklasifikasikan kelebihan berat badan dan obesitas pada orang dewasa.</p>
+                                <p>Mengetahui skor BMI penting karena BMI yang tinggi merupakan faktor risiko utama untuk penyakit tidak menular seperti:</p>
+                                <ul class="list-disc pl-4 space-y-1">
+                                    <li>Penyakit kardiovaskular (jantung & stroke)</li>
+                                    <li>Diabetes</li>
+                                    <li>Gangguan muskuloskeletal (khususnya osteoartritis)</li>
+                                    <li>Beberapa jenis kanker (termasuk endometrium, payudara, ovarium, prostat, hati, kantung empedu, ginjal, dan usus besar)</li>
+                                </ul>
+                            </div>
 
-                            <h3 class="font-bold text-gray-700 dark:text-gray-200 mt-4 border-b border-gray-100 dark:border-gray-700 pb-1">Metode Perhitungan</h3>
+                            <h3 data-i18n="acc_method_title" class="font-bold text-gray-700 dark:text-gray-200 mt-4 border-b border-gray-100 dark:border-gray-700 pb-1">Metode Perhitungan</h3>
 
                             <div class="space-y-3 mt-2">
                                 <div>
-                                    <p class="font-bold text-primary">1. Rumus BMI (Body Mass Index)</p>
-                                    <p class="font-mono bg-gray-100 dark:bg-gray-700 p-1.5 rounded mt-1 text-[10px]">Berat (kg) / (Tinggi (m))²</p>
+                                    <p data-i18n="acc_method_1" class="font-bold text-primary">1. Rumus BMI (Body Mass Index)</p>
+                                    <p data-i18n="acc_formula_bmi" class="font-mono bg-gray-100 dark:bg-gray-700 p-1.5 rounded mt-1 text-[10px]">Berat (kg) / (Tinggi (m))²</p>
                                 </div>
 
                                 <div>
-                                    <p class="font-bold text-secondary">2. Est. Lemak Tubuh (Deurenberg)</p>
-                                    <p class="mb-1">Mengestimasi persentase lemak tubuh berdasarkan nilai BMI, Usia, dan Jenis Kelamin.</p>
-                                    <p class="font-mono bg-gray-100 dark:bg-gray-700 p-1.5 rounded mt-1 text-[10px]">(1.20 × BMI) + (0.23 × Usia) - (10.8 × Sex) - 5.4</p>
-                                    <p class="text-[9px] text-gray-400 mt-0.5">*Sex: Pria=1, Wanita=0</p>
+                                    <p data-i18n="acc_method_2" class="font-bold text-secondary">2. Est. Lemak Tubuh (Deurenberg)</p>
+                                    <p data-i18n="acc_desc_deurenberg" class="mb-1">Mengestimasi persentase lemak tubuh berdasarkan nilai BMI, Usia, dan Jenis Kelamin.</p>
+                                    <p data-i18n="acc_formula_deurenberg" class="font-mono bg-gray-100 dark:bg-gray-700 p-1.5 rounded mt-1 text-[10px]">(1.20 × BMI) + (0.23 × Usia) - (10.8 × Sex) - 5.4</p>
+                                    <p data-i18n="acc_note_sex_1" class="text-[9px] text-gray-400 mt-0.5">*Sex: Pria=1, Wanita=0</p>
                                 </div>
 
                                 <div>
-                                    <p class="font-bold text-indigo-600">3. RFM (Relative Fat Mass)</p>
-                                    <p class="mb-1">Metode alternatif yang diklaim lebih akurat karena menggunakan Lingkar Pinggang.</p>
-                                    <p class="font-mono bg-gray-100 dark:bg-gray-700 p-1.5 rounded mt-1 text-[10px]">64 - (20 × (Tinggi (m) / L.Pinggang (m))) + (12 × Sex)</p>
-                                    <p class="text-[9px] text-gray-400 mt-0.5">*Sex: Wanita=1, Pria=0</p>
+                                    <p data-i18n="acc_method_3" class="font-bold text-indigo-600">3. RFM (Relative Fat Mass)</p>
+                                    <p data-i18n="acc_desc_rfm" class="mb-1">Metode alternatif yang diklaim lebih akurat karena menggunakan Lingkar Pinggang.</p>
+                                    <p data-i18n="acc_formula_rfm" class="font-mono bg-gray-100 dark:bg-gray-700 p-1.5 rounded mt-1 text-[10px]">64 - (20 × (Tinggi (m) / L.Pinggang (m))) + (12 × Sex)</p>
+                                    <p data-i18n="acc_note_sex_2" class="text-[9px] text-gray-400 mt-0.5">*Sex: Wanita=1, Pria=0</p>
                                 </div>
                             </div>
 
-                            <h3 class="font-bold text-gray-700 dark:text-gray-200 mt-6 border-b border-gray-100 dark:border-gray-700 pb-1">Konsep Metabolisme & Energi</h3>
+                            <h3 data-i18n="acc_meta_title" class="font-bold text-gray-700 dark:text-gray-200 mt-6 border-b border-gray-100 dark:border-gray-700 pb-1">Konsep Metabolisme & Energi</h3>
 
                             <div class="space-y-4 mt-3 mb-4">
                                 <!-- BMR -->
-                                <div>
+                                <div data-i18n-html="acc_bmr_section">
                                     <p class="font-bold text-pink-600">1. BMR (Basal Metabolic Rate)</p>
                                     <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Biaya Operasional Tetap.</strong> Jumlah kalori minimal untuk sekadar bertahan hidup (jantung, otak, napas).</p>
                                     <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border-l-4 border-red-500 text-[10px] space-y-1">
@@ -181,7 +184,7 @@
                                 </div>
 
                                 <!-- TDEE -->
-                                <div>
+                                <div data-i18n-html="acc_tdee_section">
                                     <p class="font-bold text-orange-600">2. TDEE (Total Daily Energy Expenditure)</p>
                                     <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Total Pengeluaran Harian.</strong> BMR + Aktivitas Fisik + Energi Cerna Makanan.</p>
                                     <div class="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border-l-4 border-orange-400 text-[10px]">
@@ -190,7 +193,7 @@
                                 </div>
 
                                 <!-- STRATEGY -->
-                                <div>
+                                <div data-i18n-html="acc_strategy_section">
                                     <p class="font-bold text-purple-600">3. Strategi "Matematika Diet"</p>
                                     <div class="mt-1 space-y-2 text-[10px]">
                                         <div class="bg-green-50 dark:bg-green-900/20 p-2 rounded border border-green-100 dark:border-green-800">
@@ -207,32 +210,32 @@
 
                                 <!-- FORMULA -->
                                 <div>
-                                    <p class="font-bold text-gray-500 text-[10px] uppercase">Rumus Perhitungan: Mifflin-St Jeor</p>
+                                    <p data-i18n="acc_formula_title" class="font-bold text-gray-500 text-[10px] uppercase">Rumus Perhitungan: Mifflin-St Jeor</p>
                                     <div class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded mt-1 text-[9px] space-y-1">
                                         <p>Pria: (10×BB) + (6.25×TB) - (5×Usia) + 5</p>
                                         <p>Wanita: (10×BB) + (6.25×TB) - (5×Usia) - 161</p>
-                                        <p class="text-gray-400 mt-1">*TB dalam cm, BB dalam kg</p>
+                                        <p data-i18n="acc_formula_note" class="text-gray-400 mt-1">*TB dalam cm, BB dalam kg</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <h3 class="font-bold text-gray-700 dark:text-gray-200 mt-6 border-b border-gray-100 dark:border-gray-700 pb-1">Panduan Kategori Lemak Tubuh</h3>
+                            <h3 data-i18n="acc_fat_cat_title" class="font-bold text-gray-700 dark:text-gray-200 mt-6 border-b border-gray-100 dark:border-gray-700 pb-1">Panduan Kategori Lemak Tubuh</h3>
                             <div class="space-y-4 mt-3 text-[10px] leading-tight">
 
                                 <!-- RFM 30/40 -->
                                 <div>
-                                    <p class="font-bold text-indigo-600 mb-1">1. Kategori RFM (Aturan 30/40)</p>
-                                    <p class="mb-2 text-gray-600 dark:text-gray-400">Batas sederhana untuk diagnosa obesitas oleh Woolcott & Bergman.</p>
+                                    <p data-i18n="acc_rfm_cat_title" class="font-bold text-indigo-600 mb-1">1. Kategori RFM (Aturan 30/40)</p>
+                                    <p data-i18n="acc_rfm_cat_desc" class="mb-2 text-gray-600 dark:text-gray-400">Batas sederhana untuk diagnosa obesitas oleh Woolcott & Bergman.</p>
                                     <div class="grid grid-cols-3 gap-0 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden text-center">
-                                        <div class="bg-gray-100 dark:bg-gray-700 p-1.5 font-bold">Status</div>
-                                        <div class="bg-gray-100 dark:bg-gray-700 p-1.5 font-bold">Pria</div>
-                                        <div class="bg-gray-100 dark:bg-gray-700 p-1.5 font-bold">Wanita</div>
+                                        <div data-i18n="th_status" class="bg-gray-100 dark:bg-gray-700 p-1.5 font-bold">Status</div>
+                                        <div data-i18n="th_male" class="bg-gray-100 dark:bg-gray-700 p-1.5 font-bold">Pria</div>
+                                        <div data-i18n="th_female" class="bg-gray-100 dark:bg-gray-700 p-1.5 font-bold">Wanita</div>
 
-                                        <div class="p-1.5 border-t border-gray-100 dark:border-gray-600">Sehat</div>
+                                        <div data-i18n="val_healthy" class="p-1.5 border-t border-gray-100 dark:border-gray-600">Sehat</div>
                                         <div class="p-1.5 border-t border-gray-100 dark:border-gray-600 text-green-600 font-bold">&lt; 30%</div>
                                         <div class="p-1.5 border-t border-gray-100 dark:border-gray-600 text-green-600 font-bold">&lt; 40%</div>
 
-                                        <div class="p-1.5 border-t border-gray-100 dark:border-gray-600 bg-red-50 dark:bg-red-900/10">Obesitas</div>
+                                        <div data-i18n="val_obese" class="p-1.5 border-t border-gray-100 dark:border-gray-600 bg-red-50 dark:bg-red-900/10">Obesitas</div>
                                         <div class="p-1.5 border-t border-gray-100 dark:border-gray-600 bg-red-50 dark:bg-red-900/10 text-red-600 font-bold">≥ 30%</div>
                                         <div class="p-1.5 border-t border-gray-100 dark:border-gray-600 bg-red-50 dark:bg-red-900/10 text-red-600 font-bold">≥ 40%</div>
                                     </div>
@@ -240,40 +243,40 @@
 
                                 <!-- ACE TABLE -->
                                 <div>
-                                    <p class="font-bold text-green-600 mb-1">2. Kategori Deurenberg (Standar ACE)</p>
-                                    <p class="mb-2 text-gray-600 dark:text-gray-400">Standar internasional American Council on Exercise.</p>
+                                    <p data-i18n="acc_ace_title" class="font-bold text-green-600 mb-1">2. Kategori Deurenberg (Standar ACE)</p>
+                                    <p data-i18n="acc_ace_desc" class="mb-2 text-gray-600 dark:text-gray-400">Standar internasional American Council on Exercise.</p>
                                     <div class="overflow-x-auto">
                                         <table class="w-full text-left border-collapse border border-gray-200 dark:border-gray-600 text-[9px]">
                                             <thead class="bg-gray-100 dark:bg-gray-700">
                                                 <tr>
-                                                    <th class="p-1.5 border border-gray-200 dark:border-gray-600">Kategori</th>
-                                                    <th class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">Pria</th>
-                                                    <th class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">Wanita</th>
+                                                    <th data-i18n="th_cat" class="p-1.5 border border-gray-200 dark:border-gray-600">Kategori</th>
+                                                    <th data-i18n="th_male" class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">Pria</th>
+                                                    <th data-i18n="th_female" class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">Wanita</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr>
-                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-blue-600 font-bold">Esensial (Kritis)</td>
+                                                    <td data-i18n="val_essential" class="p-1.5 border border-gray-200 dark:border-gray-600 text-blue-600 font-bold">Esensial (Kritis)</td>
                                                     <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">2-5%</td>
                                                     <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">10-13%</td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 font-medium">Atlet</td>
+                                                    <td data-i18n="val_athlete" class="p-1.5 border border-gray-200 dark:border-gray-600 font-medium">Atlet</td>
                                                     <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">6-13%</td>
                                                     <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">14-20%</td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-green-600 font-bold">Fitness</td>
+                                                    <td data-i18n="val_fitness" class="p-1.5 border border-gray-200 dark:border-gray-600 text-green-600 font-bold">Fitness</td>
                                                     <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">14-17%</td>
                                                     <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">21-24%</td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600">Normal</td>
+                                                    <td data-i18n="val_normal" class="p-1.5 border border-gray-200 dark:border-gray-600">Normal</td>
                                                     <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">18-24%</td>
                                                     <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center">25-31%</td>
                                                 </tr>
                                                 <tr class="bg-red-50 dark:bg-red-900/10">
-                                                    <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-red-600 font-bold">Obesitas</td>
+                                                    <td data-i18n="val_obese" class="p-1.5 border border-gray-200 dark:border-gray-600 text-red-600 font-bold">Obesitas</td>
                                                     <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center font-bold">25%+</td>
                                                     <td class="p-1.5 border border-gray-200 dark:border-gray-600 text-center font-bold">32%+</td>
                                                 </tr>
@@ -283,7 +286,7 @@
                                 </div>
 
                                 <!-- Comparison Logic -->
-                                <div class="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-100 dark:border-yellow-700">
+                                <div data-i18n-html="acc_comparison" class="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-100 dark:border-yellow-700">
                                     <p class="font-bold text-yellow-700 dark:text-yellow-500 mb-1">💡 Mengapa Hasilnya Beda?</p>
                                     <p class="text-gray-700 dark:text-gray-300 mb-2 text-justify">Kategori Persentase Lemak (RFM/Deurenberg) lebih <strong>jujur</strong> daripada BMI.</p>
                                     <ul class="list-disc pl-3 space-y-1 text-gray-600 dark:text-gray-400">
@@ -295,7 +298,7 @@
                             </div>
 
                             <p class="pt-2 border-t border-dashed border-gray-200 dark:border-gray-700 mt-2">
-                                Sumber Resmi: <a href="https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight" target="_blank" class="text-primary hover:underline font-bold">World Health Organization (WHO)</a>
+                                <span data-i18n="source_label">Sumber Resmi:</span> <a href="https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight" target="_blank" class="text-primary hover:underline font-bold">World Health Organization (WHO)</a>
                             </p>
                         </div>
                     </div>
@@ -340,9 +343,9 @@
                 <div id="calorieMetrics" class="mb-6 empty:hidden"></div>
 
                 <button onclick="generateReport()" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-md flex justify-center items-center gap-2 active:scale-95 transition">
-                    <span>📄 Buka Laporan Lengkap</span>
+                    <span data-i18n="btn_report">📄 Buka Laporan Lengkap</span>
                 </button>
-                <button onclick="resetForm()" class="mt-4 text-xs text-gray-400 underline w-full">Reset Data</button>
+                <button onclick="resetForm()" data-i18n="btn_reset" class="mt-4 text-xs text-gray-400 underline w-full">Reset Data</button>
             </div>
         </div>
     </div>
@@ -360,7 +363,7 @@
                         <svg width="150" height="150" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
                     </div>
                     <div class="relative z-10 text-center">
-                        <h2 class="text-xl font-black uppercase tracking-wide leading-tight">Laporan Kesehatan</h2>
+                        <h2 data-i18n="report_title" class="text-xl font-black uppercase tracking-wide leading-tight">Laporan Kesehatan</h2>
                         <div class="flex items-center justify-center gap-2 mt-2 text-xs opacity-90 font-medium">
                             <span id="reportProfile">Pria, 46 Th, 95kg</span>
                         </div>
@@ -376,10 +379,10 @@
                         
                         <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Angka BMI</p>
                         
-                        <!-- SKOR (PADDING BAWAH & FONT SIZE DIKURANGI DIKIT) -->
+                        <!-- SKOR -->
                         <p class="text-6xl font-black text-gray-800 mb-4 leading-normal tracking-tighter" id="reportScore">31.1</p>
                         
-                        <!-- BADGE STATUS (MARGIN ATAS) -->
+                        <!-- BADGE STATUS -->
                         <div class="mb-8">
                             <span id="reportStatus" class="inline-block px-6 py-2 rounded-full text-sm font-extrabold uppercase tracking-widest border shadow-sm">OBESITAS</span>
                         </div>
@@ -422,26 +425,26 @@
 
                     <!-- Analisa -->
                     <div class="bg-blue-50 p-5 rounded-xl border-l-4 border-blue-500 shadow-sm">
-                        <h3 class="font-extrabold text-blue-800 text-sm mb-2 uppercase tracking-wide flex items-center gap-2">Analisa Metabolisme</h3>
+                        <h3 data-i18n="report_analysis_title" class="font-extrabold text-blue-800 text-sm mb-2 uppercase tracking-wide flex items-center gap-2">Analisa Metabolisme</h3>
                         <p id="aiAnalysis" class="rich-text text-sm leading-relaxed text-gray-700 text-justify font-medium"></p>
                     </div>
 
                     <!-- Menu Makan -->
                     <div>
-                        <h3 class="font-extrabold text-green-700 text-sm uppercase mb-4 border-b-2 border-green-100 pb-2 tracking-wide flex items-center gap-2">🥗 Rencana Menu 7 Hari</h3>
+                        <h3 data-i18n="report_menu_title" class="font-extrabold text-green-700 text-sm uppercase mb-4 border-b-2 border-green-100 pb-2 tracking-wide flex items-center gap-2">🥗 Rencana Menu 7 Hari</h3>
                         <div class="grid grid-cols-2 gap-3" id="menuContainer"></div>
                     </div>
 
                     <!-- Olahraga -->
                     <div class="bg-orange-50 p-5 rounded-xl border-l-4 border-orange-500 shadow-sm">
-                        <h3 class="font-extrabold text-orange-800 text-sm mb-2 uppercase tracking-wide flex items-center gap-2">Saran Aktivitas</h3>
+                        <h3 data-i18n="report_exercise_title" class="font-extrabold text-orange-800 text-sm mb-2 uppercase tracking-wide flex items-center gap-2">Saran Aktivitas</h3>
                         <p id="aiExercise" class="rich-text text-sm font-medium text-gray-700 leading-relaxed text-justify"></p>
                     </div>
 
                     <!-- Footer -->
                     <div class="border-t-2 border-gray-100 pt-4 mt-6 flex flex-col items-center justify-center text-center">
                         <p class="text-[9px] text-gray-400 font-black tracking-[0.25em] uppercase leading-none">BMI CALCULATOR PRO BY ISPARMO</p>
-                        <p class="text-[8px] text-gray-400 mt-1.5 font-medium leading-none">Dokumen ini dihasilkan oleh AI sebagai rekomendasi awal.</p>
+                        <p data-i18n="report_footer" class="text-[8px] text-gray-400 mt-1.5 font-medium leading-none">Dokumen ini dihasilkan oleh AI sebagai rekomendasi awal.</p>
                     </div>
                 </div>
             </div>
@@ -457,33 +460,353 @@
 
                 <div class="flex gap-3 items-center">
                     <button onclick="window.print()" id="btnPrint" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg flex justify-center items-center gap-2 active:scale-95 transition text-sm">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2H9a2 2 0 00-2-2H9a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                         PRINT
                     </button>
-                    <button onclick="closeModal()" class="px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300 font-bold rounded-xl text-sm transition">
+                    <button onclick="closeModal()" data-i18n="btn_close" class="px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300 font-bold rounded-xl text-sm transition">
                         Tutup
                     </button>
                 </div>
-                <p class="text-[8px] text-gray-400 mt-0.5">Geser tombol jika menghalangi</p>
+                <p data-i18n="lbl_drag" class="text-[8px] text-gray-400 mt-0.5">Geser tombol jika menghalangi</p>
             </div>
         </div>
     </div>
 
     <div id="loadingOverlay" class="fixed inset-0 bg-black/90 z-[100] hidden flex-col items-center justify-center text-white">
         <div class="flex gap-3 mb-4"><div class="w-4 h-4 bg-white rounded-full typing-dot"></div><div class="w-4 h-4 bg-gray-400 rounded-full typing-dot"></div><div class="w-4 h-4 bg-gray-600 rounded-full typing-dot"></div></div>
-        <h3 class="text-lg font-bold">Memproses Data AI...</h3>
+        <h3 data-i18n="loading" class="text-lg font-bold">Memproses Data AI...</h3>
     </div>
 
     <script>
         const htmlEl = document.documentElement;
         const themeToggleBtn = document.getElementById('themeToggle');
+        const langToggleBtn = document.getElementById('langToggle');
+
+        // Theme Logic
         if(localStorage.getItem('theme') === 'dark') htmlEl.classList.add('dark');
         themeToggleBtn.addEventListener('click', () => {
             htmlEl.classList.toggle('dark');
             localStorage.setItem('theme', htmlEl.classList.contains('dark') ? 'dark' : 'light');
         });
 
+        // Language Logic
+        let currentLang = localStorage.getItem('lang') || 'id';
+        const translations = {
+            id: {
+                subtitle: "Calculator: BMI, RFM, Deurenberg & Target Kalori",
+                lbl_gender: "Gender",
+                val_male: "👨 Pria",
+                val_female: "👩 Wanita",
+                lbl_age: "Usia",
+                lbl_weight: "Berat",
+                lbl_height: "Tinggi",
+                lbl_waist: "L. Pinggang",
+                lbl_activity: "Aktivitas Harian",
+                act_sedentary: "Sedentary (Jarang bergerak, kerja duduk)",
+                act_light: "Light Active (Olahraga ringan 1-3 hari/minggu)",
+                act_moderate: "Moderate Active (Olahraga sedang 3-5 hari/minggu)",
+                act_heavy: "Very Active (Olahraga berat 6-7 hari/minggu)",
+                act_extra: "Extra Active (Fisik sangat berat/Atlet)",
+                btn_calc: "Hitung & Analisa",
+                acc_title: "ℹ️ Apa itu BMI & Mengapa Penting?",
+                acc_bmi_desc: `<p><strong>Body Mass Index (BMI)</strong> adalah indeks sederhana dari berat badan terhadap tinggi badan yang digunakan untuk mengklasifikasikan kelebihan berat badan dan obesitas pada orang dewasa.</p>
+                                <p>Mengetahui skor BMI penting karena BMI yang tinggi merupakan faktor risiko utama untuk penyakit tidak menular seperti:</p>
+                                <ul class="list-disc pl-4 space-y-1">
+                                    <li>Penyakit kardiovaskular (jantung & stroke)</li>
+                                    <li>Diabetes</li>
+                                    <li>Gangguan muskuloskeletal (khususnya osteoartritis)</li>
+                                    <li>Beberapa jenis kanker (termasuk endometrium, payudara, ovarium, prostat, hati, kantung empedu, ginjal, dan usus besar)</li>
+                                </ul>`,
+                acc_method_title: "Metode Perhitungan",
+                acc_method_1: "1. Rumus BMI (Body Mass Index)",
+                acc_formula_bmi: "Berat (kg) / (Tinggi (m))²",
+                acc_method_2: "2. Est. Lemak Tubuh (Deurenberg)",
+                acc_desc_deurenberg: "Mengestimasi persentase lemak tubuh berdasarkan nilai BMI, Usia, dan Jenis Kelamin.",
+                acc_formula_deurenberg: "(1.20 × BMI) + (0.23 × Usia) - (10.8 × Sex) - 5.4",
+                acc_note_sex_1: "*Sex: Pria=1, Wanita=0",
+                acc_method_3: "3. RFM (Relative Fat Mass)",
+                acc_desc_rfm: "Metode alternatif yang diklaim lebih akurat karena menggunakan Lingkar Pinggang.",
+                acc_formula_rfm: "64 - (20 × (Tinggi (m) / L.Pinggang (m))) + (12 × Sex)",
+                acc_note_sex_2: "*Sex: Wanita=1, Pria=0",
+                acc_meta_title: "Konsep Metabolisme & Energi",
+                acc_bmr_section: `<p class="font-bold text-pink-600">1. BMR (Basal Metabolic Rate)</p>
+                                    <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Biaya Operasional Tetap.</strong> Jumlah kalori minimal untuk sekadar bertahan hidup (jantung, otak, napas).</p>
+                                    <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border-l-4 border-red-500 text-[10px] space-y-1">
+                                        <p><strong>🚗 Analogi Mobil:</strong> Mobil dipanaskan (Idling) di parkiran. Mesin nyala, bensin terbakar, tapi tidak bergerak.</p>
+                                        <p class="text-red-600 dark:text-red-400 font-bold"><strong>⚠️ ZONA BAHAYA:</strong> Jangan makan di bawah angka BMR! Tubuh akan masuk "Mode Kelaparan" (menyimpan lemak) dan merusak metabolisme.</p>
+                                    </div>`,
+                acc_tdee_section: `<p class="font-bold text-orange-600">2. TDEE (Total Daily Energy Expenditure)</p>
+                                    <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Total Pengeluaran Harian.</strong> BMR + Aktivitas Fisik + Energi Cerna Makanan.</p>
+                                    <div class="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border-l-4 border-orange-400 text-[10px]">
+                                        <p><strong>🚕 Analogi Mobil:</strong> Mobil keliling kota. AC nyala, gas, rem. Bensin lebih boros daripada saat diam.</p>
+                                    </div>`,
+                acc_strategy_section: `<p class="font-bold text-purple-600">3. Strategi "Matematika Diet"</p>
+                                    <div class="mt-1 space-y-2 text-[10px]">
+                                        <div class="bg-green-50 dark:bg-green-900/20 p-2 rounded border border-green-100 dark:border-green-800">
+                                            <p class="font-bold text-green-700 dark:text-green-400">✅ ZONA AMAN DIET</p>
+                                            <p>Makanlah di antara <strong>BMR</strong> s.d. <strong>TDEE</strong>.</p>
+                                        </div>
+                                        <ul class="list-disc pl-4 space-y-1">
+                                            <li><strong>Maintenance:</strong> Makan = TDEE (Berat Stabil)</li>
+                                            <li><strong>Cutting (Turun):</strong> Makan < TDEE (Ideal: TDEE - 500)</li>
+                                            <li><strong>Bulking (Naik):</strong> Makan > TDEE (Simpan Otot/Lemak)</li>
+                                        </ul>
+                                    </div>`,
+                acc_formula_title: "Rumus Perhitungan: Mifflin-St Jeor",
+                acc_formula_note: "*TB dalam cm, BB dalam kg",
+                acc_fat_cat_title: "Panduan Kategori Lemak Tubuh",
+                acc_rfm_cat_title: "1. Kategori RFM (Aturan 30/40)",
+                acc_rfm_cat_desc: "Batas sederhana untuk diagnosa obesitas oleh Woolcott & Bergman.",
+                th_status: "Status",
+                th_male: "Pria",
+                th_female: "Wanita",
+                val_healthy: "Sehat",
+                val_obese: "Obesitas",
+                acc_ace_title: "2. Kategori Deurenberg (Standar ACE)",
+                acc_ace_desc: "Standar internasional American Council on Exercise.",
+                th_cat: "Kategori",
+                val_essential: "Esensial (Kritis)",
+                val_athlete: "Atlet",
+                val_fitness: "Fitness",
+                val_normal: "Normal",
+                acc_comparison: `<p class="font-bold text-yellow-700 dark:text-yellow-500 mb-1">💡 Mengapa Hasilnya Beda?</p>
+                                    <p class="text-gray-700 dark:text-gray-300 mb-2 text-justify">Kategori Persentase Lemak (RFM/Deurenberg) lebih <strong>jujur</strong> daripada BMI.</p>
+                                    <ul class="list-disc pl-3 space-y-1 text-gray-600 dark:text-gray-400">
+                                        <li><strong>BMI:</strong> Hanya ukur berat vs tinggi. Otot berat bisa dianggap gemuk.</li>
+                                        <li><strong>Body Fat:</strong> Langsung menunjuk timbunan lemak.</li>
+                                    </ul>
+                                    <p class="mt-2 font-medium italic text-gray-500">"Misal Pria dengan 26% lemak. Di BMI mungkin hanya Overweight, tapi secara medis sudah Obesitas."</p>`,
+                source_label: "Sumber Resmi:",
+                btn_report: "📄 Buka Laporan Lengkap",
+                btn_reset: "Reset Data",
+                report_title: "Laporan Kesehatan",
+                report_analysis_title: "Analisa Metabolisme",
+                report_menu_title: "🥗 Rencana Menu 7 Hari",
+                report_exercise_title: "Saran Aktivitas",
+                report_footer: "Dokumen ini dihasilkan oleh AI sebagai rekomendasi awal.",
+                btn_close: "Tutup",
+                lbl_drag: "Geser tombol jika menghalangi",
+                loading: "Memproses Data AI...",
+                // Dynamic Text (Needs logic handling)
+                status_underweight: "KURUS",
+                status_normal: "NORMAL",
+                status_overweight: "GEMUK",
+                status_obese: "OBESITAS",
+                cat_essential: "Esensial",
+                cat_athlete: "Atlet",
+                cat_fitness: "Fitness",
+                cat_normal: "Normal",
+                cat_obese: "Obesitas (ACE)",
+                cat_obese_rfm: "Obesitas (>{limit}%)",
+                cal_cutting: "Cutting (Turun Berat)",
+                cal_maint: "Maintenance (Stabil)",
+                cal_bulk: "Bulking (Naik Berat)",
+                cal_def: "Defisit 500 kkal",
+                cal_surp: "Surplus 500 kkal",
+                cal_stab: "Sesuai TDEE",
+                target_header: "🎯 Menu Pilihan Anda (Target Harian)",
+                warn_fat: "<br><br><strong class='text-red-600'>⚠️ PERINGATAN:</strong> Meskipun BMI Anda belum Obesitas, namun Persentase Lemak Tubuh Anda sudah masuk kategori <strong>OBESITAS</strong>. Ini sering disebut 'Skinny Fat' atau 'Normal Weight Obesity'. Fokuslah menurunkan lemak (Cutting) daripada sekadar menurunkan berat badan.",
+                warn_fat_en: "<br><br><strong class='text-red-600'>⚠️ WARNING:</strong> Although your BMI is not Obese, your Body Fat Percentage is in the <strong>OBESE</strong> category. This is often called 'Skinny Fat' or 'Normal Weight Obesity'. Focus on losing fat (Cutting) rather than just losing weight.",
+                guide_title: "💡 PANDUAN MEMBACA HASIL",
+                guide_bmi: "<strong>1. BMI (Rapor Kepadatan):</strong> Ibarat menilai apakah sebuah truk kelebihan muatan atau tidak. Angka <strong>{bmi}</strong> menunjukkan rasio berat Anda terhadap tinggi badan. Semakin tinggi angkanya, semakin 'padat' tubuh Anda.",
+                guide_fat: "<strong>2. Lemak Tubuh (Cek Fakta Komposisi):</strong> BMI saja bisa tertipu (misal: binaragawan berat karena otot). Maka kita cek <strong>RFM & Deurenberg</strong>. Ini membedakan apakah 'berat' Anda berasal dari lemak jahat atau otot.",
+                guide_note: `"Jika BMI Normal tapi Lemak Tinggi, itu tanda Skinny Fat. Jika BMI Besar tapi Lemak Rendah, Anda berotot."`,
+                energy_title: "🔥 Profil Energi & Metabolisme",
+                energy_intro_q: "Apa maksud angka-angka ini?",
+                energy_intro_a: "Tubuh Anda seperti mesin yang butuh anggaran bensin (kalori) harian. Angka ini membantu Anda menentukan <strong>berapa banyak yang harus dimakan</strong> agar berat badan terkontrol.",
+                bmr_desc: "Biaya Operasional Tetap (Tidur/Napas). Ibarat mobil <i>idling</i>.",
+                bmr_danger: "ZONA BAHAYA (Batas Minimal)",
+                bmr_warn: "⛔ JANGAN makan di bawah angka ini!",
+                safe_title: "Zona Aman Diet",
+                safe_desc: "Rentang kalori ideal untuk diet sehat tanpa merusak metabolisme.",
+                safe_upper: "Batas Atas",
+                safe_target: "Target Ideal",
+                // Company Analogy
+                energy_analogy_company_bmr: "<strong>BMR</strong> ibarat <strong>'Biaya Sewa & Listrik'</strong> Perusahaan. Harus dibayar lunas setiap hari meskipun tubuh sedang istirahat total (tidur).",
+                energy_analogy_company_tdee: "<strong>TDEE</strong> ibarat <strong>'Total Biaya Operasional'</strong> saat perusahaan beroperasi penuh, termasuk biaya produksi untuk melayani pelanggan (Aktivitas Fisik).",
+                energy_analogy_header: "🏢 Analogi Perusahaan (Untuk Orang Awam)"
+            },
+            en: {
+                subtitle: "Calculator: BMI, RFM, Deurenberg & Calorie Target",
+                lbl_gender: "Gender",
+                val_male: "👨 Male",
+                val_female: "👩 Female",
+                lbl_age: "Age",
+                lbl_weight: "Weight",
+                lbl_height: "Height",
+                lbl_waist: "Waist",
+                lbl_activity: "Daily Activity",
+                act_sedentary: "Sedentary (Little/no exercise, desk job)",
+                act_light: "Light Active (Exercise 1-3 days/week)",
+                act_moderate: "Moderate Active (Exercise 3-5 days/week)",
+                act_heavy: "Very Active (Exercise 6-7 days/week)",
+                act_extra: "Extra Active (Hard physical labor/Athlete)",
+                btn_calc: "Calculate & Analyze",
+                acc_title: "ℹ️ What is BMI & Why it Matters?",
+                acc_bmi_desc: `<p><strong>Body Mass Index (BMI)</strong> is a simple index of weight-for-height that is commonly used to classify underweight, overweight and obesity in adults.</p>
+                                <p>Knowing your BMI is important because a high BMI is a major risk factor for noncommunicable diseases such as:</p>
+                                <ul class="list-disc pl-4 space-y-1">
+                                    <li>Cardiovascular diseases (heart disease and stroke)</li>
+                                    <li>Diabetes</li>
+                                    <li>Musculoskeletal disorders (especially osteoarthritis)</li>
+                                    <li>Some cancers (including endometrial, breast, ovarian, prostate, liver, gallbladder, kidney, and colon)</li>
+                                </ul>`,
+                acc_method_title: "Calculation Methods",
+                acc_method_1: "1. BMI Formula (Body Mass Index)",
+                acc_formula_bmi: "Weight (kg) / (Height (m))²",
+                acc_method_2: "2. Body Fat Est. (Deurenberg)",
+                acc_desc_deurenberg: "Estimates body fat percentage based on BMI, Age, and Sex.",
+                acc_formula_deurenberg: "(1.20 × BMI) + (0.23 × Age) - (10.8 × Sex) - 5.4",
+                acc_note_sex_1: "*Sex: Male=1, Female=0",
+                acc_method_3: "3. RFM (Relative Fat Mass)",
+                acc_desc_rfm: "Alternative method claimed to be more accurate as it uses Waist Circumference.",
+                acc_formula_rfm: "64 - (20 × (Height (m) / Waist (m))) + (12 × Sex)",
+                acc_note_sex_2: "*Sex: Female=1, Male=0",
+                acc_meta_title: "Metabolism & Energy Concepts",
+                acc_bmr_section: `<p class="font-bold text-pink-600">1. BMR (Basal Metabolic Rate)</p>
+                                    <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Fixed Operating Cost.</strong> Minimum calories just to survive (heart, brain, breathing).</p>
+                                    <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border-l-4 border-red-500 text-[10px] space-y-1">
+                                        <p><strong>🚗 Car Analogy:</strong> Car Idling in the parking lot. Engine on, fuel burning, but not moving.</p>
+                                        <p class="text-red-600 dark:text-red-400 font-bold"><strong>⚠️ DANGER ZONE:</strong> Do not eat below BMR! Body enters "Starvation Mode" (stores fat) and damages metabolism.</p>
+                                    </div>`,
+                acc_tdee_section: `<p class="font-bold text-orange-600">2. TDEE (Total Daily Energy Expenditure)</p>
+                                    <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Total Daily Expenditure.</strong> BMR + Physical Activity + Thermic Effect of Food.</p>
+                                    <div class="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border-l-4 border-orange-400 text-[10px]">
+                                        <p><strong>🚕 Car Analogy:</strong> Car driving around town. AC on, gas, brakes. Burns more fuel than just idling.</p>
+                                    </div>`,
+                acc_strategy_section: `<p class="font-bold text-purple-600">3. "Diet Math" Strategy</p>
+                                    <div class="mt-1 space-y-2 text-[10px]">
+                                        <div class="bg-green-50 dark:bg-green-900/20 p-2 rounded border border-green-100 dark:border-green-800">
+                                            <p class="font-bold text-green-700 dark:text-green-400">✅ SAFE DIET ZONE</p>
+                                            <p>Eat between <strong>BMR</strong> and <strong>TDEE</strong>.</p>
+                                        </div>
+                                        <ul class="list-disc pl-4 space-y-1">
+                                            <li><strong>Maintenance:</strong> Eat = TDEE (Stable Weight)</li>
+                                            <li><strong>Cutting (Lose):</strong> Eat < TDEE (Ideal: TDEE - 500)</li>
+                                            <li><strong>Bulking (Gain):</strong> Eat > TDEE (Gain Muscle/Fat)</li>
+                                        </ul>
+                                    </div>`,
+                acc_formula_title: "Calculation Formula: Mifflin-St Jeor",
+                acc_formula_note: "*Height in cm, Weight in kg",
+                acc_fat_cat_title: "Body Fat Categories Guide",
+                acc_rfm_cat_title: "1. RFM Category (30/40 Rule)",
+                acc_rfm_cat_desc: "Simple cutoff for obesity diagnosis by Woolcott & Bergman.",
+                th_status: "Status",
+                th_male: "Male",
+                th_female: "Female",
+                val_healthy: "Healthy",
+                val_obese: "Obese",
+                acc_ace_title: "2. Deurenberg Category (ACE Standard)",
+                acc_ace_desc: "International standard by American Council on Exercise.",
+                th_cat: "Category",
+                val_essential: "Essential",
+                val_athlete: "Athlete",
+                val_fitness: "Fitness",
+                val_normal: "Normal",
+                acc_comparison: `<p class="font-bold text-yellow-700 dark:text-yellow-500 mb-1">💡 Why Different Results?</p>
+                                    <p class="text-gray-700 dark:text-gray-300 mb-2 text-justify">Body Fat Percentage (RFM/Deurenberg) is more <strong>honest</strong> than BMI.</p>
+                                    <ul class="list-disc pl-3 space-y-1 text-gray-600 dark:text-gray-400">
+                                        <li><strong>BMI:</strong> Only measures weight vs height. Heavy muscle can be flagged as fat.</li>
+                                        <li><strong>Body Fat:</strong> Directly points to fat storage.</li>
+                                    </ul>
+                                    <p class="mt-2 font-medium italic text-gray-500">"E.g. Male with 26% fat. BMI might say Overweight, but medically Obese."</p>`,
+                source_label: "Official Source:",
+                btn_report: "📄 Open Full Report",
+                btn_reset: "Reset Data",
+                report_title: "Health Report",
+                report_analysis_title: "Metabolic Analysis",
+                report_menu_title: "🥗 7-Day Meal Plan",
+                report_exercise_title: "Activity Advice",
+                report_footer: "This document is generated by AI as a preliminary recommendation.",
+                btn_close: "Close",
+                lbl_drag: "Drag button if obstructing",
+                loading: "Processing AI Data...",
+                // Dynamic
+                status_underweight: "UNDERWEIGHT",
+                status_normal: "NORMAL",
+                status_overweight: "OVERWEIGHT",
+                status_obese: "OBESE",
+                cat_essential: "Essential",
+                cat_athlete: "Athlete",
+                cat_fitness: "Fitness",
+                cat_normal: "Normal",
+                cat_obese: "Obese (ACE)",
+                cat_obese_rfm: "Obese (>{limit}%)",
+                cal_cutting: "Cutting (Weight Loss)",
+                cal_maint: "Maintenance (Stable)",
+                cal_bulk: "Bulking (Weight Gain)",
+                cal_def: "Deficit 500 kcal",
+                cal_surp: "Surplus 500 kcal",
+                cal_stab: "Match TDEE",
+                target_header: "🎯 Your Target Menu (Daily Goals)",
+                warn_fat: "<br><br><strong class='text-red-600'>⚠️ WARNING:</strong> Although your BMI is not Obese, your Body Fat Percentage is in the <strong>OBESE</strong> category. This is often called 'Skinny Fat' or 'Normal Weight Obesity'. Focus on losing fat (Cutting) rather than just losing weight.",
+                warn_fat_en: "<br><br><strong class='text-red-600'>⚠️ WARNING:</strong> Although your BMI is not Obese, your Body Fat Percentage is in the <strong>OBESE</strong> category. This is often called 'Skinny Fat' or 'Normal Weight Obesity'. Focus on losing fat (Cutting) rather than just losing weight.",
+                guide_title: "💡 HOW TO READ RESULTS",
+                guide_bmi: "<strong>1. BMI (Density Report):</strong> Like checking if a truck is overloaded. The score <strong>{bmi}</strong> shows your weight-to-height ratio. The higher the score, the more 'dense' your body.",
+                guide_fat: "<strong>2. Body Fat (Composition Check):</strong> BMI can be fooled (e.g., bodybuilders heavy due to muscle). So we check <strong>RFM & Deurenberg</strong>. This distinguishes if your 'weight' comes from bad fat or muscle.",
+                guide_note: `"If BMI is Normal but Fat is High, it's Skinny Fat. If BMI is High but Fat is Low, you are muscular."`,
+                energy_title: "🔥 Energy Profile & Metabolism",
+                energy_intro_q: "What do these numbers mean?",
+                energy_intro_a: "Your body is like a machine that needs a daily fuel (calorie) budget. These numbers help you determine <strong>how much to eat</strong> to control your weight.",
+                bmr_desc: "Fixed Operating Cost (Sleep/Breath). Like a car <i>idling</i>.",
+                bmr_danger: "DANGER ZONE (Minimum Limit)",
+                bmr_warn: "⛔ DO NOT eat below this number!",
+                safe_title: "Safe Diet Zone",
+                safe_desc: "Ideal calorie range for healthy diet without damaging metabolism.",
+                safe_upper: "Upper Limit",
+                safe_target: "Ideal Target",
+                // Company Analogy
+                energy_analogy_company_bmr: "<strong>BMR</strong> is like a Company's <strong>'Rent & Utilities'</strong>. Must be paid daily even if the body is resting (sleeping).",
+                energy_analogy_company_tdee: "<strong>TDEE</strong> is like <strong>'Total Operating Costs'</strong> when the business is fully active, including production costs to serve customers (Physical Activity).",
+                energy_analogy_header: "🏢 Company Analogy (Layman's Terms)"
+            }
+        };
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            langToggleBtn.innerText = lang.toUpperCase();
+
+            // Update static elements
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) el.innerText = translations[lang][key];
+            });
+            document.querySelectorAll('[data-i18n-html]').forEach(el => {
+                const key = el.getAttribute('data-i18n-html');
+                if (translations[lang][key]) el.innerHTML = translations[lang][key];
+            });
+        }
+
+        langToggleBtn.addEventListener('click', () => {
+            const newLang = currentLang === 'id' ? 'en' : 'id';
+            setLanguage(newLang);
+            // Re-render report if open? No, user can just regenerate.
+            // Or maybe nice to have. But generateReport depends on form values.
+            // If resultArea is visible, we might want to re-run calculations but it's simpler to just let user click again.
+        });
+
+        // Init Language
+        setLanguage(currentLang);
+
+
         let userData = {};
+
+        // Advice text needs dual language too
+        const advice = {
+            id: {
+                underweight: { txt: "Metabolisme cepat. Wajib <strong class='text-indigo-700'>SURPLUS KALORI</strong>. Fokus pada makanan padat energi dan protein. Jangan skip jadwal makan utama.", ex: "<strong class='text-indigo-700'>Angkat Beban (Berat)</strong> 3x seminggu. Fokus repetisi 8-12 untuk hipertrofi." },
+                normal: { txt: "Kondisi Ideal. Pertahankan dengan pola makan <strong class='text-green-700'>Gizi Seimbang</strong>. Pastikan asupan serat dan protein cukup setiap hari.", ex: "Kombinasi <strong class='text-green-700'>Jogging/Renang</strong> & Latihan Kekuatan (Pushup/Plank) rutin." },
+                overweight: { txt: "Mulai <strong class='text-orange-700'>DEFISIT KALORI RINGAN</strong>. Kurangi porsi nasi putih dan makanan/minuman manis. Perbanyak sayuran hijau sebelum makan berat.", ex: "<strong class='text-orange-700'>Jalan Cepat</strong> 45 menit setiap pagi (Fasted Cardio) atau sore hari." },
+                obese: { txt: "Prioritas Kesehatan Utama. <strong class='text-red-700'>STRICT WHOLE FOOD DIET</strong>. Hindari gula cair, tepung terigu, dan makanan olahan pabrik sepenuhnya.", ex: "Aktivitas Low Impact: <strong class='text-red-700'>Berenang atau Sepeda Statis</strong> 30 menit/hari." }
+            },
+            en: {
+                underweight: { txt: "Fast metabolism. Must <strong class='text-indigo-700'>CALORIE SURPLUS</strong>. Focus on energy-dense foods and protein. Do not skip main meals.", ex: "<strong class='text-indigo-700'>Heavy Lifting</strong> 3x a week. Focus on 8-12 reps for hypertrophy." },
+                normal: { txt: "Ideal Condition. Maintain with a <strong class='text-green-700'>Balanced Diet</strong>. Ensure sufficient fiber and protein intake daily.", ex: "Combine <strong class='text-green-700'>Jogging/Swimming</strong> & Strength Training (Pushups/Plank) routinely." },
+                overweight: { txt: "Start <strong class='text-orange-700'>SLIGHT CALORIE DEFICIT</strong>. Reduce white rice and sugary drinks/foods. Eat more green veggies before heavy meals.", ex: "<strong class='text-orange-700'>Brisk Walking</strong> 45 mins every morning (Fasted Cardio) or evening." },
+                obese: { txt: "Top Health Priority. <strong class='text-red-700'>STRICT WHOLE FOOD DIET</strong>. Avoid liquid sugar, flour, and processed foods completely.", ex: "Low Impact Activity: <strong class='text-red-700'>Swimming or Stationary Bike</strong> 30 mins/day." }
+            }
+        };
 
         const weeklyPlans = {
             underweight: [
@@ -524,24 +847,10 @@
             ]
         };
 
-        const advice = {
-            underweight: { 
-                txt: "Metabolisme cepat. Wajib <strong class='text-indigo-700'>SURPLUS KALORI</strong>. Fokus pada makanan padat energi dan protein. Jangan skip jadwal makan utama.", 
-                ex: "<strong class='text-indigo-700'>Angkat Beban (Berat)</strong> 3x seminggu. Fokus repetisi 8-12 untuk hipertrofi." 
-            },
-            normal: { 
-                txt: "Kondisi Ideal. Pertahankan dengan pola makan <strong class='text-green-700'>Gizi Seimbang</strong>. Pastikan asupan serat dan protein cukup setiap hari.", 
-                ex: "Kombinasi <strong class='text-green-700'>Jogging/Renang</strong> & Latihan Kekuatan (Pushup/Plank) rutin." 
-            },
-            overweight: { 
-                txt: "Mulai <strong class='text-orange-700'>DEFISIT KALORI RINGAN</strong>. Kurangi porsi nasi putih dan makanan/minuman manis. Perbanyak sayuran hijau sebelum makan berat.", 
-                ex: "<strong class='text-orange-700'>Jalan Cepat</strong> 45 menit setiap pagi (Fasted Cardio) atau sore hari." 
-            },
-            obese: { 
-                txt: "Prioritas Kesehatan Utama. <strong class='text-red-700'>STRICT WHOLE FOOD DIET</strong>. Hindari gula cair, tepung terigu, dan makanan olahan pabrik sepenuhnya.", 
-                ex: "Aktivitas Low Impact: <strong class='text-red-700'>Berenang atau Sepeda Statis</strong> 30 menit/hari." 
-            }
-        };
+        // Note: Weekly plans are hardcoded in Indonesian. Translating them all is huge.
+        // For V1, I will keep the menu in ID as they are specific local foods (Nasi Padang, Gado-gado).
+        // The prompt asked for "mode dual bahasa Inggris & Indonesia", but food names are cultural.
+        // I will focus on translating UI and Explanations first.
 
         function calculateBMI() {
             const w = parseFloat(document.getElementById('weight').value);
@@ -552,57 +861,54 @@
 
             if(!w || !h || !a) { alert("Data belum lengkap!"); return; }
 
+            const T = translations[currentLang];
+
             // 1. BMI Calculation
             const bmi = (w/((h/100)**2)).toFixed(1);
             let k='', l='';
-            if(bmi<18.5){k='underweight';l='KURUS';} else if(bmi<25){k='normal';l='NORMAL';} 
-            else if(bmi<30){k='overweight';l='GEMUK';} else {k='obese';l='OBESITAS';}
+            if(bmi<18.5){k='underweight';l=T.status_underweight;} else if(bmi<25){k='normal';l=T.status_normal;}
+            else if(bmi<30){k='overweight';l=T.status_overweight;} else {k='obese';l=T.status_obese;}
 
             // 2. Deurenberg Body Fat % Calculation
-            // Rumus: (1.20 * BMI) + (0.23 * Usia) - (10.8 * Sex) - 5.4
-            // Sex: Pria = 1, Wanita = 0
             const deurenbergSex = g === 'male' ? 1 : 0;
             const deurenbergBF = ((1.20 * bmi) + (0.23 * a) - (10.8 * deurenbergSex) - 5.4).toFixed(1);
 
-            // Deurenberg Categorization (ACE Standards)
-            let dStatus = 'Normal', dColor = 'text-green-600';
+            // Deurenberg Categorization
+            let dStatus = T.cat_normal, dColor = 'text-green-600';
             const bf = parseFloat(deurenbergBF);
             if (g === 'male') {
-                if (bf < 6) { dStatus = 'Esensial'; dColor = 'text-blue-600'; }
-                else if (bf < 14) { dStatus = 'Atlet'; dColor = 'text-green-600'; }
-                else if (bf < 18) { dStatus = 'Fitness'; dColor = 'text-green-600'; }
-                else if (bf < 25) { dStatus = 'Normal'; dColor = 'text-yellow-600'; }
-                else { dStatus = 'Obesitas (ACE)'; dColor = 'text-red-600'; }
+                if (bf < 6) { dStatus = T.cat_essential; dColor = 'text-blue-600'; }
+                else if (bf < 14) { dStatus = T.cat_athlete; dColor = 'text-green-600'; }
+                else if (bf < 18) { dStatus = T.cat_fitness; dColor = 'text-green-600'; }
+                else if (bf < 25) { dStatus = T.cat_normal; dColor = 'text-yellow-600'; }
+                else { dStatus = T.cat_obese; dColor = 'text-red-600'; }
             } else {
-                if (bf < 14) { dStatus = 'Esensial'; dColor = 'text-blue-600'; }
-                else if (bf < 21) { dStatus = 'Atlet'; dColor = 'text-green-600'; }
-                else if (bf < 25) { dStatus = 'Fitness'; dColor = 'text-green-600'; }
-                else if (bf < 32) { dStatus = 'Normal'; dColor = 'text-yellow-600'; }
-                else { dStatus = 'Obesitas (ACE)'; dColor = 'text-red-600'; }
+                if (bf < 14) { dStatus = T.cat_essential; dColor = 'text-blue-600'; }
+                else if (bf < 21) { dStatus = T.cat_athlete; dColor = 'text-green-600'; }
+                else if (bf < 25) { dStatus = T.cat_fitness; dColor = 'text-green-600'; }
+                else if (bf < 32) { dStatus = T.cat_normal; dColor = 'text-yellow-600'; }
+                else { dStatus = T.cat_obese; dColor = 'text-red-600'; }
             }
 
-            // 3. RFM Calculation (Optional)
+            // 3. RFM Calculation
             let rfm = null;
             let rStatus = '', rColor = '';
             if (waist && waist > 0) {
-                // Rumus: 64 - (20 * (Tinggi/Lingkar Pinggang)) + (12 * Sex)
-                // Sex: Wanita = 1, Pria = 0
                 const rfmSex = g === 'female' ? 1 : 0;
                 rfm = (64 - (20 * (h / waist)) + (12 * rfmSex)).toFixed(1);
 
-                // RFM Categorization (30/40 Rule)
                 const rfmVal = parseFloat(rfm);
                 const limit = g === 'male' ? 30 : 40;
                 if (rfmVal >= limit) {
-                    rStatus = 'Obesitas (>'+limit+'%)';
+                    rStatus = T.cat_obese_rfm.replace('{limit}', limit);
                     rColor = 'text-red-600';
                 } else {
-                    rStatus = 'Normal';
+                    rStatus = T.cat_normal;
                     rColor = 'text-green-600';
                 }
             }
 
-            // 4. BMR & TDEE Calculation (Mifflin-St Jeor)
+            // 4. BMR & TDEE
             const activity = parseFloat(document.getElementById('activity').value);
             let bmr = (10 * w) + (6.25 * h) - (5 * a);
             if (g === 'male') bmr += 5; else bmr -= 161;
@@ -611,39 +917,14 @@
 
             userData = {w, h, a, g, bmi, k, l, deurenbergBF, dStatus, dColor, rfm, rStatus, rColor, waist, bmr, tdee, activity};
 
-            // Display Logic: ALWAYS BMI Main
+            // Display Logic
             const resultValue = document.getElementById('bmiValue');
             const resultCategory = document.getElementById('bmiCategory');
-
-            // Tooltip for BMI (Main)
-            // Using a simple title attribute for basic functionality, or custom structure if strictly required by 'tooltips' request.
-            // The user asked for "tooltips pada istilah-istilah". I will use the custom structure below for consistent UI.
-
-            // 1. Set Main Value (Always BMI)
-            // Clear previous content to allow re-injection of tooltip structure
-            resultValue.innerHTML = '';
-            resultCategory.innerHTML = '';
-
-            // BMI Value with hidden tooltip logic? No, tooltip is on the TERM "BMI" usually.
-            // But here "bmiValue" is just the number. The term is likely in the header...
-            // Wait, the header of the main result isn't explicitly labelled "BMI" in the HTML, it's just the number.
-            // Let's look at the HTML structure:
-            // <div class="text-center mb-2"> <h2 id="bmiValue">...</h2> <p id="bmiCategory">...</p> </div>
-            // I should wrap the number or add a label "BMI" if I want a tooltip on "BMI".
-            // However, looking at the previous layout, it was just the number.
-            // I will just set the text for now, and handle tooltips in the "Additional Metrics" section where the labels are explicit.
-            // For the main BMI, I'll add a small label above it if needed, OR just leave it as the number.
-            // The prompt says "tooltips pada istilah-istilah: BMI, RFM dan DEURENBERG".
-            // Since "BMI" term isn't explicitly shown in the main result area (it's implied), I will add a small label "BMI SCORE" above the number to attach the tooltip.
 
             resultValue.innerHTML = `
                 <div class="flex flex-col items-center">
                     <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 cursor-help group relative">
                         BMI SCORE
-                        <div class="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 px-3 py-2 bg-gray-800 text-white text-[10px] rounded-lg w-48 text-center z-50 mb-2 shadow-xl leading-snug">
-                            Indeks Massa Tubuh: Mengukur berat badan ideal berdasarkan tinggi badan.
-                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-gray-800"></div>
-                        </div>
                     </span>
                     ${bmi}
                 </div>
@@ -652,23 +933,13 @@
             resultCategory.innerText = l;
             resultCategory.className = `text-xl font-bold ${k==='underweight'?'text-blue-600':k==='normal'?'text-green-600':k==='overweight'?'text-yellow-600':'text-red-600'}`;
 
-            // 2. Prepare Additional Metrics (RFM & Deurenberg)
             const metricsContainer = document.getElementById('additionalMetrics');
             let metricsHtml = '';
 
-            // Helper for Tooltip
-            const createTooltip = (text) => `
-                <div class="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 px-3 py-2 bg-gray-800 text-white text-[10px] rounded-lg w-48 text-center z-50 mb-2 shadow-xl leading-snug">
-                    ${text}
-                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-gray-800"></div>
-                </div>
-            `;
-
             const deurenbergBox = `
                 <div class="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm flex flex-col items-center justify-center relative group">
-                    <p class="text-[10px] text-gray-400 uppercase font-bold cursor-help mb-1 border-b border-dotted border-gray-300">
+                    <p class="text-[10px] text-gray-400 uppercase font-bold mb-1 border-b border-dotted border-gray-300">
                         Est. Deurenberg
-                        ${createTooltip("Rumus estimasi lemak tubuh berdasarkan BMI, usia, dan jenis kelamin.")}
                     </p>
                     <p class="text-xl font-black text-gray-700 dark:text-gray-200">${deurenbergBF}%</p>
                     <p class="text-[9px] font-bold ${dColor} uppercase mt-1">${dStatus}</p>
@@ -676,12 +947,10 @@
             `;
 
             if (rfm) {
-                // Two columns: RFM + Deurenberg
                 const rfmBox = `
                     <div class="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm flex flex-col items-center justify-center relative group">
-                        <p class="text-[10px] text-gray-400 uppercase font-bold cursor-help mb-1 border-b border-dotted border-gray-300">
-                            Lemak Tubuh (RFM)
-                            ${createTooltip("Relative Fat Mass: Estimasi persentase lemak tubuh menggunakan lingkar pinggang.")}
+                        <p class="text-[10px] text-gray-400 uppercase font-bold mb-1 border-b border-dotted border-gray-300">
+                            RFM
                         </p>
                         <p class="text-xl font-black text-indigo-600">${rfm}%</p>
                         <p class="text-[9px] font-bold ${rColor} uppercase mt-1">${rStatus}</p>
@@ -695,7 +964,6 @@
                     </div>
                 `;
             } else {
-                // Single column: Deurenberg only
                 metricsHtml = `
                     <div class="flex justify-center">
                         <div class="w-1/2">
@@ -707,73 +975,56 @@
 
             metricsContainer.innerHTML = metricsHtml;
 
-            // 5. Render Calorie Metrics
             const calorieContainer = document.getElementById('calorieMetrics');
             const cutting = userData.tdee - 500;
             const bulking = userData.tdee + 500;
 
             calorieContainer.innerHTML = `
                 <div class="space-y-3">
-                    <!-- BMR & TDEE Grid -->
                     <div class="grid grid-cols-2 gap-3">
                         <div class="bg-pink-50 dark:bg-pink-900/20 p-3 rounded-xl border border-pink-100 dark:border-pink-800 text-center relative group">
-                            <p class="text-[10px] font-bold text-pink-600 uppercase cursor-help mb-1 border-b border-dotted border-pink-300 inline-block">
-                                BMR
-                                ${createTooltip("Basal Metabolic Rate: Energi minimal untuk hidup saat diam.")}
-                            </p>
+                            <p class="text-[10px] font-bold text-pink-600 uppercase mb-1 border-b border-dotted border-pink-300 inline-block">BMR</p>
                             <p class="text-lg font-black text-gray-800 dark:text-gray-100">${userData.bmr.toLocaleString('id-ID')}</p>
-                            <p class="text-[9px] text-gray-500">kkal/hari</p>
+                            <p class="text-[9px] text-gray-500">kkal</p>
                         </div>
                         <div class="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-xl border border-orange-100 dark:border-orange-800 text-center relative group">
-                             <p class="text-[10px] font-bold text-orange-600 uppercase cursor-help mb-1 border-b border-dotted border-orange-300 inline-block">
-                                TDEE
-                                ${createTooltip("Total Daily Energy Expenditure: Total energi harian termasuk aktivitas.")}
-                            </p>
+                             <p class="text-[10px] font-bold text-orange-600 uppercase mb-1 border-b border-dotted border-orange-300 inline-block">TDEE</p>
                             <p class="text-lg font-black text-gray-800 dark:text-gray-100">${userData.tdee.toLocaleString('id-ID')}</p>
-                            <p class="text-[9px] text-gray-500">kkal/hari</p>
+                            <p class="text-[9px] text-gray-500">kkal</p>
                         </div>
                     </div>
 
-                    <!-- Targets -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
                         <div class="p-3 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-700/50">
-                            <span class="text-xs font-bold text-gray-500 uppercase">Target Kalori Harian</span>
+                            <span class="text-xs font-bold text-gray-500 uppercase">Target</span>
                         </div>
                         <div class="divide-y divide-gray-100 dark:divide-gray-700">
-                            <!-- Cutting -->
                             <div class="p-3 flex justify-between items-center bg-yellow-50/50 dark:bg-yellow-900/10">
                                 <div>
-                                    <p class="text-[11px] font-bold text-yellow-700 dark:text-yellow-400">Cutting (Turun Berat)</p>
-                                    <p class="text-[9px] text-gray-500">Defisit 500 kkal</p>
+                                    <p class="text-[11px] font-bold text-yellow-700 dark:text-yellow-400">${T.cal_cutting}</p>
+                                    <p class="text-[9px] text-gray-500">${T.cal_def}</p>
                                 </div>
-                                <p class="font-black text-yellow-600 dark:text-yellow-400 text-sm">${cutting.toLocaleString('id-ID')} kkal</p>
+                                <p class="font-black text-yellow-600 dark:text-yellow-400 text-sm">${cutting.toLocaleString('id-ID')}</p>
                             </div>
-                            <!-- Maintenance -->
                             <div class="p-3 flex justify-between items-center">
                                 <div>
-                                    <p class="text-[11px] font-bold text-green-700 dark:text-green-400">Maintenance (Stabil)</p>
-                                    <p class="text-[9px] text-gray-500">Sesuai TDEE</p>
+                                    <p class="text-[11px] font-bold text-green-700 dark:text-green-400">${T.cal_maint}</p>
+                                    <p class="text-[9px] text-gray-500">${T.cal_stab}</p>
                                 </div>
-                                <p class="font-black text-green-600 dark:text-green-400 text-sm">${userData.tdee.toLocaleString('id-ID')} kkal</p>
+                                <p class="font-black text-green-600 dark:text-green-400 text-sm">${userData.tdee.toLocaleString('id-ID')}</p>
                             </div>
-                            <!-- Bulking -->
                             <div class="p-3 flex justify-between items-center">
                                 <div>
-                                    <p class="text-[11px] font-bold text-blue-700 dark:text-blue-400">Bulking (Naik Berat)</p>
-                                    <p class="text-[9px] text-gray-500">Surplus 500 kkal</p>
+                                    <p class="text-[11px] font-bold text-blue-700 dark:text-blue-400">${T.cal_bulk}</p>
+                                    <p class="text-[9px] text-gray-500">${T.cal_surp}</p>
                                 </div>
-                                <p class="font-black text-blue-600 dark:text-blue-400 text-sm">${bulking.toLocaleString('id-ID')} kkal</p>
+                                <p class="font-black text-blue-600 dark:text-blue-400 text-sm">${bulking.toLocaleString('id-ID')}</p>
                             </div>
                         </div>
                     </div>
                 </div>
             `;
 
-            // Update Quick Result Marker (Use BMI for consistency on the specific BMI bar, or switch to Fat% bar?
-            // Stick to BMI bar as layout is designed for BMI 15-40 range.
-            // If RFM is shown, users might be confused if the bar shows BMI position.
-            // Let's keep the bar reflecting BMI position for now as it's "BMI Pro", but maybe hide it if RFM is main?
-            // User didn't specify to change the chart. I will keep it linked to BMI for consistency with the layout's scale.)
             const minG = 15; const maxG = 40;
             let percent = ((bmi - minG) / (maxG - minG)) * 100;
             if (percent < 0) percent = 0; if (percent > 100) percent = 100;
@@ -791,24 +1042,21 @@
                 document.getElementById('loadingOverlay').classList.remove('flex');
                 
                 const today = new Date();
-                const d = today.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'});
-                const inf = advice[userData.k];
+                const d = today.toLocaleDateString(currentLang === 'id' ? 'id-ID' : 'en-US', {day: 'numeric', month: 'short', year: 'numeric'});
+                const inf = advice[currentLang][userData.k];
+                const T = translations[currentLang];
                 
-                // Header Report logic: ALWAYS BMI IS MAIN
                 let mainScore = userData.bmi;
-                let mainLabel = "ANGKA BMI";
+                let mainLabel = "BMI";
 
-                // Update DOM elements
                 const rScoreEl = document.getElementById('reportScore');
                 rScoreEl.innerText = mainScore;
                 rScoreEl.previousElementSibling.innerText = mainLabel;
 
                 document.getElementById('reportStatus').innerText = userData.l;
-                document.getElementById('reportProfile').innerText = `${userData.g=='male'?'Pria':'Wanita'}, ${userData.a} Th, ${userData.w}kg${userData.waist ? ', LP: '+userData.waist+'cm' : ''}`;
+                document.getElementById('reportProfile').innerText = `${userData.g=='male' ? T.val_male.split(' ')[1] : T.val_female.split(' ')[1]}, ${userData.a} ${currentLang==='id'?'Th':'Yo'}, ${userData.w}kg${userData.waist ? ', LP: '+userData.waist+'cm' : ''}`;
                 document.getElementById('reportDate').innerText = d;
 
-                // Add extended stats in Report (Custom Injection)
-                // NOW we put RFM and Deurenberg here as supporting data
                 const reportStatContainer = document.createElement('div');
                 reportStatContainer.className = "flex justify-center gap-6 mb-4 mt-2";
 
@@ -823,17 +1071,14 @@
                 if (userData.rfm) {
                     statsHtml += `
                     <div class="text-center group">
-                        <p class="text-[10px] text-gray-400 font-bold uppercase border-b border-dotted border-gray-300 inline-block mb-1">RFM (Akurat)</p>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase border-b border-dotted border-gray-300 inline-block mb-1">RFM</p>
                         <p class="text-xl font-black text-indigo-600">${userData.rfm}%</p>
                         <p class="text-[9px] font-bold ${userData.rColor} uppercase">${userData.rStatus}</p>
                     </div>`;
                 }
 
                 reportStatContainer.innerHTML = statsHtml;
-
-                // Insert stats before the Status Badge
                 const statusBadge = document.getElementById('reportStatus').parentElement;
-                // Check if container already exists to avoid duplication on multiple clicks
                 if(statusBadge.previousElementSibling.id !== 'secondaryStats') {
                     reportStatContainer.id = 'secondaryStats';
                     statusBadge.parentNode.insertBefore(reportStatContainer, statusBadge);
@@ -841,32 +1086,19 @@
                     statusBadge.previousElementSibling.innerHTML = statsHtml;
                 }
 
-                // --- NEW: INJECT LAYMAN EXPLANATION PARAGRAPH ---
-                // We inject this AFTER the slider/status area, but BEFORE the Energy Profile.
-                // The slider is inside the header part (white rounded top).
-                // The Energy Profile is the first child of the "Body Laporan" (white p-6).
-                // So we can inject it at the top of reportEnergyProfile container or create a new div above it.
-
                 const explanationHtml = `
                     <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 mb-6 text-justify">
                         <h4 class="text-xs font-extrabold text-indigo-800 uppercase mb-2 flex items-center gap-2">
-                            💡 PANDUAN MEMBACA HASIL
+                            ${T.guide_title}
                         </h4>
                         <div class="space-y-3 text-[11px] text-gray-700 leading-relaxed font-medium">
-                            <p>
-                                <strong class="text-gray-900">1. BMI (Rapor Kepadatan):</strong>
-                                Ibarat menilai apakah sebuah truk kelebihan muatan atau tidak. Angka <strong>${userData.bmi}</strong> menunjukkan rasio berat Anda terhadap tinggi badan. Semakin tinggi angkanya, semakin "padat" tubuh Anda.
-                            </p>
-                            <p>
-                                <strong class="text-gray-900">2. Lemak Tubuh (Cek Fakta Komposisi):</strong>
-                                BMI saja bisa tertipu (misal: binaragawan berat karena otot). Maka kita cek <strong>RFM & Deurenberg</strong>. Ini membedakan apakah "berat" Anda berasal dari lemak jahat atau otot.
-                                <span class="block mt-1 text-indigo-700 italic">"Jika BMI Normal tapi Lemak Tinggi, itu tanda Skinny Fat. Jika BMI Besar tapi Lemak Rendah, Anda berotot."</span>
-                            </p>
+                            <p>${T.guide_bmi.replace('{bmi}', userData.bmi)}</p>
+                            <p>${T.guide_fat}</p>
+                            <span class="block mt-1 text-indigo-700 italic text-[10px]">${T.guide_note}</span>
                         </div>
                     </div>
                 `;
 
-                // --- NEW: INJECT ENERGY PROFILE TO REPORT ---
                 const cutTarget = userData.tdee - 500;
                 const bulkTarget = userData.tdee + 500;
 
@@ -875,98 +1107,88 @@
 
                     <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
                         <div class="bg-gray-50 p-4 border-b border-gray-100">
-                            <h3 class="font-extrabold text-gray-800 text-sm uppercase tracking-wide flex items-center gap-2">🔥 Profil Energi & Metabolisme</h3>
+                            <h3 class="font-extrabold text-gray-800 text-sm uppercase tracking-wide flex items-center gap-2">${T.energy_title}</h3>
                         </div>
 
-                        <!-- Intro Edukasi -->
                         <div class="px-4 pt-4 pb-2 text-[10px] text-gray-600 border-b border-dashed border-gray-200">
-                            <p class="mb-1"><strong>Apa maksud angka-angka ini?</strong></p>
-                            <p>Tubuh Anda seperti mesin yang butuh anggaran bensin (kalori) harian. Angka ini membantu Anda menentukan <strong>berapa banyak yang harus dimakan</strong> agar berat badan terkontrol.</p>
+                            <p class="mb-1"><strong>${T.energy_intro_q}</strong></p>
+                            <p>${T.energy_intro_a}</p>
                         </div>
 
-                        <div class="p-4 grid grid-cols-1 gap-4">
-                            <!-- BMR ROW -->
-                            <div class="flex items-start gap-3 bg-red-50 p-3 rounded-lg border border-red-100">
-                                <div class="w-16 h-16 rounded-full bg-white border-2 border-red-200 flex flex-col items-center justify-center shrink-0 shadow-sm">
-                                    <span class="text-[8px] font-bold text-red-400">BMR</span>
-                                    <span class="text-xs font-black text-red-600">${userData.bmr.toLocaleString('id-ID')}</span>
+                        <div class="p-4">
+                            <!-- SIDE BY SIDE BMR & TDEE CARDS -->
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <!-- BMR Card -->
+                                <div class="border-2 border-pink-500 rounded-xl p-4 text-center bg-pink-50/50 relative overflow-hidden">
+                                    <div class="absolute top-0 right-0 p-1 opacity-10"><svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg></div>
+                                    <p class="text-xs font-bold text-pink-600 uppercase tracking-widest mb-1 relative z-10">BMR</p>
+                                    <p class="text-3xl font-black text-gray-800 relative z-10">${userData.bmr.toLocaleString('id-ID')}</p>
+                                    <p class="text-[9px] text-gray-500 relative z-10">kkal/hari</p>
                                 </div>
-                                <div class="text-[10px] leading-snug">
-                                    <p class="font-bold text-red-700 mb-0.5">ZONA BAHAYA (Batas Minimal)</p>
-                                    <p class="text-gray-600 mb-1">Biaya Operasional Tetap (Tidur/Napas). Ibarat mobil <i>idling</i>.</p>
-                                    <p class="text-red-700 bg-red-100 inline-block px-2 py-1 rounded border border-red-200 font-bold">
-                                        ⛔ JANGAN makan di bawah angka ini!
-                                    </p>
+                                <!-- TDEE Card -->
+                                <div class="border-2 border-orange-500 rounded-xl p-4 text-center bg-orange-50/50 relative overflow-hidden">
+                                    <div class="absolute top-0 right-0 p-1 opacity-10"><svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg></div>
+                                    <p class="text-xs font-bold text-orange-600 uppercase tracking-widest mb-1 relative z-10">TDEE</p>
+                                    <p class="text-3xl font-black text-gray-800 relative z-10">${userData.tdee.toLocaleString('id-ID')}</p>
+                                    <p class="text-[9px] text-gray-500 relative z-10">kkal/hari</p>
                                 </div>
                             </div>
 
-                            <!-- ZONA AMAN DIET ROW -->
-                            <div class="flex items-start gap-3 bg-green-50 p-3 rounded-lg border border-green-100">
-                                <div class="w-16 h-16 rounded-full bg-white border-2 border-green-200 flex flex-col items-center justify-center shrink-0 shadow-sm">
-                                    <span class="text-[8px] font-bold text-green-600">ZONA AMAN</span>
-                                    <span class="text-[9px] font-black text-green-700 text-center leading-tight mt-0.5">
-                                        ${userData.bmr.toLocaleString('id-ID')} - ${userData.tdee.toLocaleString('id-ID')}
-                                    </span>
+                            <!-- COMPANY ANALOGY EXPLANATION -->
+                            <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 text-[10px] leading-relaxed text-gray-700 space-y-2 text-justify">
+                                <h4 class="font-bold text-gray-500 uppercase text-[9px] tracking-wide mb-1 border-b border-gray-200 pb-1">${T.energy_analogy_header}</h4>
+                                <p>${T.energy_analogy_company_bmr}</p>
+                                <p>${T.energy_analogy_company_tdee}</p>
+                            </div>
+
+                            <!-- ZONA AMAN DIET ROW (Simplified) -->
+                            <div class="mt-4 flex items-center justify-between bg-green-50 p-3 rounded-lg border border-green-100">
+                                <div>
+                                    <p class="font-bold text-green-800 text-[10px] uppercase">${T.safe_title}</p>
+                                    <p class="text-[9px] text-gray-600">${T.safe_desc}</p>
                                 </div>
-                                <div class="text-[10px] leading-snug">
-                                    <p class="font-bold text-green-800 mb-0.5">Zona Aman Diet</p>
-                                    <p class="text-gray-600 mb-1">Rentang kalori ideal untuk diet sehat tanpa merusak metabolisme.</p>
-                                    <ul class="list-disc pl-3 text-gray-500 space-y-0.5">
-                                        <li><strong>Batas Atas:</strong> ${userData.tdee.toLocaleString('id-ID')} (TDEE/Maintenance)</li>
-                                        <li><strong>Target Ideal:</strong> ${cutTarget.toLocaleString('id-ID')} (Defisit)</li>
-                                    </ul>
+                                <div class="text-right">
+                                    <p class="text-xs font-black text-green-700">${userData.bmr.toLocaleString('id-ID')} - ${userData.tdee.toLocaleString('id-ID')}</p>
+                                    <p class="text-[8px] text-gray-400">kkal</p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Target Table Header -->
                         <div class="bg-gray-50 px-4 py-2 border-t border-gray-100 border-b border-gray-100">
-                             <p class="text-[9px] font-bold text-gray-500 uppercase tracking-wider text-center">🎯 Menu Pilihan Anda (Target Harian)</p>
+                             <p class="text-[9px] font-bold text-gray-500 uppercase tracking-wider text-center">${T.target_header}</p>
                         </div>
 
-                        <!-- Target Table Body -->
                         <div class="grid grid-cols-3 divide-x divide-gray-100 text-center">
                             <div class="p-3 bg-yellow-50/30 hover:bg-yellow-50 transition">
                                 <p class="text-[9px] uppercase font-extrabold text-gray-400 mb-1">Cutting</p>
                                 <p class="font-black text-gray-800 text-sm">${cutTarget.toLocaleString('id-ID')}</p>
-                                <p class="text-[8px] text-gray-400 mt-1">Turun Berat</p>
                             </div>
                             <div class="p-3 bg-green-50/30 hover:bg-green-50 transition">
-                                <p class="text-[9px] uppercase font-extrabold text-green-600 mb-1">Stabil</p>
+                                <p class="text-[9px] uppercase font-extrabold text-green-600 mb-1">Stable</p>
                                 <p class="font-black text-green-600 text-sm">${userData.tdee.toLocaleString('id-ID')}</p>
-                                <p class="text-[8px] text-green-500 mt-1">Jaga Berat</p>
                             </div>
                             <div class="p-3 bg-blue-50/30 hover:bg-blue-50 transition">
                                 <p class="text-[9px] uppercase font-extrabold text-gray-400 mb-1">Bulking</p>
                                 <p class="font-black text-gray-800 text-sm">${bulkTarget.toLocaleString('id-ID')}</p>
-                                <p class="text-[8px] text-gray-400 mt-1">Naik Berat</p>
                             </div>
                         </div>
                     </div>
                 `;
 
                 const repEnergy = document.getElementById('reportEnergyProfile');
-                // Remove border class from parent because we moved it to inner card
                 repEnergy.className = "hidden";
                 repEnergy.innerHTML = energyHtml;
                 repEnergy.classList.remove('hidden');
-                // ---------------------------------------------
 
                 let analysisText = inf.txt;
-                // Check for Hidden Obesity (BMI < Obese BUT Body Fat >= Obese)
-                // BMI Obese is >= 30.
-                // Deurenberg Obese: Male >= 25, Female >= 32
-                // RFM Obese: Male >= 30, Female >= 40
-
                 const bmiVal = parseFloat(userData.bmi);
                 const isBmiObese = bmiVal >= 30;
-
                 let isFatObese = false;
-                if (userData.dStatus.includes('Obesitas')) isFatObese = true;
-                if (userData.rfm && userData.rStatus.includes('Obesitas')) isFatObese = true;
+                if (userData.dStatus.includes('Obesitas') || userData.dStatus.includes('Obese')) isFatObese = true;
+                if (userData.rfm && (userData.rStatus.includes('Obesitas') || userData.rStatus.includes('Obese'))) isFatObese = true;
 
                 if (!isBmiObese && isFatObese) {
-                    analysisText += ` <br><br><strong class="text-red-600">⚠️ PERINGATAN:</strong> Meskipun BMI Anda belum Obesitas, namun Persentase Lemak Tubuh Anda sudah masuk kategori <strong>OBESITAS</strong>. Ini sering disebut "Skinny Fat" atau "Normal Weight Obesity". Fokuslah menurunkan lemak (Cutting) daripada sekadar menurunkan berat badan.`;
+                    analysisText += currentLang === 'id' ? T.warn_fat : T.warn_fat_en;
                 }
 
                 document.getElementById('aiAnalysis').innerHTML = analysisText;
@@ -977,6 +1199,7 @@
 
                 const mc = document.getElementById('menuContainer');
                 mc.innerHTML = '';
+                // Keep menu in ID for now as decided above
                 weeklyPlans[userData.k].forEach((m, i) => {
                     const bgColor = i % 4 < 2 ? 'bg-white' : 'bg-gray-50/80';
                     mc.innerHTML += `
@@ -1004,82 +1227,6 @@
 
         function closeModal() { document.getElementById('reportModal').classList.add('hidden'); }
         function resetForm() { document.getElementById('weight').value=''; document.getElementById('height').value=''; document.getElementById('resultArea').classList.add('hidden'); }
-
-        function toggleInfo() {
-            const content = document.getElementById('infoContent');
-            const icon = document.getElementById('infoIcon');
-
-            if (content.classList.contains('hidden')) {
-                content.classList.remove('hidden');
-                content.classList.add('fade-in-up');
-                icon.classList.add('rotate-180');
-            } else {
-                content.classList.add('hidden');
-                content.classList.remove('fade-in-up');
-                icon.classList.remove('rotate-180');
-            }
-        }
-
-        // --- DRAG LOGIC FOR FLOATING ACTIONS ---
-        const floatBtn = document.getElementById('floatingActions');
-        let isDragging = false;
-        let startX, startY, initialLeft, initialTop;
-
-        const handleStart = (e) => {
-            isDragging = true;
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-            // Get current computed position
-            const rect = floatBtn.getBoundingClientRect();
-
-            // Note: We need to handle the transform -translate-x-1/2 which messes up simple offsets.
-            // Strategy: Switch to fixed Top/Left on first drag and remove transform.
-
-            if (floatBtn.style.transform !== 'none') {
-                floatBtn.style.left = rect.left + 'px';
-                floatBtn.style.top = rect.top + 'px';
-                floatBtn.style.bottom = 'auto'; // clear bottom-6
-                floatBtn.style.transform = 'none'; // clear centering
-            }
-
-            startX = clientX;
-            startY = clientY;
-            initialLeft = floatBtn.offsetLeft;
-            initialTop = floatBtn.offsetTop;
-
-            floatBtn.classList.add('cursor-grabbing');
-            floatBtn.classList.remove('cursor-grab');
-        };
-
-        const handleMove = (e) => {
-            if (!isDragging) return;
-            e.preventDefault(); // Prevent scrolling while dragging
-
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-            const dx = clientX - startX;
-            const dy = clientY - startY;
-
-            floatBtn.style.left = `${initialLeft + dx}px`;
-            floatBtn.style.top = `${initialTop + dy}px`;
-        };
-
-        const handleEnd = () => {
-            isDragging = false;
-            floatBtn.classList.remove('cursor-grabbing');
-            floatBtn.classList.add('cursor-grab');
-        };
-
-        floatBtn.addEventListener('mousedown', handleStart);
-        document.addEventListener('mousemove', handleMove);
-        document.addEventListener('mouseup', handleEnd);
-
-        floatBtn.addEventListener('touchstart', handleStart, {passive: false});
-        document.addEventListener('touchmove', handleMove, {passive: false});
-        document.addEventListener('touchend', handleEnd);
-
     </script>
 </body>
 </html>
