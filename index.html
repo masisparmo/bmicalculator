@@ -37,6 +37,10 @@
         .typing-dot:nth-child(2) { animation-delay: -0.16s; }
         @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
         .rich-text strong { font-weight: 800; }
+
+        .avoid-page-break {
+            page-break-inside: avoid !important;
+        }
         
         /* Marker Segitiga Gelap */
         .triangle-marker-dark {
@@ -432,7 +436,7 @@
                     </div>
 
                     <!-- Menu Makan -->
-                    <div>
+                    <div class="avoid-page-break">
                         <div class="flex items-center justify-between mb-4 border-b-2 border-green-100 pb-2">
                             <h3 data-i18n="report_menu_title" class="font-extrabold text-green-700 text-sm uppercase tracking-wide flex items-center gap-2">🥗 Rencana Menu 7 Hari</h3>
                             <button onclick="regenerateMenu()" class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full hover:bg-green-200 transition flex items-center gap-1 shadow-sm active:scale-95">
@@ -470,9 +474,9 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                         PRINT
                     </button>
-                    <button onclick="downloadPDF()" id="btnPdf" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg flex justify-center items-center gap-2 active:scale-95 transition text-sm">
+                    <button onclick="downloadPDF()" id="btnPdf" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg hidden md:flex justify-center items-center gap-2 active:scale-95 transition text-sm">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        <span data-i18n="btn_pdf">DOWNLOAD PDF</span>
+                        <span data-i18n="btn_pdf">SIMPAN PDF</span>
                     </button>
                     <button onclick="closeModal()" class="w-12 h-12 bg-gray-100 hover:bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-full shadow flex items-center justify-center transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -679,7 +683,7 @@
                 tooltip_bmr: "Basal Metabolic Rate: Energi minimal untuk hidup saat diam.",
                 tooltip_tdee: "Total Daily Energy Expenditure: Total energi harian termasuk aktivitas.",
                 // New
-                btn_pdf: "DOWNLOAD PDF",
+                btn_pdf: "SIMPAN PDF",
                 btn_regen: "Re-generate AI"
             },
             en: {
@@ -795,7 +799,7 @@
                 tooltip_bmr: "Basal Metabolic Rate: Minimum energy to survive when resting.",
                 tooltip_tdee: "Total Daily Energy Expenditure: Total daily energy including activity.",
                 // New
-                btn_pdf: "DOWNLOAD PDF",
+                btn_pdf: "SAVE PDF",
                 btn_regen: "Re-generate AI"
             }
         };
@@ -1279,7 +1283,7 @@
                 }
 
                 const explanationHtml = `
-                    <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 mb-6 text-justify">
+                    <div id="reportLaymanGuide" class="avoid-page-break bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 mb-6 text-justify">
                         <h4 class="text-xs font-extrabold text-indigo-800 uppercase mb-2 flex items-center gap-2">
                             ${T.guide_title}
                         </h4>
@@ -1297,7 +1301,7 @@
                 const energyHtml = `
                     ${explanationHtml}
 
-                    <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
+                    <div class="avoid-page-break bg-white border rounded-xl overflow-hidden shadow-sm">
                         <div class="bg-gray-50 p-4 border-b border-gray-100">
                             <h3 class="font-extrabold text-gray-800 text-sm uppercase tracking-wide flex items-center gap-2">${T.energy_title}</h3>
                         </div>
@@ -1437,14 +1441,21 @@
 
         function downloadPDF() {
             const element = document.getElementById('printableArea');
+            element.classList.remove('max-w-xl');
+
             const opt = {
-                margin: [0, 0, 0, 0],
+                margin: [25.4, 30.48, 25.4, 25.4], // [top, left, bottom, right] in mm
                 filename: `BMI_Report_${userData.k}_${new Date().toISOString().slice(0,10)}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-            html2pdf().set(opt).from(element).save();
+
+            const worker = html2pdf().set(opt).from(element);
+            worker.save();
+            worker.then(() => {
+                element.classList.add('max-w-xl');
+            });
         }
 
         // --- DRAG LOGIC FOR FLOATING ACTIONS ---
@@ -1453,6 +1464,12 @@
         let offsetX, offsetY;
 
         const handleStart = (e) => {
+            // If the user's action starts on a button, do not initiate drag.
+            // This prevents the drag logic from interfering with button clicks.
+            if (e.target.closest('button')) {
+                return;
+            }
+
             // Allow dragging only if target is NOT a button
             // Actually, user might want to drag from anywhere.
             // But clicking a button should fire the button action, not start dragging immediately if it's a tap.
