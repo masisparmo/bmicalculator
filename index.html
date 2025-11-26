@@ -470,9 +470,9 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                         PRINT
                     </button>
-                    <button onclick="downloadPDF()" id="btnPdf" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg flex justify-center items-center gap-2 active:scale-95 transition text-sm">
+                    <button onclick="downloadPDF()" id="btnPdf" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg hidden md:flex justify-center items-center gap-2 active:scale-95 transition text-sm">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        <span data-i18n="btn_pdf">DOWNLOAD PDF</span>
+                        <span data-i18n="btn_pdf">SIMPAN PDF</span>
                     </button>
                     <button onclick="closeModal()" class="w-12 h-12 bg-gray-100 hover:bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-full shadow flex items-center justify-center transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -679,7 +679,7 @@
                 tooltip_bmr: "Basal Metabolic Rate: Energi minimal untuk hidup saat diam.",
                 tooltip_tdee: "Total Daily Energy Expenditure: Total energi harian termasuk aktivitas.",
                 // New
-                btn_pdf: "DOWNLOAD PDF",
+                btn_pdf: "SIMPAN PDF",
                 btn_regen: "Re-generate AI"
             },
             en: {
@@ -795,7 +795,7 @@
                 tooltip_bmr: "Basal Metabolic Rate: Minimum energy to survive when resting.",
                 tooltip_tdee: "Total Daily Energy Expenditure: Total daily energy including activity.",
                 // New
-                btn_pdf: "DOWNLOAD PDF",
+                btn_pdf: "SAVE PDF",
                 btn_regen: "Re-generate AI"
             }
         };
@@ -1437,14 +1437,21 @@
 
         function downloadPDF() {
             const element = document.getElementById('printableArea');
+            element.classList.remove('max-w-xl');
+
             const opt = {
-                margin: [0, 0, 0, 0],
+                margin: [25.4, 30.48, 25.4, 25.4], // [top, left, bottom, right] in mm
                 filename: `BMI_Report_${userData.k}_${new Date().toISOString().slice(0,10)}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-            html2pdf().set(opt).from(element).save();
+
+            const worker = html2pdf().set(opt).from(element);
+            worker.save();
+            worker.then(() => {
+                element.classList.add('max-w-xl');
+            });
         }
 
         // --- DRAG LOGIC FOR FLOATING ACTIONS ---
