@@ -99,6 +99,9 @@
                     <button id="themeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
                         <span class="dark:hidden">🌙</span><span class="hidden dark:block">☀️</span>
                     </button>
+                    <button id="settingsBtn" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
+                        <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </button>
                 </div>
             </div>
 
@@ -439,11 +442,21 @@
                     <div class="avoid-page-break">
                         <div class="flex items-center justify-between mb-4 border-b-2 border-green-100 pb-2">
                             <h3 data-i18n="report_menu_title" class="font-extrabold text-green-700 text-sm uppercase tracking-wide flex items-center gap-2">🥗 Rencana Menu 7 Hari</h3>
-                            <button onclick="regenerateMenu()" class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full hover:bg-green-200 transition flex items-center gap-1 shadow-sm active:scale-95">
-                                <span>🔄</span> <span data-i18n="btn_regen">Re-generate AI</span>
+                            <button id="regenerateAiBtn" onclick="handleAiMenuGeneration()" class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full hover:bg-green-200 transition flex items-center gap-1 shadow-sm active:scale-95">
+                                <span>🤖</span> <span data-i18n="btn_regen">Re-generate AI</span>
                             </button>
                         </div>
-                        <div class="grid grid-cols-2 gap-3" id="menuContainer"></div>
+                        <div class="relative">
+                            <div class="grid grid-cols-2 gap-3" id="menuContainer"></div>
+                            <div id="menuLoading" class="absolute inset-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-xl text-center p-4 hidden">
+                                <div class="flex gap-2">
+                                    <div class="w-2.5 h-2.5 bg-primary rounded-full typing-dot"></div>
+                                    <div class="w-2.5 h-2.5 bg-primary rounded-full typing-dot" style="animation-delay: -0.16s;"></div>
+                                    <div class="w-2.5 h-2.5 bg-primary rounded-full typing-dot" style="animation-delay: -0.32s;"></div>
+                                </div>
+                                <p class="text-xs font-semibold text-gray-600 dark:text-gray-300 mt-2">Membuat menu AI...</p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Olahraga -->
@@ -487,60 +500,221 @@
         </div>
     </div>
 
+    <!-- MODAL API KEY -->
+    <div id="geminiApiModal" class="fixed inset-0 z-50 hidden bg-gray-900/80 backdrop-blur-sm overflow-y-auto">
+        <div class="min-h-screen w-full flex flex-col items-center justify-center p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md relative border border-gray-200 dark:border-gray-700">
+                <button id="closeApiModal" class="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <div class="p-6">
+                    <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2">Pengaturan API Gemini</h3>
+                    <p class="text-xs text-gray-500 mb-4">API Key Anda disimpan aman di browser Anda dan tidak dikirim ke server kami.</p>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label for="geminiApiKey" class="text-xs font-bold text-gray-500 uppercase">API Key</label>
+                            <input type="password" id="geminiApiKey" class="w-full p-3 mt-1 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-semibold" placeholder="Masukkan API Key Anda...">
+                        </div>
+                        <div class="flex gap-3">
+                            <button id="saveApiKey" class="w-full py-3 bg-primary text-white font-bold rounded-xl shadow-lg active:scale-95 transition">Simpan</button>
+                            <button id="deleteApiKey" class="w-full py-3 bg-red-600 text-white font-bold rounded-xl shadow-lg active:scale-95 transition hidden">Hapus Key</button>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 border-t border-gray-100 dark:border-gray-700 pt-4">
+                        <button id="toggleApiGuide" class="flex items-center justify-between w-full text-left group focus:outline-none">
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-wide group-hover:text-primary transition-colors">
+                                📖 Cara Mendapatkan API Key Gratis
+                            </span>
+                            <svg id="apiGuideIcon" class="w-4 h-4 text-gray-400 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="apiGuideContent" class="hidden overflow-hidden transition-all duration-300 ease-in-out">
+                            <div class="pt-4 space-y-2 text-xs text-gray-600 dark:text-gray-300 leading-relaxed text-justify">
+                                <p>Anda bisa mendapatkan API Key Gemini secara gratis dari Google AI Studio untuk penggunaan pribadi.</p>
+                                <ol class="list-decimal pl-4 space-y-1 mt-2">
+                                    <li>Kunjungi situs <a href="https://aistudio.google.com/" target="_blank" class="text-primary font-bold hover:underline">Google AI Studio</a>.</li>
+                                    <li>Login dengan akun Google Anda.</li>
+                                    <li>Klik tombol <strong>"Get API key"</strong> di pojok kiri atas.</li>
+                                    <li>Pilih <strong>"Create API key in new project"</strong>.</li>
+                                    <li>Salin (copy) API Key yang muncul dan tempel (paste) di kolom di atas.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="loadingOverlay" class="fixed inset-0 bg-black/90 z-[100] hidden flex-col items-center justify-center text-white">
         <div class="flex gap-3 mb-4"><div class="w-4 h-4 bg-white rounded-full typing-dot"></div><div class="w-4 h-4 bg-gray-400 rounded-full typing-dot"></div><div class="w-4 h-4 bg-gray-600 rounded-full typing-dot"></div></div>
         <h3 data-i18n="loading" class="text-lg font-bold">Memproses Data AI...</h3>
     </div>
 
-    <script>
-        const htmlEl = document.documentElement;
-        const themeToggleBtn = document.getElementById('themeToggle');
-        const langToggleBtn = document.getElementById('langToggle');
+    <!-- Google AI SDK (ESM version from esm.sh) -->
+    <script type="module">
+        import { GoogleGenerativeAI } from 'https://esm.sh/@google/generative-ai';
 
-        // Theme Logic
-        if(localStorage.getItem('theme') === 'dark') htmlEl.classList.add('dark');
-        themeToggleBtn.addEventListener('click', () => {
-            htmlEl.classList.toggle('dark');
-            localStorage.setItem('theme', htmlEl.classList.contains('dark') ? 'dark' : 'light');
+        // Make the SDK available globally for the existing functions
+        window.google = { generativeai: { GoogleGenerativeAI } };
+
+        let userData; // Will hold user's calculation data
+        let currentLang = localStorage.getItem('lang') || 'id';
+        const htmlEl = document.documentElement;
+
+        // --- Attach Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Regular Buttons
+            document.getElementById('themeToggle').addEventListener('click', () => {
+                htmlEl.classList.toggle('dark');
+                localStorage.setItem('theme', htmlEl.classList.contains('dark') ? 'dark' : 'light');
+            });
+
+            document.getElementById('langToggle').addEventListener('click', () => {
+                currentLang = currentLang === 'id' ? 'en' : 'id';
+                localStorage.setItem('lang', currentLang);
+                updateLanguage();
+            });
+
+            // API Modal Buttons
+            document.getElementById('settingsBtn').addEventListener('click', openApiModal);
+            document.getElementById('closeApiModal').addEventListener('click', closeApiModal);
+            document.getElementById('saveApiKey').addEventListener('click', saveApiKey);
+            document.getElementById('deleteApiKey').addEventListener('click', deleteApiKey);
+            document.getElementById('toggleApiGuide').addEventListener('click', toggleApiGuide);
+
+            // Initial Setup
+            if(localStorage.getItem('theme') === 'dark') htmlEl.classList.add('dark');
+            updateLanguage();
         });
 
-        // Language Logic
-        let currentLang = localStorage.getItem('lang') || 'id';
+        // --- Global Functions for onclick="" ---
+        // We need to attach functions to window when using modules to make them accessible from HTML onclick attributes.
+        window.calculateBMI = calculateBMI;
+        window.generateReport = generateReport;
+        window.handleAiMenuGeneration = handleAiMenuGeneration;
+        window.openApiModal = openApiModal;
+        window.closeApiModal = closeApiModal;
+        window.saveApiKey = saveApiKey;
+        window.deleteApiKey = deleteApiKey;
+        window.toggleApiGuide = toggleApiGuide;
+        window.closeModal = closeModal;
+        window.resetForm = resetForm;
+        window.toggleInfo = toggleInfo;
+        window.downloadPDF = downloadPDF;
+
+        function openApiModal() {
+            const geminiApiKeyInput = document.getElementById('geminiApiKey');
+            const deleteApiKeyBtn = document.getElementById('deleteApiKey');
+            const savedKey = localStorage.getItem('geminiApiKey');
+            if (savedKey) {
+                geminiApiKeyInput.value = savedKey;
+                deleteApiKeyBtn.classList.remove('hidden');
+            } else {
+                geminiApiKeyInput.value = '';
+                deleteApiKeyBtn.classList.add('hidden');
+            }
+            document.getElementById('geminiApiModal').classList.remove('hidden');
+        }
+
+        window.closeModal = function() { document.getElementById('reportModal').classList.add('hidden'); }
+        window.resetForm = function() { document.getElementById('weight').value=''; document.getElementById('height').value=''; document.getElementById('resultArea').classList.add('hidden'); }
+        window.toggleInfo = function() {
+            const content = document.getElementById('infoContent');
+            const icon = document.getElementById('infoIcon');
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                content.classList.add('fade-in-up');
+                icon.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                content.classList.remove('fade-in-up');
+                icon.classList.remove('rotate-180');
+            }
+        }
+        window.downloadPDF = function() {
+            const element = document.getElementById('printableArea');
+            element.classList.remove('max-w-xl');
+
+            const opt = {
+                margin: [25.4, 30.48, 25.4, 25.4], // [top, left, bottom, right] in mm
+                filename: `BMI_Report_${userData.k}_${new Date().toISOString().slice(0,10)}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().from(element).set(opt).toPdf().get('pdf').then(function (pdf) {
+                var totalPages = pdf.internal.getNumberOfPages();
+                var pageWidth = pdf.internal.pageSize.getWidth();
+                var pageHeight = pdf.internal.pageSize.getHeight();
+
+                pdf.setFont('helvetica', 'italic');
+                pdf.setFontSize(8);
+                pdf.setTextColor(150);
+
+                for (var i = 1; i <= totalPages; i++) {
+                    pdf.setPage(i);
+                    pdf.line(opt.margin[1], pageHeight - 18, pageWidth - opt.margin[3], pageHeight - 18);
+                    pdf.text('Generated by BMI CALCULATOR Pro - https://bmicalculator.isparmo.com', opt.margin[1], pageHeight - 10);
+                    var pageNumText = 'Page ' + i + ' of ' + totalPages;
+                    pdf.text(pageNumText, pageWidth - opt.margin[3], pageHeight - 10, { align: 'right' });
+                }
+            }).save().then(() => {
+                element.classList.add('max-w-xl');
+            });
+        }
+
+        window.saveApiKey = function() {
+            const apiKey = document.getElementById('geminiApiKey').value.trim();
+            if (apiKey) {
+                localStorage.setItem('geminiApiKey', apiKey);
+                alert('API Key berhasil disimpan!');
+                closeApiModal();
+            } else {
+                alert('API Key tidak boleh kosong.');
+            }
+        }
+
+        window.deleteApiKey = function() {
+            if (confirm('Apakah Anda yakin ingin menghapus API Key?')) {
+                localStorage.removeItem('geminiApiKey');
+                document.getElementById('geminiApiKey').value = '';
+                alert('API Key berhasil dihapus.');
+                closeApiModal();
+            }
+        }
+
+        window.toggleApiGuide = function() {
+            const apiGuideContent = document.getElementById('apiGuideContent');
+            const apiGuideIcon = document.getElementById('apiGuideIcon');
+            if (apiGuideContent.classList.contains('hidden')) {
+                apiGuideContent.classList.remove('hidden');
+                apiGuideIcon.classList.add('rotate-180');
+            } else {
+                apiGuideContent.classList.add('hidden');
+                apiGuideIcon.classList.remove('rotate-180');
+            }
+        }
 
         function updateLanguage() {
             const T = translations[currentLang];
+            const langToggleBtn = document.getElementById('langToggle');
 
-            // Update Text Content
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if(T[key]) el.innerText = T[key];
             });
-
-            // Update HTML Content
             document.querySelectorAll('[data-i18n-html]').forEach(el => {
                 const key = el.getAttribute('data-i18n-html');
                 if(T[key]) el.innerHTML = T[key];
             });
-
-            // Update Button Text
             langToggleBtn.innerText = currentLang.toUpperCase();
-
-            // Update Input Placeholders (Optional refinement)
-            if(currentLang === 'id') {
-                document.getElementById('waist').placeholder = "cm (Ops)";
-            } else {
-                document.getElementById('waist').placeholder = "cm (Opt)";
-            }
+            document.getElementById('waist').placeholder = (currentLang === 'id') ? "cm (Ops)" : "cm (Opt)";
         }
-
-        langToggleBtn.addEventListener('click', () => {
-            currentLang = currentLang === 'id' ? 'en' : 'id';
-            localStorage.setItem('lang', currentLang);
-            updateLanguage();
-        });
-
-        // Initialize Language on Load
-        document.addEventListener('DOMContentLoaded', updateLanguage);
 
         const translations = {
             id: {
@@ -994,42 +1168,89 @@
             weeklyPlans[k] = generateRandomPlan(k);
         });
 
-        function regenerateMenu() {
-            if(!userData || !userData.k) return;
+        async function handleAiMenuGeneration() {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            if (!apiKey) {
+                openApiModal();
+                return;
+            }
+            if (!userData) {
+                alert("Silakan hitung BMI Anda terlebih dahulu.");
+                return;
+            }
 
-            // Add loading effect to button
-            const btn = document.querySelector('button[onclick="regenerateMenu()"]');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = `<span>⏳</span> ...`;
-            btn.disabled = true;
+            const menuLoading = document.getElementById('menuLoading');
+            const menuContainer = document.getElementById('menuContainer');
+            menuLoading.classList.remove('hidden');
+            menuLoading.classList.add('flex');
 
-            setTimeout(() => {
-                // Re-randomize ONLY the current category to save resources? Or all? Just current is enough.
-                weeklyPlans[userData.k] = generateRandomPlan(userData.k);
+            let targetCalories;
+            let dietType;
 
-                // Re-render the menu container
-                const mc = document.getElementById('menuContainer');
-                mc.innerHTML = '';
-                weeklyPlans[userData.k].forEach((m, i) => {
-                    const bgColor = i % 4 < 2 ? 'bg-white' : 'bg-gray-50/80';
-                    mc.innerHTML += `
-                    <div class="${bgColor} border border-gray-100 p-3 rounded-xl shadow-sm text-[11px] leading-snug font-medium relative overflow-hidden fade-in-up" style="animation-delay: ${i*0.05}s">
-                        <div class="font-bold text-primary mb-2 border-b border-gray-100 pb-1 text-xs flex justify-between">
-                            <span>${m.d}</span>
-                            <span class="text-gray-300 text-[10px]">Day ${i+1}</span>
-                        </div>
-                        <div class="space-y-2 text-gray-700">
-                            <div class="flex items-start gap-2 border-l-2 border-yellow-200 pl-2"><span class="font-bold text-gray-500 w-5 shrink-0">Pg</span><span class="break-words">${m.m[0]}</span></div>
-                            <div class="flex items-start gap-2 border-l-2 border-orange-200 pl-2"><span class="font-bold text-gray-500 w-5 shrink-0">Si</span><span class="break-words">${m.m[1]}</span></div>
-                            <div class="flex items-start gap-2 border-l-2 border-indigo-200 pl-2"><span class="font-bold text-gray-500 w-5 shrink-0">Ma</span><span class="break-words">${m.m[2]}</span></div>
-                        </div>
-                    </div>`;
-                });
+            switch (userData.k) {
+                case 'underweight':
+                    targetCalories = userData.tdee + 500;
+                    dietType = "Bulking (surplus kalori)";
+                    break;
+                case 'overweight':
+                case 'obese':
+                    targetCalories = userData.tdee - 500;
+                    dietType = "Cutting (defisit kalori)";
+                    break;
+                default: // 'normal'
+                    targetCalories = userData.tdee;
+                    dietType = "Maintenance (menjaga berat badan)";
+            }
 
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }, 500); // Fake delay for UX
+            console.log(`Generating AI menu for: ${dietType} at ~${targetCalories} kkal`);
+
+            // Force a browser reflow/repaint. This ensures the loading indicator
+            // is rendered before the potentially fast-failing async code runs.
+            void menuLoading.offsetHeight;
+
+            const prompt = `Buatkan saya rencana menu makanan sehat untuk 7 hari (Senin-Minggu) bagi seseorang di Indonesia.
+                - Target kalori harian adalah sekitar ${targetCalories} kkal.
+                - Tujuan diet: ${dietType}.
+                - Gunakan bahan makanan yang umum, mudah ditemukan, dan terjangkau di Indonesia.
+                - Sertakan 3 waktu makan utama: Sarapan, Makan Siang, Makan Malam.
+                - Berikan estimasi kalori untuk setiap hidangan (misal: ~350 kkal).
+                - Format jawaban dalam bentuk daftar harian. Contoh:
+                  **Senin**
+                  - Sarapan: [Nama Makanan] (~[Kalori] kkal)
+                  - Makan Siang: [Nama Makanan] (~[Kalori] kkal)
+                  - Makan Malam: [Nama Makanan] (~[Kalori] kkal)
+            `;
+            console.log("Prompt to be sent to AI:", prompt);
+
+            try {
+                const genAI = new window.google.generativeai.GoogleGenerativeAI(apiKey);
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+
+                const result = await model.generateContent(prompt);
+                const response = await result.response;
+                const text = response.text();
+
+                const htmlMenu = text.split('\n').map(line => {
+                    line = line.trim();
+                    if (line.startsWith('**') && line.endsWith('**')) return `<strong>${line.substring(2, line.length - 2)}</strong>`;
+                    if (line.startsWith('* **') && line.endsWith('**')) return `<strong>${line.substring(4, line.length - 2)}</strong>`;
+                    if (line.startsWith('- ')) return `<li>${line.substring(2)}</li>`;
+                    if (line.startsWith('* ')) return `<li>${line.substring(2)}</li>`;
+                    return line ? `<p>${line}</p>` : '';
+                }).join('');
+
+                menuContainer.innerHTML = `<div class="col-span-2 space-y-2 text-xs leading-relaxed">${htmlMenu.replace(/<p><\/p>/g, '')}</div>`;
+
+            } catch (error) {
+                console.error("Error generating AI menu:", error);
+                alert("Gagal membuat menu. Pastikan API Key Anda valid dan coba lagi. (Model: gemini-1.5-flash-latest)");
+                menuContainer.innerHTML = `<p class="col-span-2 text-center text-xs text-red-500">Terjadi kesalahan saat menghubungi AI.</p>`;
+            } finally {
+                menuLoading.classList.add('hidden');
+                menuLoading.classList.remove('flex');
+            }
         }
+
 
         function calculateBMI() {
             const w = parseFloat(document.getElementById('weight').value);
