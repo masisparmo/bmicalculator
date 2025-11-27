@@ -132,6 +132,31 @@
                 </div>
                 <button data-i18n="btn_calc" onclick="calculateBMI()" class="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-lg active:scale-95 transition">Hitung & Analisa</button>
 
+                <!-- FOOD SCANNER AI SECTION -->
+                <div class="mt-3 border-t border-gray-100 dark:border-gray-700 pt-3">
+                    <input type="file" id="foodImageInput" accept="image/*" class="hidden" onchange="handleImageSelect(event)">
+                    <button id="btnScanFood" onclick="triggerFoodScan()" class="w-full py-3 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold rounded-xl shadow-lg active:scale-95 transition flex items-center justify-center gap-2 group relative overflow-hidden">
+                        <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <span data-i18n="btn_scan_food">📷 Scan Makanan (AI)</span>
+                    </button>
+
+                    <!-- Loading State -->
+                    <div id="scanLoading" class="hidden mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
+                        <div class="flex justify-center gap-2 mb-2">
+                            <div class="w-2 h-2 bg-orange-500 rounded-full typing-dot"></div>
+                            <div class="w-2 h-2 bg-pink-500 rounded-full typing-dot" style="animation-delay: -0.16s;"></div>
+                            <div class="w-2 h-2 bg-purple-500 rounded-full typing-dot" style="animation-delay: -0.32s;"></div>
+                        </div>
+                        <p data-i18n="scan_loading" class="text-xs font-semibold text-gray-600 dark:text-gray-300">Menganalisa Makanan...</p>
+                    </div>
+
+                    <!-- Scan Result Container -->
+                    <div id="scanResult" class="hidden mt-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 relative">
+                        <!-- Result injected here -->
+                    </div>
+                </div>
+
                 <!-- Accordion Informasi BMI -->
                 <div class="mt-4 border-t border-gray-100 dark:border-gray-700 pt-4">
                     <button onclick="toggleInfo()" class="flex items-center justify-between w-full text-left group focus:outline-none">
@@ -556,11 +581,6 @@
 
     <!-- Google AI SDK (ESM version from esm.sh) -->
     <script type="module">
-        import { GoogleGenerativeAI } from 'https://esm.sh/@google/generative-ai';
-
-        // Make the SDK available globally for the existing functions
-        window.google = { generativeai: { GoogleGenerativeAI } };
-
         let userData; // Will hold user's calculation data
         let currentLang = localStorage.getItem('lang') || 'id';
         const htmlEl = document.documentElement;
@@ -597,6 +617,9 @@
         window.generateReport = generateReport;
         window.handleAiMenuGeneration = handleAiMenuGeneration;
         window.openApiModal = openApiModal;
+        window.triggerFoodScan = triggerFoodScan;
+        window.handleImageSelect = handleImageSelect;
+        window.closeScanResult = closeScanResult;
 
         function closeApiModal() {
             document.getElementById('geminiApiModal').classList.add('hidden');
@@ -721,12 +744,206 @@
             document.getElementById('waist').placeholder = (currentLang === 'id') ? "cm (Ops)" : "cm (Opt)";
         }
 
+        // --- FOOD SCANNER FUNCTIONS ---
+
+        function triggerFoodScan() {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            if (!apiKey) {
+                alert(currentLang === 'id' ? "Silakan masukkan API Key Gemini terlebih dahulu di menu Pengaturan." : "Please enter your Gemini API Key first in Settings.");
+                openApiModal();
+                return;
+            }
+            document.getElementById('foodImageInput').click();
+        }
+
+        function closeScanResult() {
+             document.getElementById('scanResult').classList.add('hidden');
+             document.getElementById('scanResult').innerHTML = '';
+        }
+
+        function handleImageSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const scanLoading = document.getElementById('scanLoading');
+            const scanResult = document.getElementById('scanResult');
+
+            scanResult.classList.add('hidden');
+            scanLoading.classList.remove('hidden');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // Resize logic
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const base64String = canvas.toDataURL('image/jpeg', 0.8).split(',')[1]; // Remove prefix
+                    analyzeFoodImage(base64String);
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+
+            // Reset input so same file can be selected again
+            event.target.value = '';
+        }
+
+        async function analyzeFoodImage(base64Image) {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            const scanLoading = document.getElementById('scanLoading');
+            const scanResult = document.getElementById('scanResult');
+            const T = translations[currentLang];
+
+            try {
+                const promptText = currentLang === 'id'
+                    ? `Kamu adalah ahli nutrisi. Analisa gambar makanan ini. Identifikasi nama makanan dan estimasi porsinya.
+                       Berikan output HANYA dalam format JSON valid tanpa markdown block code.
+                       Jika gambar bukan makanan atau tidak jelas, return JSON dengan field "error": "Bukan makanan atau gambar tidak jelas".
+                       Format JSON sukses: { "food_name": "string", "portion_estimation": "string", "calories": number, "protein_g": number, "carbs_g": number, "fat_g": number, "advice": "string (saran singkat max 2 kalimat)" }`
+                    : `You are a nutritionist. Analyze this food image. Identify the food name and estimate the portion.
+                       Output ONLY valid JSON without markdown block code.
+                       If the image is not food or unclear, return JSON with field "error": "Not food or image unclear".
+                       Success JSON format: { "food_name": "string", "portion_estimation": "string", "calories": number, "protein_g": number, "carbs_g": number, "fat_g": number, "advice": "string (short advice max 2 sentences)" }`;
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { text: promptText },
+                                { inline_data: { mime_type: "image/jpeg", data: base64Image } }
+                            ]
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error?.message || 'API Request Failed');
+                }
+
+                const result = await response.json();
+                let text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (!text) throw new Error("No response from AI");
+
+                // Cleanup JSON if wrapped in markdown
+                text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+                const data = JSON.parse(text);
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                renderFoodResult(data);
+
+            } catch (error) {
+                console.error("Food Scan Error:", error);
+                scanResult.innerHTML = `
+                    <div class="p-5 text-center">
+                        <div class="text-red-500 mb-2">
+                            <svg class="w-10 h-10 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-gray-800 dark:text-gray-100">${T.scan_error_title}</h3>
+                        <p class="text-xs text-gray-500 mt-1">${error.message || T.scan_error_generic}</p>
+                        <button onclick="closeScanResult()" class="mt-3 text-xs text-gray-400 underline">${T.scan_cancel}</button>
+                    </div>
+                `;
+                scanResult.classList.remove('hidden');
+            } finally {
+                scanLoading.classList.add('hidden');
+            }
+        }
+
+        function renderFoodResult(data) {
+             const scanResult = document.getElementById('scanResult');
+             const T = translations[currentLang];
+
+             scanResult.innerHTML = `
+                <div class="p-4 bg-white dark:bg-gray-800 relative">
+                    <button onclick="closeScanResult()" class="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+
+                    <div class="flex items-start gap-3 mb-4">
+                        <div class="flex-1">
+                            <h3 class="font-black text-lg text-gray-800 dark:text-gray-100 leading-tight">${data.food_name}</h3>
+                            <p class="text-xs text-gray-500 font-medium mt-0.5">${data.portion_estimation}</p>
+                        </div>
+                        <div class="text-right">
+                             <p class="text-2xl font-black text-primary">${data.calories}</p>
+                             <p class="text-[9px] text-gray-400 uppercase font-bold">kkal</p>
+                        </div>
+                    </div>
+
+                    <!-- Macros -->
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <div class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg text-center">
+                            <p class="text-[9px] font-bold text-blue-500 uppercase">${T.nut_protein}</p>
+                            <p class="font-bold text-gray-700 dark:text-gray-200">${data.protein_g}g</p>
+                        </div>
+                        <div class="bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded-lg text-center">
+                            <p class="text-[9px] font-bold text-yellow-500 uppercase">${T.nut_carbs}</p>
+                            <p class="font-bold text-gray-700 dark:text-gray-200">${data.carbs_g}g</p>
+                        </div>
+                        <div class="bg-red-50 dark:bg-red-900/20 p-2 rounded-lg text-center">
+                            <p class="text-[9px] font-bold text-red-500 uppercase">${T.nut_fat}</p>
+                            <p class="font-bold text-gray-700 dark:text-gray-200">${data.fat_g}g</p>
+                        </div>
+                    </div>
+
+                    <!-- Advice -->
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg border-l-2 border-primary text-xs text-gray-600 dark:text-gray-300">
+                        <p class="font-bold text-primary mb-1 text-[10px] uppercase">${T.nut_advice}</p>
+                        <p class="leading-relaxed">"${data.advice}"</p>
+                    </div>
+
+                    <div class="mt-3 flex justify-end">
+                         <button onclick="triggerFoodScan()" class="text-xs font-bold text-primary flex items-center gap-1 hover:underline">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            ${T.scan_retry}
+                         </button>
+                    </div>
+                </div>
+             `;
+
+             scanResult.classList.remove('hidden');
+        }
+
         const translations = {
             id: {
                 subtitle: "Calculator: BMI, RFM, Deurenberg & Target Kalori",
                 lbl_gender: "Gender",
                 val_male: "👨 Pria",
                 val_female: "👩 Wanita",
+                btn_scan_food: "📷 Scan Makanan (AI)",
+                scan_loading: "Menganalisa Makanan...",
+                scan_error_title: "Gagal Menganalisa",
+                scan_error_apikey: "API Key belum diatur. Silakan klik tombol pengaturan di pojok kanan atas.",
+                scan_error_generic: "Terjadi kesalahan saat memproses gambar.",
+                scan_retry: "Scan Ulang",
+                scan_cancel: "Tutup",
+                nut_energy: "Energi",
+                nut_protein: "Protein",
+                nut_carbs: "Karbo",
+                nut_fat: "Lemak",
+                nut_advice: "Saran Ahli:",
                 lbl_age: "Usia",
                 lbl_weight: "Berat",
                 lbl_height: "Tinggi",
@@ -870,6 +1087,18 @@
                 lbl_gender: "Gender",
                 val_male: "👨 Male",
                 val_female: "👩 Female",
+                btn_scan_food: "📷 Scan Food (AI)",
+                scan_loading: "Analyzing Food...",
+                scan_error_title: "Analysis Failed",
+                scan_error_apikey: "API Key not set. Please click the settings button in the top right.",
+                scan_error_generic: "An error occurred while processing the image.",
+                scan_retry: "Re-scan",
+                scan_cancel: "Close",
+                nut_energy: "Energy",
+                nut_protein: "Protein",
+                nut_carbs: "Carbs",
+                nut_fat: "Fat",
+                nut_advice: "Expert Advice:",
                 lbl_age: "Age",
                 lbl_weight: "Weight",
                 lbl_height: "Height",
@@ -1209,8 +1438,6 @@
 
             console.log(`Generating AI menu for: ${dietType} at ~${targetCalories} kkal`);
 
-            // Force a browser reflow/repaint. This ensures the loading indicator
-            // is rendered before the potentially fast-failing async code runs.
             void menuLoading.offsetHeight;
 
             const prompt = `Buatkan saya rencana menu makanan sehat untuk 7 hari (Senin-Minggu) bagi seseorang di Indonesia.
@@ -1229,17 +1456,25 @@
             console.log("Prompt to be sent to AI:", prompt);
 
             try {
-                const genAI = new window.google.generativeai.GoogleGenerativeAI(apiKey);
-                const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
 
-                const result = await model.generateContent(prompt);
-                const response = await result.response;
-                const text = response.text();
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error?.message || 'API Request Failed');
+                }
 
-                // AI now returns HTML directly
-                const htmlMenu = text;
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
 
-                menuContainer.innerHTML = `<div class="col-span-2 space-y-2 text-xs leading-relaxed rich-text">${htmlMenu}</div>`;
+                if (!text) throw new Error("No response from AI");
+
+                menuContainer.innerHTML = `<div class="col-span-2 space-y-2 text-xs leading-relaxed rich-text">${text}</div>`;
 
             } catch (error) {
                 console.error("Error generating AI menu:", error);
