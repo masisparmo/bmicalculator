@@ -83,7 +83,7 @@
 <body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100 flex flex-col items-center min-h-screen font-sans py-6">
 
     <!-- Container Utama -->
-    <div class="w-full max-w-md px-4 pb-20">
+    <div class="w-full md:max-w-5xl px-4 pb-20">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700">
             
             <!-- Header -->
@@ -105,7 +105,22 @@
                 </div>
             </div>
 
-            <!-- Form Input -->
+            <!-- Navigation -->
+            <div class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+                <nav class="flex">
+                    <a href="#" class="px-6 py-4 text-sm font-bold text-primary border-b-2 border-primary dark:text-white bg-gray-50 dark:bg-gray-700/50">
+                        🏠 <span data-i18n="nav_home">Home</span>
+                    </a>
+                    <a href="pengetahuan.html" class="px-6 py-4 text-sm font-bold text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-white transition border-b-2 border-transparent hover:border-primary">
+                        📚 <span data-i18n="nav_know">Pengetahuan</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Grid Layout Wrapper -->
+            <div class="grid grid-cols-1 md:grid-cols-2">
+
+            <!-- Form Input (Left Col) -->
             <div class="p-5 space-y-4">
                 <div>
                     <label data-i18n="lbl_gender" class="text-xs font-bold text-gray-500 uppercase">Gender</label>
@@ -118,7 +133,23 @@
                     <div class="col-span-3"><label data-i18n="lbl_age" class="text-xs font-bold text-gray-500 uppercase">Usia</label><input type="number" id="age" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-semibold" placeholder="25"></div>
                     <div><label data-i18n="lbl_weight" class="text-xs font-bold text-gray-500 uppercase">Berat</label><input type="number" id="weight" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold" placeholder="kg"></div>
                     <div><label data-i18n="lbl_height" class="text-xs font-bold text-gray-500 uppercase">Tinggi</label><input type="number" id="height" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold" placeholder="cm"></div>
-                    <div><label data-i18n="lbl_waist" class="text-xs font-bold text-gray-500 uppercase text-[10px] leading-tight">L. Pinggang</label><input type="number" id="waist" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold placeholder-gray-400/50" placeholder="cm (Ops)"></div>
+                    <div>
+                        <div class="flex items-center gap-1 mb-1 group relative w-fit">
+                            <label data-i18n="lbl_waist" class="text-xs font-bold text-gray-500 uppercase text-[10px] leading-tight cursor-help">L. Pinggang</label>
+                            <svg class="w-3 h-3 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <!-- Tooltip -->
+                            <div class="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-gray-800 text-white text-[10px] rounded-lg shadow-xl z-50 pointer-events-none transition-opacity opacity-0 group-hover:opacity-100">
+                                <div data-i18n-html="tooltip_waist_desc"></div>
+                                <!-- Arrow -->
+                                <div class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-gray-800"></div>
+                            </div>
+                        </div>
+                        <input type="number" id="waist" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold placeholder-gray-400/50" placeholder="cm (Ops)">
+                    </div>
+                </div>
+                <div>
+                    <label data-i18n="lbl_exercise_plan" class="text-xs font-bold text-gray-500 uppercase">Rencana Olahraga (Menit/Hari)</label>
+                    <input type="number" id="dailyExercise" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold placeholder-gray-400/50 mt-1" placeholder="0">
                 </div>
                 <div>
                     <label data-i18n="lbl_activity" class="text-xs font-bold text-gray-500 uppercase">Aktivitas Harian</label>
@@ -132,8 +163,156 @@
                 </div>
                 <button data-i18n="btn_calc" onclick="calculateBMI()" class="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-lg active:scale-95 transition">Hitung & Analisa</button>
 
-                <!-- Accordion Informasi BMI -->
-                <div class="mt-4 border-t border-gray-100 dark:border-gray-700 pt-4">
+                <!-- FOOD SCANNER AI SECTION -->
+                <div class="mt-6 border-t-2 border-gray-100 dark:border-gray-700 pt-4">
+                    <h3 class="font-bold text-gray-700 dark:text-gray-200 mb-3 text-sm uppercase flex items-center gap-2">
+                        🥗 Food Scanner AI
+                    </h3>
+
+                    <!-- Inputs for Camera and Gallery -->
+                    <input type="file" id="foodCameraInput" accept="image/*" capture="environment" class="hidden" onchange="handleImageSelect(event)">
+                    <input type="file" id="foodGalleryInput" accept="image/*" class="hidden" onchange="handleImageSelect(event)">
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="document.getElementById('foodCameraInput').click()" class="py-3 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold rounded-xl shadow-lg active:scale-95 transition flex flex-col items-center justify-center gap-1 group relative overflow-hidden">
+                            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span class="text-xs" data-i18n="btn_camera">Ambil Foto</span>
+                        </button>
+
+                        <button onclick="document.getElementById('foodGalleryInput').click()" class="py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl shadow active:scale-95 transition flex flex-col items-center justify-center gap-1 hover:bg-gray-200 dark:hover:bg-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span class="text-xs" data-i18n="btn_gallery">Upload Foto</span>
+                        </button>
+                    </div>
+
+                    <!-- Image Preview -->
+                    <div id="imagePreviewContainer" class="hidden mt-4 relative group">
+                        <img id="foodPreview" class="w-full h-48 object-cover rounded-xl shadow-sm border border-gray-200 dark:border-gray-700" src="" alt="Food Preview">
+                        <button onclick="triggerFoodScan()" class="absolute bottom-2 right-2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full backdrop-blur-sm transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        </button>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="scanLoading" class="hidden mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
+                        <div class="flex justify-center gap-2 mb-2">
+                            <div class="w-2 h-2 bg-orange-500 rounded-full typing-dot"></div>
+                            <div class="w-2 h-2 bg-pink-500 rounded-full typing-dot" style="animation-delay: -0.16s;"></div>
+                            <div class="w-2 h-2 bg-purple-500 rounded-full typing-dot" style="animation-delay: -0.32s;"></div>
+                        </div>
+                        <p data-i18n="scan_loading" class="text-xs font-semibold text-gray-600 dark:text-gray-300">Menganalisa Makanan...</p>
+                    </div>
+
+                    <!-- Scan Result Container -->
+                    <div id="scanResult" class="hidden mt-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 relative">
+                        <!-- Result injected here -->
+                    </div>
+                </div>
+
+                <!-- CALORIE BURN CALCULATOR SECTION -->
+                <div class="mt-8 border-t-4 border-gray-200 dark:border-gray-600 pt-6">
+                    <h3 data-i18n="burn_title" class="font-bold text-gray-700 dark:text-gray-200 mb-3 text-sm uppercase flex items-center gap-2 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
+                        🔥 Hitung Kalori Terbakar
+                    </h3>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label data-i18n="lbl_sport" class="text-xs font-bold text-gray-500 uppercase">Jenis Olahraga</label>
+                            <select id="sportType" onchange="toggleCustomMet()" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-medium text-sm mt-1">
+                                <option value="4.0">🏓 Ping Pong (Santai)</option>
+                                <option value="7.0">🏆 Ping Pong (Kompetitif)</option>
+                                <option value="3.0">🚶 Jalan Santai (4 km/jam)</option>
+                                <option value="5.0">👟 Jalan Cepat (6.4 km/jam)</option>
+                                <option value="7.0">🏃 Jogging</option>
+                                <option value="6.0">🚴 Bersepeda (Cycling)</option>
+                                <option value="3.5">🏋️ Gym / Angkat Beban</option>
+                                <option value="6.5">🤸 Aerobik</option>
+                                <option value="5.5">🏸 Badminton</option>
+                                <option value="10.0">🥋 Bela Diri (Martial Arts)</option>
+                                <option value="custom">✨ Lainnya (Custom)</option>
+                            </select>
+                        </div>
+
+                        <div id="customMetContainer" class="hidden grid grid-cols-2 gap-3">
+                             <div>
+                                <label class="text-xs font-bold text-gray-500 uppercase">Nama Aktivitas</label>
+                                <input type="text" id="customSportName" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold" placeholder="Contoh: Yoga">
+                             </div>
+                             <div>
+                                <label class="text-xs font-bold text-gray-500 uppercase">Est. MET</label>
+                                <input type="number" id="customMetValue" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold" placeholder="1.0 - 20.0">
+                             </div>
+                        </div>
+
+                        <div>
+                            <label data-i18n="lbl_duration" class="text-xs font-bold text-gray-500 uppercase">Durasi (Menit)</label>
+                            <input type="number" id="burnDuration" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold" placeholder="Contoh: 30">
+                        </div>
+
+                        <button onclick="calculateBurn()" class="w-full py-3 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold rounded-xl shadow-lg active:scale-95 transition flex items-center justify-center gap-2 group relative overflow-hidden">
+                             <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                            <span>⏱️</span> <span data-i18n="btn_calc_burn">Hitung Kalori</span>
+                        </button>
+                    </div>
+
+                    <!-- Result Area -->
+                    <div id="burnResult" class="hidden mt-4 bg-orange-50 dark:bg-orange-900/10 p-4 rounded-xl border border-orange-100 dark:border-orange-800">
+                        <!-- Content injected via JS -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Col: Result & Info -->
+            <div class="border-t md:border-t-0 md:border-l border-gray-100 dark:border-gray-700 flex flex-col">
+
+                <!-- Hasil (Moved here, removed rounded-b-2xl) -->
+                <div id="resultArea" class="hidden bg-gray-50 dark:bg-gray-700/30 border-b border-gray-100 dark:border-gray-700 p-6">
+                    <div class="text-center mb-2">
+                        <h2 id="bmiValue" class="text-5xl font-black my-2">0.0</h2>
+                        <p id="bmiCategory" class="text-xl font-bold">Normal</p>
+                    </div>
+
+                    <!-- GRAFIK BMI QUICK RESULT -->
+                    <div class="relative w-full px-1 mt-6 mb-6">
+                        <!-- Marker Segitiga -->
+                        <div class="relative w-full h-4 mb-1">
+                            <div id="quickResultMarker" class="absolute bottom-0 transition-all duration-700 z-30" style="left: 50%;">
+                                <div class="triangle-marker-dark transform -translate-x-1/2 drop-shadow-lg dark:border-t-gray-200" style="border-top-color: #374151;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Bar Gradasi -->
+                        <div class="relative h-5 w-full bg-gray-100 dark:bg-gray-600 rounded-full overflow-hidden shadow-inner border border-gray-200/50 dark:border-gray-500">
+                            <div class="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-r from-blue-400 via-green-400 via-yellow-400 to-red-500"></div>
+                            <div class="absolute top-0 bottom-0 w-0.5 bg-white/70 left-[18.5%]"></div>
+                            <div class="absolute top-0 bottom-0 w-0.5 bg-white/70 left-[40%]"></div>
+                            <div class="absolute top-0 bottom-0 w-0.5 bg-white/70 left-[60%]"></div>
+                        </div>
+
+                        <!-- Label Angka -->
+                        <div class="relative w-full h-4 mt-1.5 text-[9px] font-bold text-gray-500 dark:text-gray-400 font-mono">
+                            <span class="absolute left-0">15</span>
+                            <span class="absolute -translate-x-1/2" style="left: 14%;">18.5</span>
+                            <span class="absolute -translate-x-1/2" style="left: 40%;">25</span>
+                            <span class="absolute -translate-x-1/2" style="left: 60%;">30</span>
+                            <span class="absolute right-0">40</span>
+                        </div>
+                    </div>
+
+                    <div id="additionalMetrics" class="mb-6 empty:hidden"></div>
+                    <div id="calorieMetrics" class="mb-6 empty:hidden"></div>
+                    <div id="waterMetric" class="mb-6"></div>
+
+                    <button onclick="generateReport()" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-md flex justify-center items-center gap-2 active:scale-95 transition">
+                        <span data-i18n="btn_report">📄 Buka Laporan Lengkap</span>
+                    </button>
+                    <button onclick="resetForm()" data-i18n="btn_reset" class="mt-4 text-xs text-gray-400 underline w-full">Reset Data</button>
+                </div>
+
+                <!-- Accordion Informasi BMI (Moved here) -->
+                <div class="p-5 pt-4">
                     <button onclick="toggleInfo()" class="flex items-center justify-between w-full text-left group focus:outline-none">
                         <span data-i18n="acc_title" class="text-xs font-bold text-gray-500 uppercase tracking-wide group-hover:text-primary transition-colors">
                             ℹ️ Apa itu BMI & Mengapa Penting?
@@ -312,49 +491,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Hasil -->
-            <div id="resultArea" class="hidden bg-gray-50 dark:bg-gray-700/30 border-t p-6 rounded-b-2xl">
-                <div class="text-center mb-2">
-                    <h2 id="bmiValue" class="text-5xl font-black my-2">0.0</h2>
-                    <p id="bmiCategory" class="text-xl font-bold">Normal</p>
-                </div>
-
-                <!-- GRAFIK BMI QUICK RESULT -->
-                <div class="relative w-full px-1 mt-6 mb-6">
-                    <!-- Marker Segitiga -->
-                    <div class="relative w-full h-4 mb-1">
-                        <div id="quickResultMarker" class="absolute bottom-0 transition-all duration-700 z-30" style="left: 50%;">
-                            <div class="triangle-marker-dark transform -translate-x-1/2 drop-shadow-lg dark:border-t-gray-200" style="border-top-color: #374151;"></div>
-                        </div>
-                    </div>
-
-                    <!-- Bar Gradasi -->
-                    <div class="relative h-5 w-full bg-gray-100 dark:bg-gray-600 rounded-full overflow-hidden shadow-inner border border-gray-200/50 dark:border-gray-500">
-                        <div class="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-r from-blue-400 via-green-400 via-yellow-400 to-red-500"></div>
-                        <div class="absolute top-0 bottom-0 w-0.5 bg-white/70 left-[18.5%]"></div>
-                        <div class="absolute top-0 bottom-0 w-0.5 bg-white/70 left-[40%]"></div>
-                        <div class="absolute top-0 bottom-0 w-0.5 bg-white/70 left-[60%]"></div>
-                    </div>
-
-                    <!-- Label Angka -->
-                    <div class="relative w-full h-4 mt-1.5 text-[9px] font-bold text-gray-500 dark:text-gray-400 font-mono">
-                        <span class="absolute left-0">15</span>
-                        <span class="absolute -translate-x-1/2" style="left: 14%;">18.5</span>
-                        <span class="absolute -translate-x-1/2" style="left: 40%;">25</span>
-                        <span class="absolute -translate-x-1/2" style="left: 60%;">30</span>
-                        <span class="absolute right-0">40</span>
-                    </div>
-                </div>
-
-                <div id="additionalMetrics" class="mb-6 empty:hidden"></div>
-                <div id="calorieMetrics" class="mb-6 empty:hidden"></div>
-
-                <button onclick="generateReport()" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-md flex justify-center items-center gap-2 active:scale-95 transition">
-                    <span data-i18n="btn_report">📄 Buka Laporan Lengkap</span>
-                </button>
-                <button onclick="resetForm()" data-i18n="btn_reset" class="mt-4 text-xs text-gray-400 underline w-full">Reset Data</button>
             </div>
         </div>
     </div>
@@ -556,11 +692,6 @@
 
     <!-- Google AI SDK (ESM version from esm.sh) -->
     <script type="module">
-        import { GoogleGenerativeAI } from 'https://esm.sh/@google/generative-ai';
-
-        // Make the SDK available globally for the existing functions
-        window.google = { generativeai: { GoogleGenerativeAI } };
-
         let userData; // Will hold user's calculation data
         let currentLang = localStorage.getItem('lang') || 'id';
         const htmlEl = document.documentElement;
@@ -597,6 +728,10 @@
         window.generateReport = generateReport;
         window.handleAiMenuGeneration = handleAiMenuGeneration;
         window.openApiModal = openApiModal;
+        // window.triggerFoodScan = triggerFoodScan; // Removed
+        window.handleImageSelect = handleImageSelect;
+        window.closeScanResult = closeScanResult;
+        window.handleCorrection = handleCorrection;
 
         function closeApiModal() {
             document.getElementById('geminiApiModal').classList.add('hidden');
@@ -610,6 +745,8 @@
         window.resetForm = resetForm;
         window.toggleInfo = toggleInfo;
         window.downloadPDF = downloadPDF;
+        window.toggleCustomMet = toggleCustomMet;
+        window.calculateBurn = calculateBurn;
 
         function openApiModal() {
             const geminiApiKeyInput = document.getElementById('geminiApiKey');
@@ -721,16 +858,432 @@
             document.getElementById('waist').placeholder = (currentLang === 'id') ? "cm (Ops)" : "cm (Opt)";
         }
 
+        // --- CALORIE BURN CALCULATOR FUNCTIONS ---
+        function toggleCustomMet() {
+            const val = document.getElementById('sportType').value;
+            const container = document.getElementById('customMetContainer');
+            if(val === 'custom') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        async function calculateBurn() {
+            const T = translations[currentLang];
+            if (!userData || !userData.bmr) {
+                alert(currentLang === 'id' ? "Silakan hitung BMI Anda terlebih dahulu di form atas." : "Please calculate your BMI first in the form above.");
+                return;
+            }
+
+            const sportSelect = document.getElementById('sportType');
+            let met = parseFloat(sportSelect.value);
+            let activityName = sportSelect.options[sportSelect.selectedIndex].text;
+
+            // Remove emoji from name
+            activityName = activityName.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '').trim();
+
+            if (sportSelect.value === 'custom') {
+                const customName = document.getElementById('customSportName').value.trim();
+                const customMet = parseFloat(document.getElementById('customMetValue').value);
+
+                if (!customName || !customMet) {
+                    alert(currentLang === 'id' ? "Mohon isi Nama Aktivitas dan Estimasi MET." : "Please fill in Activity Name and Estimated MET.");
+                    return;
+                }
+                met = customMet;
+                activityName = customName;
+            }
+
+            const durationMins = parseFloat(document.getElementById('burnDuration').value);
+            if (!durationMins || durationMins <= 0) {
+                alert(currentLang === 'id' ? "Mohon isi durasi dengan benar." : "Please enter a valid duration.");
+                return;
+            }
+
+            // Formula: MET * (BMR / 24) * Duration(hours)
+            const durationHours = durationMins / 60;
+            const bmrHourly = userData.bmr / 24;
+            const caloriesBurned = Math.round(met * bmrHourly * durationHours);
+
+            const resultDiv = document.getElementById('burnResult');
+            resultDiv.classList.remove('hidden');
+
+            resultDiv.innerHTML = `
+                <div class="flex justify-between items-center mb-3 border-b border-orange-200 dark:border-orange-800 pb-2">
+                    <div>
+                        <p class="text-xs font-bold text-gray-500 uppercase">${activityName}</p>
+                        <p class="text-[10px] text-gray-400">${durationMins} min @ MET ${met}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-2xl font-black text-orange-600 dark:text-orange-400">${caloriesBurned} kkal</p>
+                        <p class="text-[9px] font-bold text-gray-500 uppercase">Kalori Terbakar</p>
+                    </div>
+                </div>
+
+                <div id="burnAnalysis" class="text-xs text-gray-700 dark:text-gray-300 space-y-2">
+                    <div class="flex items-center gap-2 text-gray-500 italic">
+                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                        <span data-i18n="analyzing_benefits">${currentLang === 'id' ? 'Menganalisa manfaat kesehatan...' : 'Analyzing health benefits...'}</span>
+                    </div>
+                </div>
+            `;
+
+            // Call AI
+            await generateBurnAnalysis(activityName, durationMins, caloriesBurned);
+        }
+
+        async function generateBurnAnalysis(activity, duration, calories) {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            const analysisDiv = document.getElementById('burnAnalysis');
+
+            if (!apiKey) {
+                analysisDiv.innerHTML = `<p class="text-gray-500 text-[10px] italic">${currentLang==='id' ? 'Set API Key untuk melihat manfaat kesehatan.' : 'Set API Key to see health benefits.'}</p>`;
+                return;
+            }
+
+            const prompt = currentLang === 'id'
+                ? `Saya baru saja melakukan olahraga ${activity} selama ${duration} menit dan membakar sekitar ${calories} kkal.
+                   Jelaskan secara singkat dan menarik dalam format HTML:
+                   1. Apa manfaat spesifik olahraga ini bagi tubuh (otot mana yang terlatih, dampak ke jantung/otak).
+                   2. Berikan 1 fakta unik tentang olahraga ini.
+                   Gunakan tag <strong> untuk penekanan. Jangan pakai Markdown. Buat maksimal 2 paragraf pendek.`
+                : `I just did ${activity} for ${duration} minutes and burned about ${calories} kcal.
+                   Explain briefly and engagingly in HTML format:
+                   1. Specific health benefits (muscles worked, heart/brain impact).
+                   2. One unique fact about this sport.
+                   Use <strong> tags for emphasis. Do not use Markdown. Keep it to max 2 short paragraphs.`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
+
+                if (!response.ok) throw new Error("API Error");
+                const result = await response.json();
+                let text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (text) {
+                    text = text.replace(/```html/g, '').replace(/```/g, '').trim();
+                    analysisDiv.innerHTML = `<div class="rich-text leading-relaxed">${text}</div>`;
+                } else {
+                     throw new Error("Empty response");
+                }
+
+            } catch (e) {
+                console.error(e);
+                analysisDiv.innerHTML = `<p class="text-red-500 text-[10px]">${currentLang==='id'?'Gagal memuat analisa AI.':'Failed to load AI analysis.'}</p>`;
+            }
+        }
+
+        // --- FOOD SCANNER FUNCTIONS ---
+        let lastScannedImage = null; // Store base64 image for regeneration
+
+        // Removed triggerFoodScan() as we now use direct ID calls, but kept for legacy if needed or cleanup
+        // We now check API key inside handleImageSelect to prevent opening camera if no key?
+        // Better: Check key when button is clicked.
+        // Since we put onclick="document.getElementById...click()" in HTML, we need to intercept or check before.
+        // However, standard UX: Let them take photo, then ask for key if missing. Or check first.
+
+        // Let's modify handleImageSelect to check key first.
+
+        function closeScanResult() {
+             document.getElementById('scanResult').classList.add('hidden');
+             document.getElementById('scanResult').innerHTML = '';
+             document.getElementById('imagePreviewContainer').classList.add('hidden'); // Hide preview on close
+             lastScannedImage = null;
+        }
+
+        function handleImageSelect(event) {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            if (!apiKey) {
+                alert(currentLang === 'id' ? "Silakan masukkan API Key Gemini terlebih dahulu di menu Pengaturan." : "Please enter your Gemini API Key first in Settings.");
+                openApiModal();
+                event.target.value = ''; // Reset input
+                return;
+            }
+
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const scanLoading = document.getElementById('scanLoading');
+            const scanResult = document.getElementById('scanResult');
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            const previewImg = document.getElementById('foodPreview');
+
+            scanResult.classList.add('hidden');
+            scanLoading.classList.remove('hidden');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewContainer.classList.remove('hidden');
+
+                const img = new Image();
+                img.onload = function() {
+                    // Resize logic
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const base64String = canvas.toDataURL('image/jpeg', 0.8).split(',')[1]; // Remove prefix
+                    lastScannedImage = base64String;
+                    analyzeFoodImage(base64String);
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+
+            // Reset input so same file can be selected again
+            event.target.value = '';
+        }
+
+        async function handleCorrection() {
+            const correctionText = document.getElementById('correctionInput').value.trim();
+            if (!correctionText) return;
+            if (!lastScannedImage) {
+                alert("Gambar tidak ditemukan. Silakan scan ulang.");
+                return;
+            }
+
+            // Show loading again
+            const scanResult = document.getElementById('scanResult');
+            const scanLoading = document.getElementById('scanLoading');
+            scanResult.classList.add('hidden');
+            scanLoading.classList.remove('hidden');
+
+            await analyzeFoodImage(lastScannedImage, correctionText);
+        }
+
+        async function analyzeFoodImage(base64Image, correctionText = null) {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            const scanLoading = document.getElementById('scanLoading');
+            const scanResult = document.getElementById('scanResult');
+            const T = translations[currentLang];
+
+            try {
+                let promptInstruction = currentLang === 'id'
+                    ? `Kamu adalah ahli nutrisi klinis. Tugasmu adalah menganalisa makanan dari gambar ini secara mendalam.`
+                    : `You are a clinical nutritionist. Your task is to analyze the food in this image in depth.`;
+
+                if (correctionText) {
+                    promptInstruction += currentLang === 'id'
+                        ? ` PENGGUNA MEMBERIKAN KOREKSI: "${correctionText}". Abaikan hasil analisamu sebelumnya jika berbeda, dan gunakan informasi dari pengguna ini sebagai kebenaran mutlak untuk nama makanan dan porsinya. Hitung ulang nutrisi berdasarkan koreksi ini.`
+                        : ` USER PROVIDED CORRECTION: "${correctionText}". Ignore your previous analysis if different, and use this user information as absolute truth for food name and portion. Recalculate nutrition based on this.`;
+                }
+
+                const jsonStructure = `
+                {
+                    "food_name": "string",
+                    "portion_estimation": "string",
+                    "calories": number,
+                    "nutrition_table": {
+                        "energy": "string (e.g. '450 - 550 kkal')",
+                        "protein": "string (e.g. '35 - 45 gram')",
+                        "fat": "string (e.g. '25 - 35 gram')",
+                        "carbs": "string (e.g. '15 - 25 gram')",
+                        "cholesterol": "string (e.g. '100 - 130 mg')"
+                    },
+                    "breakdown": [
+                        {
+                            "category": "string (e.g. '1. Energi (Kalori)')",
+                            "description": "string (Detailed explanation. Use HTML <ul><li> or <b> tags for formatting. Explain where the calories come from, e.g., meat vs sauce.)"
+                        }
+                    ],
+                    "health_facts": {
+                        "title": "string (e.g. 'Fakta Kesehatan [Food Name]')",
+                        "content": ["string (Fact 1)", "string (Fact 2)"]
+                    },
+                    "health_tips": ["string (Tip 1)", "string (Tip 2)"]
+                }`;
+
+                const prompt = `${promptInstruction}
+                    Berikan output HANYA dalam format JSON valid tanpa markdown block code.
+                    Jika gambar tidak jelas/bukan makanan, return JSON dengan field "error".
+                    Format JSON HARUS persis seperti ini: ${jsonStructure}`;
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { text: prompt },
+                                { inline_data: { mime_type: "image/jpeg", data: base64Image } }
+                            ]
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error?.message || 'API Request Failed');
+                }
+
+                const result = await response.json();
+                let text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (!text) throw new Error("No response from AI");
+
+                text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+                const data = JSON.parse(text);
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                renderFoodResult(data);
+
+            } catch (error) {
+                console.error("Food Scan Error:", error);
+                scanResult.innerHTML = `
+                    <div class="p-5 text-center">
+                        <div class="text-red-500 mb-2"><svg class="w-10 h-10 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+                        <h3 class="font-bold text-gray-800 dark:text-gray-100">${T.scan_error_title}</h3>
+                        <p class="text-xs text-gray-500 mt-1">${error.message || T.scan_error_generic}</p>
+                        <button onclick="closeScanResult()" class="mt-3 text-xs text-gray-400 underline">${T.scan_cancel}</button>
+                    </div>
+                `;
+                scanResult.classList.remove('hidden');
+            } finally {
+                scanLoading.classList.add('hidden');
+            }
+        }
+
+        function renderFoodResult(data) {
+             const scanResult = document.getElementById('scanResult');
+             const T = translations[currentLang];
+
+             // Construct Nutrition Table Rows
+             const nt = data.nutrition_table;
+             const tableHtml = `
+                <table class="w-full text-xs text-left border-collapse mt-2 mb-4">
+                    <thead class="bg-gray-100 dark:bg-gray-700 font-bold text-gray-600 dark:text-gray-300">
+                        <tr><th class="p-2 rounded-l-lg">Komponen</th><th class="p-2 rounded-r-lg text-right">Estimasi</th></tr>
+                    </thead>
+                    <tbody class="text-gray-700 dark:text-gray-200 divide-y divide-gray-100 dark:divide-gray-700">
+                        <tr><td class="p-2 font-semibold">Energi</td><td class="p-2 text-right font-bold text-primary">${nt.energy}</td></tr>
+                        <tr><td class="p-2">Protein</td><td class="p-2 text-right">${nt.protein}</td></tr>
+                        <tr><td class="p-2">Lemak Total</td><td class="p-2 text-right">${nt.fat}</td></tr>
+                        <tr><td class="p-2">Karbohidrat</td><td class="p-2 text-right">${nt.carbs}</td></tr>
+                        <tr><td class="p-2 text-gray-500">Kolesterol</td><td class="p-2 text-right text-gray-500">${nt.cholesterol}</td></tr>
+                    </tbody>
+                </table>
+             `;
+
+             // Construct Breakdown
+             const breakdownHtml = data.breakdown.map(item => `
+                <div class="mb-3">
+                    <p class="font-bold text-gray-800 dark:text-gray-200 text-xs mb-1">${item.category}</p>
+                    <div class="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed pl-2 border-l-2 border-gray-200 dark:border-gray-600">
+                        ${item.description}
+                    </div>
+                </div>
+             `).join('');
+
+             // Construct Facts
+             const factsHtml = `
+                <div class="bg-yellow-50 dark:bg-yellow-900/10 p-4 rounded-xl border border-yellow-100 dark:border-yellow-800 mb-4">
+                    <h4 class="font-bold text-yellow-800 dark:text-yellow-500 text-xs mb-2 flex items-center gap-2">
+                        💡 ${data.health_facts.title}
+                    </h4>
+                    <ul class="list-disc pl-4 space-y-1 text-[11px] text-gray-700 dark:text-gray-300">
+                        ${data.health_facts.content.map(f => `<li>${f}</li>`).join('')}
+                    </ul>
+                </div>
+             `;
+
+             // Construct Tips
+             const tipsHtml = `
+                <div class="bg-green-50 dark:bg-green-900/10 p-4 rounded-xl border border-green-100 dark:border-green-800 mb-4">
+                    <h4 class="font-bold text-green-800 dark:text-green-500 text-xs mb-2 flex items-center gap-2">
+                        🥗 Tips Sehat
+                    </h4>
+                    <ul class="list-decimal pl-4 space-y-1 text-[11px] text-gray-700 dark:text-gray-300">
+                        ${data.health_tips.map(t => `<li>${t}</li>`).join('')}
+                    </ul>
+                </div>
+             `;
+
+             scanResult.innerHTML = `
+                <div class="p-4 bg-white dark:bg-gray-800 relative">
+                    <button onclick="closeScanResult()" class="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 z-10">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+
+                    <h3 class="font-black text-xl text-gray-800 dark:text-gray-100 leading-tight pr-8">${data.food_name}</h3>
+                    <p class="text-xs text-gray-500 font-medium mt-1 mb-4">${data.portion_estimation}</p>
+
+                    ${tableHtml}
+
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-bold text-gray-400 text-[10px] uppercase tracking-wider mb-2 border-b border-gray-100 pb-1">Rincian Penjelasan</h4>
+                            ${breakdownHtml}
+                        </div>
+                        ${factsHtml}
+                        ${tipsHtml}
+                    </div>
+
+                    <!-- Correction Section -->
+                    <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Salah identifikasi? Koreksi di sini:</p>
+                        <div class="flex gap-2">
+                            <input type="text" id="correctionInput" placeholder="Contoh: Sate Sapi 8 Tusuk..." class="flex-1 p-2 text-xs rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+                            <button onclick="handleCorrection()" class="px-3 py-2 bg-gray-800 dark:bg-gray-600 text-white text-xs font-bold rounded-lg shadow hover:bg-gray-700 transition">Update</button>
+                        </div>
+                    </div>
+                </div>
+             `;
+
+             scanResult.classList.remove('hidden');
+        }
+
         const translations = {
             id: {
                 subtitle: "Calculator: BMI, RFM, Deurenberg & Target Kalori",
                 lbl_gender: "Gender",
                 val_male: "👨 Pria",
                 val_female: "👩 Wanita",
+                btn_scan_food: "Scan Makanan",
+                scan_loading: "Menganalisa Makanan...",
+                scan_error_title: "Gagal Menganalisa",
+                scan_error_apikey: "API Key belum diatur. Silakan klik tombol pengaturan di pojok kanan atas.",
+                scan_error_generic: "Terjadi kesalahan saat memproses gambar.",
+                scan_retry: "Scan Ulang",
+                scan_cancel: "Tutup",
+                nut_energy: "Energi",
+                nut_protein: "Protein",
+                nut_carbs: "Karbo",
+                nut_fat: "Lemak",
+                nut_advice: "Saran Ahli:",
                 lbl_age: "Usia",
                 lbl_weight: "Berat",
                 lbl_height: "Tinggi",
                 lbl_waist: "L. Pinggang",
+                tooltip_waist_desc: `<p class='font-bold text-yellow-400 mb-1'>Posisi Ukur:</p>
+                                    <p class='mb-2'>Diukur pada titik tengah antara tulang rusuk paling bawah dan tulang panggul atas (iliac crest).</p>
+                                    <p class='font-bold text-yellow-400 mb-1'>Cara Mudah Menemukannya:</p>
+                                    <ul class='list-disc pl-3 space-y-1'>
+                                        <li><strong>Wanita:</strong> Biasanya di bagian terkecil/teramping dari perut (sedikit di atas pusar).</li>
+                                        <li><strong>Pria:</strong> Biasanya tepat di garis pusar (umbilicus).</li>
+                                    </ul>`,
                 lbl_activity: "Aktivitas Harian",
                 act_sedentary: "Sedentary (Jarang bergerak, kerja duduk)",
                 act_light: "Light Active (Olahraga ringan 1-3 hari/minggu)",
@@ -863,17 +1416,50 @@
                 tooltip_tdee: "Total Daily Energy Expenditure: Total energi harian termasuk aktivitas.",
                 // New
                 btn_pdf: "SIMPAN PDF",
-                btn_regen: "Re-generate AI"
+                btn_regen: "Re-generate AI",
+                // Calorie Burn
+                burn_title: "🔥 Hitung Kalori Terbakar",
+                lbl_sport: "Jenis Olahraga",
+                lbl_duration: "Durasi (Menit)",
+                btn_calc_burn: "Hitung Kalori",
+                analyzing_benefits: "Menganalisa manfaat kesehatan...",
+                // Water
+                lbl_exercise_plan: "Rencana Olahraga (Menit/Hari)",
+                water_title: "Kebutuhan Air Minum",
+                water_equiv: "Setara",
+                water_glass: "Gelas (250ml)",
+                // Nav
+                nav_home: "Beranda",
+                nav_know: "Pengetahuan"
             },
             en: {
                 subtitle: "Calculator: BMI, RFM, Deurenberg & Calorie Target",
                 lbl_gender: "Gender",
                 val_male: "👨 Male",
                 val_female: "👩 Female",
+                btn_scan_food: "Scan Food (AI)",
+                scan_loading: "Analyzing Food...",
+                scan_error_title: "Analysis Failed",
+                scan_error_apikey: "API Key not set. Please click the settings button in the top right.",
+                scan_error_generic: "An error occurred while processing the image.",
+                scan_retry: "Re-scan",
+                scan_cancel: "Close",
+                nut_energy: "Energy",
+                nut_protein: "Protein",
+                nut_carbs: "Carbs",
+                nut_fat: "Fat",
+                nut_advice: "Expert Advice:",
                 lbl_age: "Age",
                 lbl_weight: "Weight",
                 lbl_height: "Height",
                 lbl_waist: "Waist",
+                tooltip_waist_desc: `<p class='font-bold text-yellow-400 mb-1'>Measurement Position:</p>
+                                    <p class='mb-2'>Measured at the midpoint between the lowest rib and the top of the hip bone (iliac crest).</p>
+                                    <p class='font-bold text-yellow-400 mb-1'>Easy Way to Find It:</p>
+                                    <ul class='list-disc pl-3 space-y-1'>
+                                        <li><strong>Women:</strong> Usually at the narrowest part of the waist (slightly above the navel).</li>
+                                        <li><strong>Men:</strong> Usually right at the navel line (umbilicus).</li>
+                                    </ul>`,
                 lbl_activity: "Daily Activity",
                 act_sedentary: "Sedentary (Little/no exercise, desk job)",
                 act_light: "Light Active (Exercise 1-3 days/week)",
@@ -979,7 +1565,21 @@
                 tooltip_tdee: "Total Daily Energy Expenditure: Total daily energy including activity.",
                 // New
                 btn_pdf: "SAVE PDF",
-                btn_regen: "Re-generate AI"
+                btn_regen: "Re-generate AI",
+                // Calorie Burn
+                burn_title: "🔥 Calorie Burn Calculator",
+                lbl_sport: "Sport Type",
+                lbl_duration: "Duration (Mins)",
+                btn_calc_burn: "Calculate Calories",
+                analyzing_benefits: "Analyzing health benefits...",
+                // Water
+                lbl_exercise_plan: "Exercise Plan (Mins/Day)",
+                water_title: "Water Intake Needs",
+                water_equiv: "Approx.",
+                water_glass: "Glasses (250ml)",
+                // Nav
+                nav_home: "Home",
+                nav_know: "Knowledge Base"
             }
         };
 
@@ -1209,8 +1809,6 @@
 
             console.log(`Generating AI menu for: ${dietType} at ~${targetCalories} kkal`);
 
-            // Force a browser reflow/repaint. This ensures the loading indicator
-            // is rendered before the potentially fast-failing async code runs.
             void menuLoading.offsetHeight;
 
             const prompt = `Buatkan saya rencana menu makanan sehat untuk 7 hari (Senin-Minggu) bagi seseorang di Indonesia.
@@ -1229,17 +1827,25 @@
             console.log("Prompt to be sent to AI:", prompt);
 
             try {
-                const genAI = new window.google.generativeai.GoogleGenerativeAI(apiKey);
-                const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
 
-                const result = await model.generateContent(prompt);
-                const response = await result.response;
-                const text = response.text();
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error?.message || 'API Request Failed');
+                }
 
-                // AI now returns HTML directly
-                const htmlMenu = text;
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
 
-                menuContainer.innerHTML = `<div class="col-span-2 space-y-2 text-xs leading-relaxed rich-text">${htmlMenu}</div>`;
+                if (!text) throw new Error("No response from AI");
+
+                menuContainer.innerHTML = `<div class="col-span-2 space-y-2 text-xs leading-relaxed rich-text">${text}</div>`;
 
             } catch (error) {
                 console.error("Error generating AI menu:", error);
@@ -1323,7 +1929,15 @@
             bmr = Math.round(bmr);
             const tdee = Math.round(bmr * activity);
 
-            userData = {w, h, a, g, bmi, k, l, deurenbergBF, dStatus, dColor, rfm, rStatus, rColor, waist, bmr, tdee, activity};
+            // 5. Water Intake Calculation
+            const dailyDuration = parseFloat(document.getElementById('dailyExercise').value) || 0;
+            let waterFactor = a > 50 ? 30 : 35;
+            const waterBasal = w * waterFactor;
+            const waterExercise = (dailyDuration / 30) * 350;
+            const waterTotal = Math.round(waterBasal + waterExercise);
+            const glasses = (waterTotal / 250).toFixed(1);
+
+            userData = {w, h, a, g, bmi, k, l, deurenbergBF, dStatus, dColor, rfm, rStatus, rColor, waist, bmr, tdee, activity, waterTotal, glasses};
 
             // Display Logic
             const resultValue = document.getElementById('bmiValue');
@@ -1389,6 +2003,26 @@
             const calorieContainer = document.getElementById('calorieMetrics');
             const cutting = userData.tdee - 500;
             const bulking = userData.tdee + 500;
+
+            // Render Water Intake
+            const waterContainer = document.getElementById('waterMetric');
+            if (waterContainer) {
+                waterContainer.innerHTML = `
+                    <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl border border-blue-100 dark:border-blue-800 relative overflow-hidden">
+                        <div class="flex justify-between items-center relative z-10">
+                            <div>
+                                <p data-i18n="water_title" class="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase mb-1">Kebutuhan Air Minum</p>
+                                <p class="text-2xl font-black text-gray-800 dark:text-gray-100">${userData.waterTotal} ml</p>
+                                <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+                                    <span data-i18n="water_equiv">Setara</span> ~${userData.glasses} <span data-i18n="water_glass">Gelas</span>
+                                </p>
+                            </div>
+                            <div class="text-4xl opacity-80">💧</div>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-blue-200 dark:bg-blue-700 opacity-50"></div>
+                    </div>
+                `;
+            }
 
             calorieContainer.innerHTML = `
                 <div class="space-y-3">
@@ -1596,6 +2230,30 @@
                 repEnergy.className = "hidden";
                 repEnergy.innerHTML = energyHtml;
                 repEnergy.classList.remove('hidden');
+
+                // ADD WATER INTAKE SECTION TO REPORT
+                const waterHtml = `
+                    <div class="mt-4 bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex justify-between items-center avoid-page-break">
+                        <div>
+                            <h4 class="font-bold text-blue-800 text-[10px] uppercase mb-1 flex items-center gap-1">
+                                💧 ${T.water_title || "Kebutuhan Air Minum"}
+                            </h4>
+                            <p class="text-[9px] text-gray-600 max-w-[200px] leading-tight">
+                                ${userData.a > 50 ? "Basis: 30ml/kg (Usia >50)" : "Basis: 35ml/kg (Usia ≤50)"}
+                                ${userData.waterTotal - (userData.w * (userData.a > 50 ? 30 : 35)) > 0 ? "+ Kompensasi Olahraga" : ""}
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xl font-black text-blue-600">${userData.waterTotal} ml</p>
+                            <p class="text-[9px] text-gray-500">~${userData.glasses} ${T.water_glass || "Gelas"}</p>
+                        </div>
+                    </div>
+                `;
+
+                // Inject Water HTML after Energy Profile
+                // Since reportEnergyProfile is just a div, we can append to it?
+                // Or better, modify how we set innerHTML of repEnergy to include waterHtml.
+                repEnergy.innerHTML += waterHtml;
 
                 let analysisText = inf.txt;
                 const bmiVal = parseFloat(userData.bmi);
