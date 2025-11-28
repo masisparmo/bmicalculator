@@ -37,6 +37,16 @@
         .typing-dot:nth-child(2) { animation-delay: -0.16s; }
         @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
         .rich-text strong { font-weight: 800; }
+        .rich-text ul { list-style-type: disc; padding-left: 1.2rem; margin-bottom: 0.5rem; }
+        .rich-text ol { list-style-type: decimal; padding-left: 1.2rem; margin-bottom: 0.5rem; }
+        .rich-text li { margin-bottom: 0.25rem; }
+        .rich-text p { margin-bottom: 0.5rem; }
+
+        /* Custom Scrollbar for Chat */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(156, 163, 175, 0.5); border-radius: 20px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: rgba(107, 114, 128, 0.8); }
 
         .avoid-page-break {
             page-break-inside: avoid !important;
@@ -1401,6 +1411,12 @@
                 th_female: "Wanita",
                 val_healthy: "Sehat",
                 val_obese: "Obesitas",
+                val_risk_inc: "Perlu Waspada",
+                val_risk_high: "Risiko Tinggi",
+                msg_whtr_healthy: "Jantung Anda aman. Pertahankan!",
+                msg_whtr_risk: "Mulai menimbun lemak berbahaya.",
+                msg_whtr_danger: "Segera konsultasi dokter/diet ketat.",
+                tooltip_whtr: "Rasio Lingkar Pinggang-Tinggi: Indikator risiko kesehatan jantung.",
                 acc_ace_title: "2. Kategori Deurenberg (Standar ACE)",
                 acc_ace_desc: "Standar internasional American Council on Exercise.",
                 th_cat: "Kategori",
@@ -1584,6 +1600,12 @@
                 th_female: "Female",
                 val_healthy: "Healthy",
                 val_obese: "Obese",
+                val_risk_inc: "Consider Action",
+                val_risk_high: "High Risk",
+                msg_whtr_healthy: "Your heart is safe. Keep it up!",
+                msg_whtr_risk: "Starting to store dangerous fat.",
+                msg_whtr_danger: "Consult doctor/strict diet immediately.",
+                tooltip_whtr: "Waist-to-Height Ratio: Heart health risk indicator.",
                 acc_ace_title: "2. Deurenberg Category (ACE Standard)",
                 acc_ace_desc: "International standard by American Council on Exercise.",
                 th_cat: "Category",
@@ -1974,9 +1996,12 @@
                 else { dStatus = T.cat_obese; dColor = 'text-red-600'; }
             }
 
-            // 3. RFM Calculation
+            // 3. RFM Calculation & WHtR
             let rfm = null;
             let rStatus = '', rColor = '';
+            let whtr = null;
+            let whtrStatus = '', whtrColor = '', whtrMsg = '';
+
             if (waist && waist > 0) {
                 const rfmSex = g === 'female' ? 1 : 0;
                 rfm = (64 - (20 * (h / waist)) + (12 * rfmSex)).toFixed(1);
@@ -1989,6 +2014,23 @@
                 } else {
                     rStatus = T.cat_normal;
                     rColor = 'text-green-600';
+                }
+
+                // WHtR Calculation
+                whtr = (waist / h).toFixed(2);
+                const whtrVal = parseFloat(whtr);
+                if (whtrVal < 0.5) {
+                    whtrStatus = T.val_healthy || "Sehat";
+                    whtrColor = 'text-green-600';
+                    whtrMsg = T.msg_whtr_healthy;
+                } else if (whtrVal >= 0.5 && whtrVal <= 0.6) {
+                    whtrStatus = T.val_risk_inc || "Perlu Waspada";
+                    whtrColor = 'text-yellow-600';
+                    whtrMsg = T.msg_whtr_risk;
+                } else {
+                    whtrStatus = T.val_risk_high || "Risiko Tinggi";
+                    whtrColor = 'text-red-600';
+                    whtrMsg = T.msg_whtr_danger;
                 }
             }
 
@@ -2007,7 +2049,7 @@
             const waterTotal = Math.round(waterBasal + waterExercise);
             const glasses = (waterTotal / 250).toFixed(1);
 
-            userData = {w, h, a, g, bmi, k, l, deurenbergBF, dStatus, dColor, rfm, rStatus, rColor, waist, bmr, tdee, activity, waterTotal, glasses};
+            userData = {w, h, a, g, bmi, k, l, deurenbergBF, dStatus, dColor, rfm, rStatus, rColor, whtr, whtrStatus, whtrColor, whtrMsg, waist, bmr, tdee, activity, waterTotal, glasses};
 
             // Display Logic
             const resultValue = document.getElementById('bmiValue');
@@ -2040,7 +2082,7 @@
                 </div>
             `;
 
-            if (rfm) {
+            if (rfm && whtr) {
                 const rfmBox = `
                     <div class="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm flex flex-col items-center justify-center relative group">
                         <p class="text-[10px] text-gray-400 uppercase font-bold cursor-help mb-1 border-b border-dotted border-gray-300">
@@ -2048,14 +2090,27 @@
                             ${createTooltip(T.tooltip_rfm)}
                         </p>
                         <p class="text-xl font-black text-indigo-600">${rfm}%</p>
-                        <p class="text-[9px] font-bold ${rColor} uppercase mt-1">${rStatus}</p>
+                        <p class="text-[9px] font-bold ${rColor} uppercase mt-1 text-center leading-tight">${rStatus}</p>
+                    </div>
+                `;
+
+                const whtrBox = `
+                    <div class="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm flex flex-col items-center justify-center relative group">
+                        <p class="text-[10px] text-gray-400 uppercase font-bold cursor-help mb-1 border-b border-dotted border-gray-300">
+                            WHtR
+                            ${createTooltip(T.tooltip_whtr || "Waist-to-Height Ratio: Rasio Lingkar Pinggang terhadap Tinggi Badan.")}
+                        </p>
+                        <p class="text-xl font-black text-indigo-600">${whtr}</p>
+                        <p class="text-[9px] font-bold ${whtrColor} uppercase mt-1 text-center leading-tight mb-1">${whtrStatus}</p>
+                        <p class="text-[8px] text-gray-500 text-center leading-tight italic px-1">"${whtrMsg}"</p>
                     </div>
                 `;
 
                 metricsHtml = `
-                    <div class="grid grid-cols-2 gap-3">
-                        ${rfmBox}
+                    <div class="grid grid-cols-3 gap-2">
                         ${deurenbergBox}
+                        ${rfmBox}
+                        ${whtrBox}
                     </div>
                 `;
             } else {
@@ -2195,6 +2250,16 @@
                         <p class="text-[10px] text-gray-400 font-bold uppercase border-b border-dotted border-gray-300 inline-block mb-1">RFM</p>
                         <p class="text-xl font-black text-indigo-600">${userData.rfm}%</p>
                         <p class="text-[9px] font-bold ${userData.rColor} uppercase">${userData.rStatus}</p>
+                    </div>`;
+                }
+
+                if (userData.whtr) {
+                    statsHtml += `
+                    <div class="text-center group">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase border-b border-dotted border-gray-300 inline-block mb-1">WHtR</p>
+                        <p class="text-xl font-black text-indigo-600">${userData.whtr}</p>
+                        <p class="text-[9px] font-bold ${userData.whtrColor} uppercase mb-0.5">${userData.whtrStatus}</p>
+                        <p class="text-[7px] text-gray-500 italic leading-none max-w-[80px] mx-auto">"${userData.whtrMsg}"</p>
                     </div>`;
                 }
 
@@ -2563,8 +2628,8 @@
             try {
                 // 3. Call API
                 const systemPrompt = currentLang === 'id'
-                    ? "Anda adalah ahli kesehatan, ahli olahraga, dan ahli gizi dengan pengalaman puluhan tahun. Jawab pertanyaan pengguna dengan ramah, akurat, dan bijaksana. Gunakan bahasa Indonesia yang baik."
-                    : "You are a health, sports, and nutrition expert with decades of experience. Answer user questions politely, accurately, and wisely. Use good English.";
+                    ? "Anda adalah ahli kesehatan, ahli olahraga, dan ahli gizi berpengalaman. Jawab pertanyaan pengguna dengan ramah, akurat, dan bijaksana. Gunakan format HTML seperti <ul>, <li>, <strong>, dan <p> untuk memformat jawaban agar rapi. Gunakan poin-poin (bullet points) agar mudah dibaca. Jangan gunakan Markdown (seperti ** atau -). Batasi paragraf agar singkat."
+                    : "You are an experienced health, sports, and nutrition expert. Answer user questions politely, accurately, and wisely. Use HTML formats like <ul>, <li>, <strong>, and <p> to format your answer neatly. Use bullet points to make it easy to read. Do not use Markdown (like ** or -). Keep paragraphs short.";
 
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
@@ -2627,7 +2692,7 @@
             const icon = role === 'user' ? '👤' : '👨‍⚕️';
             const bgClass = role === 'user'
                 ? 'bg-blue-600 text-white rounded-tr-none'
-                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-tl-none border border-gray-100 dark:border-gray-600';
+                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-tl-none border border-gray-100 dark:border-gray-600 rich-text max-h-60 overflow-y-auto pr-2 custom-scrollbar';
 
             div.innerHTML = `
                 <div class="w-8 h-8 ${role==='user'?'bg-gray-200':'bg-blue-100'} rounded-full flex items-center justify-center shrink-0 text-lg shadow-sm">${icon}</div>
