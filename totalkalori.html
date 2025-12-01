@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Total Kalori Harian - BMI Calculator PRO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#4F46E5",
+                        secondary: "#10B981",
+                        danger: "#EF4444",
+                        warning: "#F59E0B",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body, div, p, h1, h2, h3, h4, input, button, span, select { transition: all 0.3s ease; font-family: "Inter", sans-serif; }
+        .fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: rgba(156, 163, 175, 0.5); border-radius: 20px; }
+        .rich-text strong { font-weight: 800; }
+        .rich-text ul { list-style-type: disc; padding-left: 1.2rem; margin-bottom: 0.5rem; }
+        .rich-text ol { list-style-type: decimal; padding-left: 1.2rem; margin-bottom: 0.5rem; }
+        .rich-text li { margin-bottom: 0.25rem; }
+        .rich-text p { margin-bottom: 0.5rem; }
+        /* Force high contrast and remove unwanted backgrounds in analysis result */
+        #dailyAnalysisResult * { background-color: transparent !important; color: inherit; }
+        #dailyAnalysisResult strong { font-weight: 800; color: inherit; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100 flex flex-col items-center min-h-screen font-sans py-6">
+
+    <div class="w-full md:max-w-6xl px-4 pb-20">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700">
+
+            <div class="p-5 flex justify-between items-center bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
+                <div>
+                    <h1 class="text-2xl font-black text-primary dark:text-indigo-400">Total Kalori Harian</h1>
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wide">Tracking: Calorie In vs Calorie Out</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="langToggle" class="px-3 py-1.5 rounded-full bg-gray-200 dark:bg-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300">ID</button>
+                    <button id="themeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700"><span class="dark:hidden">🌙</span><span class="hidden dark:block">☀️</span></button>
+                    <button id="settingsBtn" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700">⚙️</button>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+                <nav class="flex overflow-x-auto">
+                    <a href="index.html" class="px-6 py-4 text-sm font-bold text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-white transition border-b-2 border-transparent hover:border-primary whitespace-nowrap">🏠 Beranda</a>
+                    <a href="pengetahuan.html" class="px-6 py-4 text-sm font-bold text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-white transition border-b-2 border-transparent hover:border-primary whitespace-nowrap">📚 Pengetahuan</a>
+                    <a href="#" class="px-6 py-4 text-sm font-bold text-primary border-b-2 border-primary dark:text-white bg-gray-50 dark:bg-gray-700/50 whitespace-nowrap">🔥 Total Kalori</a>
+                </nav>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2">
+                <div class="p-6 space-y-8 border-r border-gray-100 dark:border-gray-700">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-black text-gray-800 dark:text-white text-lg flex items-center gap-2">📅 Tanggal & Profil</h3>
+                            <input type="date" id="datePicker" class="p-2 rounded-lg border dark:bg-gray-700 dark:border-gray-600 font-bold text-sm">
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-700/30 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
+                            <div class="grid grid-cols-2 gap-3 mb-3">
+                                <input type="text" id="userName" placeholder="Nama Anda" class="col-span-2 w-full p-2.5 rounded-lg border dark:bg-gray-700 dark:border-gray-600 text-sm font-bold">
+                                <select id="gender" class="w-full p-2.5 rounded-lg border dark:bg-gray-700 dark:border-gray-600 text-sm font-medium"><option value="male">👨 Pria</option><option value="female">👩 Wanita</option></select>
+                                <input type="number" id="age" placeholder="Usia (th)" class="w-full p-2.5 rounded-lg border dark:bg-gray-700 dark:border-gray-600 text-sm font-bold">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <input type="number" id="weight" placeholder="Berat (kg)" class="w-full p-2.5 rounded-lg border dark:bg-gray-700 dark:border-gray-600 text-sm font-bold">
+                                <input type="number" id="height" placeholder="Tinggi (cm)" class="w-full p-2.5 rounded-lg border dark:bg-gray-700 dark:border-gray-600 text-sm font-bold">
+                            </div>
+                            <div class="mt-2 text-[10px] text-gray-400 text-right">*Data diperlukan untuk menghitung BMR (Kalori dasar)</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h3 class="font-black text-orange-600 dark:text-orange-400 text-lg flex items-center gap-2 border-b pb-2 border-orange-100 dark:border-orange-900/50">🔥 Calorie Out (Aktivitas)</h3>
+                        <div class="space-y-3">
+                            <label class="text-xs font-bold text-gray-500 uppercase">Pilih Jenis Aktivitas</label>
+                            <div class="grid grid-cols-1 gap-2">
+                                <select id="activityType" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-medium text-sm" onchange="toggleActivityInput()">
+                                    <optgroup label="Pekerjaan / Rutinitas">
+                                        <option value="work_indoor">🏢 Bekerja Indoor (Duduk/Sedentary)</option>
+                                        <option value="work_outdoor">🏗️ Bekerja Outdoor (Bergerak/Aktif)</option>
+                                    </optgroup>
+                                    <optgroup label="Olahraga">
+                                        <option value="4.0">🏓 Ping Pong (Santai)</option>
+                                        <option value="7.0">🏆 Ping Pong (Kompetitif)</option>
+                                        <option value="7.0">🏃 Jogging</option>
+                                        <option value="3.0">🚶 Jalan Santai (4 km/jam)</option>
+                                        <option value="5.0">👟 Jalan Cepat (6.4 km/jam)</option>
+                                        <option value="3.5">🏋️ Gym / Angkat Beban</option>
+                                        <option value="6.5">🤸 Aerobik</option>
+                                        <option value="5.5">🏸 Badminton</option>
+                                        <option value="6.0">🚴 Bersepeda (Cycling)</option>
+                                        <option value="10.0">🥋 Bela Diri (Martial Arts)</option>
+                                        <option value="custom">✨ Lainnya (Custom)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div id="customActivityContainer" class="hidden grid-cols-2 gap-3">
+                                <input type="text" id="customActName" placeholder="Nama Aktivitas" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 text-sm">
+                                <input type="number" id="customActMet" placeholder="Est. MET (1-10)" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 text-sm">
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="w-1/3"><input type="number" id="actDuration" placeholder="Menit" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold text-sm"></div>
+                                <button onclick="addActivity()" class="w-2/3 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow active:scale-95 transition flex justify-center items-center gap-2"><span>➕</span> Tambah Aktivitas</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h3 class="font-black text-green-600 dark:text-green-400 text-lg flex items-center gap-2 border-b pb-2 border-green-100 dark:border-green-900/50">🥗 Calorie In (Makanan)</h3>
+                        <div class="flex gap-2 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                            <button onclick="setFoodMode('manual')" id="tabManual" class="flex-1 py-1.5 text-xs font-bold rounded-md bg-white dark:bg-gray-600 shadow text-gray-800 dark:text-white transition">Manual Input</button>
+                            <button onclick="setFoodMode('scan')" id="tabScan" class="flex-1 py-1.5 text-xs font-bold rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition">AI Scanner</button>
+                        </div>
+                        <div id="foodManualForm" class="space-y-3">
+                            <input type="text" id="foodName" placeholder="Nama Makanan (misal: Nasi Goreng)" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold text-sm">
+                            <div class="grid grid-cols-2 gap-3">
+                                <input type="text" id="foodPortion" placeholder="Porsi (1 piring)" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 text-sm">
+                                <input type="number" id="foodCal" placeholder="Kalori (kkal)" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 text-sm font-bold">
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <input type="number" id="foodCarb" placeholder="Karbo (g)" class="w-full p-2 rounded-lg border dark:bg-gray-700 dark:border-gray-600 text-xs">
+                                <input type="number" id="foodProt" placeholder="Protein (g)" class="w-full p-2 rounded-lg border dark:bg-gray-700 dark:border-gray-600 text-xs">
+                                <input type="number" id="foodFat" placeholder="Lemak (g)" class="w-full p-2 rounded-lg border dark:bg-gray-700 dark:border-gray-600 text-xs">
+                            </div>
+                            <button onclick="addFoodManual()" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow active:scale-95 transition">Tambah Makanan</button>
+                        </div>
+                        <div id="foodScanForm" class="hidden space-y-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <input type="file" id="scanCamera" accept="image/*" capture="environment" class="hidden" onchange="handleFoodScan(event)">
+                                <input type="file" id="scanGallery" accept="image/*" class="hidden" onchange="handleFoodScan(event)">
+                                <button onclick="document.getElementById('scanCamera').click()" class="py-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition flex flex-col items-center gap-2 group"><span class="text-2xl group-hover:scale-110 transition">📸</span><span class="text-xs font-bold text-gray-500">Ambil Foto</span></button>
+                                <button onclick="document.getElementById('scanGallery').click()" class="py-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition flex flex-col items-center gap-2 group"><span class="text-2xl group-hover:scale-110 transition">🖼️</span><span class="text-xs font-bold text-gray-500">Upload</span></button>
+                            </div>
+                            <div id="scanPreview" class="hidden"><p class="text-xs text-center text-gray-500 animate-pulse mt-2">Menganalisa gambar...</p></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 bg-gray-50 dark:bg-gray-900/50 flex flex-col h-full">
+                    <h3 class="font-black text-gray-800 dark:text-white text-lg mb-4 flex justify-between items-center">
+                        <span>📊 Rekapitulasi Harian</span>
+                        <span id="displayDate" class="text-xs font-medium text-gray-500 bg-white dark:bg-gray-800 px-2 py-1 rounded shadow-sm">Today</span>
+                    </h3>
+                    <div class="flex-1 space-y-6 overflow-y-auto pr-1 custom-scrollbar max-h-[600px]">
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-500 uppercase mb-2 flex justify-between"><span>Masuk (Makanan)</span><span id="totalFoodCal" class="text-green-600">0 kkal</span></h4>
+                            <div id="foodList" class="space-y-2 empty:text-center empty:py-4 empty:text-gray-400 empty:text-xs"><p class="empty-msg">Belum ada makanan dicatat.</p></div>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-500 uppercase mb-2 flex justify-between"><span>Keluar (Aktivitas + BMR)</span><span id="totalBurnCal" class="text-orange-600">0 kkal</span></h4>
+                            <div id="activityList" class="space-y-2 empty:text-center empty:py-4 empty:text-gray-400 empty:text-xs"><p class="empty-msg">Belum ada aktivitas dicatat.</p></div>
+                            <div id="bmrRow" class="mt-2 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex justify-between items-center opacity-70">
+                                <div><p class="text-xs font-bold text-gray-600 dark:text-gray-300">BMR</p><p class="text-[10px] text-gray-400">Metabolisme Dasar</p></div>
+                                <span id="dailyBmrVal" class="text-sm font-bold text-gray-600 dark:text-gray-300">0 kkal</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 bg-white dark:bg-gray-800 p-5 rounded-2xl shadow border border-gray-100 dark:border-gray-700">
+                        <div class="flex justify-between items-end border-b border-gray-100 dark:border-gray-700 pb-4 mb-4">
+                            <div><p class="text-xs font-bold text-gray-400 uppercase">Net Calories</p><p class="text-[10px] text-gray-400">(In - Out)</p></div>
+                            <div class="text-right"><p id="netCalVal" class="text-4xl font-black text-gray-800 dark:text-white">0</p><p id="netCalStatus" class="text-xs font-bold uppercase tracking-widest text-gray-500">Seimbang</p></div>
+                        </div>
+                        <button onclick="generateDailyAnalysis()" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-lg active:scale-95 transition flex justify-center items-center gap-2 group relative overflow-hidden">
+                            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div><span>🤖</span> Analisa AI Ahli
+                        </button>
+                        <div id="dailyAnalysisResult" class="hidden mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800 text-xs leading-relaxed rich-text text-gray-700 dark:text-gray-100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="geminiApiModal" class="fixed inset-0 z-50 hidden bg-gray-900/80 backdrop-blur-sm overflow-y-auto">
+        <div class="min-h-screen w-full flex flex-col items-center justify-center p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md relative border border-gray-200 dark:border-gray-700 p-6">
+                <button onclick="document.getElementById('geminiApiModal').classList.add('hidden')" class="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">✕</button>
+                <h3 class="text-lg font-bold mb-4 dark:text-white">Pengaturan API Key</h3>
+                <input type="password" id="geminiApiKey" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 mb-3" placeholder="Masukkan Gemini API Key">
+                <button onclick="saveApiKey()" class="w-full py-3 bg-primary text-white font-bold rounded-xl">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        const DB_NAME = "CalorieTrackerDB"; const DB_VERSION = 1; const STORE_LOGS = "daily_logs"; const STORE_PROFILE = "user_profile";
+        let db;
+
+        let currentDate = new Date().toISOString().slice(0, 10);
+        let userProfile = { name: "", age: "", weight: "", height: "", gender: "male" };
+        let currentLog = { date: currentDate, food: [], activity: [] };
+
+        // Define functions globally immediately so onclicks are safe even if DB init fails
+        window.toggleActivityInput = toggleActivityInput;
+        window.addActivity = addActivity;
+        window.setFoodMode = setFoodMode;
+        window.addFoodManual = addFoodManual;
+        window.handleFoodScan = handleFoodScan;
+        window.generateDailyAnalysis = generateDailyAnalysis;
+        window.saveApiKey = saveApiKey;
+        window.deleteItem = deleteItem;
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            // 1. UI Initialization (Theme, Listeners) - MUST RUN FIRST
+            try {
+                if(localStorage.getItem("theme") === "dark") document.documentElement.classList.add("dark");
+
+                document.getElementById("themeToggle").addEventListener("click", () => {
+                    document.documentElement.classList.toggle("dark");
+                    localStorage.setItem("theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+                });
+
+                document.getElementById("langToggle").addEventListener("click", () => { alert("Fitur bahasa halaman ini saat ini hanya Bahasa Indonesia."); });
+
+                document.getElementById("settingsBtn").addEventListener("click", () => {
+                    document.getElementById("geminiApiModal").classList.remove("hidden");
+                    document.getElementById("geminiApiKey").value = localStorage.getItem("geminiApiKey") || "";
+                });
+
+                const datePicker = document.getElementById("datePicker");
+                datePicker.value = currentDate;
+                document.getElementById("displayDate").innerText = formatDateFriendly(currentDate);
+
+                datePicker.addEventListener("change", (e) => {
+                    currentDate = e.target.value;
+                    document.getElementById("displayDate").innerText = formatDateFriendly(currentDate);
+                    loadLogForDate(currentDate);
+                });
+
+                ["userName", "age", "weight", "height", "gender"].forEach(id => {
+                    document.getElementById(id).addEventListener("input", updateProfile);
+                });
+            } catch(e) { console.error("UI Init Error:", e); }
+
+            // 2. Data Initialization (IndexedDB) - Wrapped in Try/Catch
+            try {
+                await initDB();
+                const savedProfile = await dbOps.getProfile();
+                if(savedProfile) { userProfile = savedProfile; populateProfileForm(); }
+                await loadLogForDate(currentDate);
+            } catch(e) {
+                console.error("DB Init Error:", e);
+                alert("Gagal memuat database (IndexedDB). Riwayat tidak akan tersimpan. Error: " + e);
+            }
+        });
+
+        const initDB = () => new Promise((resolve, reject) => {
+            try {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onupgradeneeded = (e) => {
+                    db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_LOGS)) db.createObjectStore(STORE_LOGS, { keyPath: "date" });
+                    if (!db.objectStoreNames.contains(STORE_PROFILE)) db.createObjectStore(STORE_PROFILE, { keyPath: "id" });
+                };
+                request.onsuccess = (e) => { db = e.target.result; resolve(db); };
+                request.onerror = (e) => reject(e.target.error || "DB Error");
+            } catch(e) {
+                reject(e);
+            }
+        });
+
+        const dbOps = {
+            async getProfile() {
+                if(!db) try { await initDB(); } catch(e) { return null; }
+                if(!db) return null;
+                return new Promise(resolve => { const tx = db.transaction(STORE_PROFILE, "readonly"); const req = tx.objectStore(STORE_PROFILE).get("main_user"); req.onsuccess = () => resolve(req.result || null); req.onerror = () => resolve(null); });
+            },
+            async saveProfile(data) {
+                if(!db) try { await initDB(); } catch(e) { console.warn("Save failed, no DB"); return; }
+                if(!db) return;
+                const tx = db.transaction(STORE_PROFILE, "readwrite"); data.id = "main_user"; tx.objectStore(STORE_PROFILE).put(data);
+            },
+            async getLog(dateStr) {
+                if(!db) try { await initDB(); } catch(e) { return { date: dateStr, food: [], activity: [] }; }
+                if(!db) return { date: dateStr, food: [], activity: [] };
+                return new Promise(resolve => { const tx = db.transaction(STORE_LOGS, "readonly"); const req = tx.objectStore(STORE_LOGS).get(dateStr); req.onsuccess = () => resolve(req.result || { date: dateStr, food: [], activity: [] }); });
+            },
+            async saveLog(data) {
+                if(!db) try { await initDB(); } catch(e) { console.warn("Save log failed, no DB"); return; }
+                if(!db) return;
+                const tx = db.transaction(STORE_LOGS, "readwrite"); tx.objectStore(STORE_LOGS).put(data);
+            }
+        };
+
+        function formatDateFriendly(dateStr) { const date = new Date(dateStr); return date.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" }); }
+        function populateProfileForm() { document.getElementById("userName").value = userProfile.name || ""; document.getElementById("age").value = userProfile.age || ""; document.getElementById("weight").value = userProfile.weight || ""; document.getElementById("height").value = userProfile.height || ""; document.getElementById("gender").value = userProfile.gender || "male"; }
+        async function updateProfile() {
+            userProfile = { name: document.getElementById("userName").value, age: document.getElementById("age").value, weight: document.getElementById("weight").value, height: document.getElementById("height").value, gender: document.getElementById("gender").value };
+            await dbOps.saveProfile(userProfile);
+            renderSummary();
+        }
+        async function loadLogForDate(date) {
+            currentLog = await dbOps.getLog(date);
+            if(!currentLog.food) currentLog.food = [];
+            if(!currentLog.activity) currentLog.activity = [];
+            renderLists();
+            renderSummary();
+        }
+        function toggleActivityInput() { const val = document.getElementById("activityType").value; const customDiv = document.getElementById("customActivityContainer"); if(val === "custom") customDiv.classList.remove("hidden"); else customDiv.classList.add("hidden"); customDiv.style.display = val === "custom" ? "grid" : "none"; }
+        function calculateBMR() {
+            const w = parseFloat(userProfile.weight) || parseFloat(document.getElementById('weight').value);
+            const h = parseFloat(userProfile.height) || parseFloat(document.getElementById('height').value);
+            const a = parseInt(userProfile.age) || parseInt(document.getElementById('age').value);
+            const g = userProfile.gender || document.getElementById('gender').value;
+
+            if(!w || !h || !a) return 0;
+
+            let bmr = (10 * w) + (6.25 * h) - (5 * a);
+            if(g === "male") bmr += 5; else bmr -= 161;
+            return Math.round(bmr);
+        }
+
+        async function addActivity() {
+            await updateProfile();
+            const bmr = calculateBMR();
+            if(bmr === 0) { alert("Mohon lengkapi data profil (Berat, Tinggi, Usia) untuk menghitung kalori terbakar."); return; }
+            const typeSelect = document.getElementById("activityType"); let met = 0; let name = "";
+            if(typeSelect.value === "custom") { name = document.getElementById("customActName").value; met = parseFloat(document.getElementById("customActMet").value); } else if (typeSelect.value === "work_indoor") { name = "Bekerja Indoor (Sedentary)"; met = 1.5; } else if (typeSelect.value === "work_outdoor") { name = "Bekerja Outdoor (Aktif)"; met = 4.0; } else { met = parseFloat(typeSelect.value); name = typeSelect.options[typeSelect.selectedIndex].text.replace(/^[^\w\s]+/, "").trim(); }
+            const duration = parseFloat(document.getElementById("actDuration").value); if(!name || !met || !duration) { alert("Data aktivitas tidak lengkap."); return; }
+            const burned = Math.round(met * (bmr / 24) * (duration / 60));
+            currentLog.activity.push({ id: Date.now(), name, met, duration, calories: burned }); await dbOps.saveLog(currentLog); renderLists(); renderSummary();
+            document.getElementById("actDuration").value = ""; document.getElementById("customActName").value = ""; document.getElementById("customActMet").value = "";
+        }
+        function setFoodMode(mode) {
+            const manual = document.getElementById("foodManualForm"); const scan = document.getElementById("foodScanForm"); const tabM = document.getElementById("tabManual"); const tabS = document.getElementById("tabScan");
+            if(mode === "manual") { manual.classList.remove("hidden"); scan.classList.add("hidden"); tabM.classList.replace("text-gray-500", "text-gray-800"); tabM.classList.add("bg-white", "shadow"); tabS.classList.replace("bg-white", "text-gray-500"); tabS.classList.remove("shadow"); } else { manual.classList.add("hidden"); scan.classList.remove("hidden"); tabS.classList.replace("text-gray-500", "text-gray-800"); tabS.classList.add("bg-white", "shadow"); tabM.classList.replace("bg-white", "text-gray-500"); tabM.classList.remove("shadow"); }
+        }
+        async function addFoodManual() {
+            const name = document.getElementById("foodName").value; const portion = document.getElementById("foodPortion").value || "-"; const cal = parseFloat(document.getElementById("foodCal").value); const p = document.getElementById("foodProt").value || "-"; const c = document.getElementById("foodCarb").value || "-"; const f = document.getElementById("foodFat").value || "-";
+            if(!name || !cal) { alert("Nama makanan dan Kalori wajib diisi."); return; }
+            currentLog.food.push({ id: Date.now(), name, portion, calories: cal, macros: { p, c, f } }); await dbOps.saveLog(currentLog); renderLists(); renderSummary();
+            document.getElementById("foodName").value = ""; document.getElementById("foodCal").value = ""; document.getElementById("foodPortion").value = "";
+        }
+        async function handleFoodScan(event) {
+            const apiKey = localStorage.getItem("geminiApiKey"); if(!apiKey) { alert("API Key belum diset!"); document.getElementById("geminiApiModal").classList.remove("hidden"); return; }
+            const file = event.target.files[0]; if(!file) return;
+            const preview = document.getElementById("scanPreview"); preview.classList.remove("hidden"); preview.innerHTML = "<p class='text-xs text-center text-gray-500 animate-pulse mt-2'>Menganalisa gambar...</p>";
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const img = new Image();
+                img.onload = async () => {
+                    const canvas = document.createElement("canvas"); const MAX = 800; let w = img.width, h = img.height; if(w > MAX) { h *= MAX/w; w = MAX; } canvas.width = w; canvas.height = h; const ctx = canvas.getContext("2d"); ctx.drawImage(img, 0, 0, w, h); const base64 = canvas.toDataURL("image/jpeg", 0.8).split(",")[1];
+                    try {
+                        const prompt = `Analisa gambar makanan ini. Identifikasi: Nama, Estimasi Porsi, Estimasi Kalori Total, dan Makro (Protein, Karbo, Lemak). Output WAJIB JSON valid: { "name": "string", "portion": "string", "calories": number, "protein": number, "carbs": number, "fat": number } Jika bukan makanan, return { "error": "Bukan makanan" }. Jangan pakai markdown.`;
+                        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ contents: [{ parts: [{text: prompt}, {inline_data: {mime_type: "image/jpeg", data: base64}}] }] }) });
+                        const json = await res.json(); let text = json.candidates[0].content.parts[0].text.replace(/```json/g, "").replace(/```/g, "").trim(); const data = JSON.parse(text);
+                        if(data.error) throw new Error(data.error);
+                        currentLog.food.push({ id: Date.now(), name: data.name, portion: data.portion, calories: data.calories, macros: { p: data.protein, c: data.carbs, f: data.fat } }); await dbOps.saveLog(currentLog); renderLists(); renderSummary(); preview.classList.add("hidden"); alert(`Berhasil scan: ${data.name} (${data.calories} kkal)`);
+                    } catch(err) { alert("Gagal scan: " + err.message); preview.classList.add("hidden"); }
+                }; img.src = e.target.result;
+            }; reader.readAsDataURL(file); event.target.value = "";
+        }
+        function renderLists() {
+            const foodList = document.getElementById("foodList"); const actList = document.getElementById("activityList");
+            if(currentLog.food.length === 0) foodList.innerHTML = "<p class='text-xs text-center text-gray-400 py-4 italic'>Belum ada makanan dicatat.</p>";
+            else foodList.innerHTML = currentLog.food.map(item => `<div class="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm flex justify-between items-center group"><div><p class="font-bold text-sm text-gray-800 dark:text-gray-200">${item.name}</p><p class="text-[10px] text-gray-500">${item.portion} • P:${item.macros.p}g C:${item.macros.c}g F:${item.macros.f}g</p></div><div class="text-right flex items-center gap-3"><span class="font-bold text-green-600 dark:text-green-400 text-sm">${item.calories} kkal</span><button onclick="deleteItem('food', ${item.id})" class="text-gray-300 hover:text-red-500 transition">✕</button></div></div>`).join("");
+            if(currentLog.activity.length === 0) actList.innerHTML = "<p class='text-xs text-center text-gray-400 py-4 italic'>Belum ada aktivitas dicatat.</p>";
+            else actList.innerHTML = currentLog.activity.map(item => `<div class="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm flex justify-between items-center group"><div><p class="font-bold text-sm text-gray-800 dark:text-gray-200">${item.name}</p><p class="text-[10px] text-gray-500">${item.duration} menit • MET ${item.met}</p></div><div class="text-right flex items-center gap-3"><span class="font-bold text-orange-600 dark:text-orange-400 text-sm">-${item.calories} kkal</span><button onclick="deleteItem('activity', ${item.id})" class="text-gray-300 hover:text-red-500 transition">✕</button></div></div>`).join("");
+        }
+        async function deleteItem(type, id) { if(!confirm("Hapus item ini?")) return; if(type === "food") currentLog.food = currentLog.food.filter(i => i.id !== id); else currentLog.activity = currentLog.activity.filter(i => i.id !== id); await dbOps.saveLog(currentLog); renderLists(); renderSummary(); }
+        function renderSummary() {
+            const totalFood = currentLog.food.reduce((sum, i) => sum + i.calories, 0); const totalActivity = currentLog.activity.reduce((sum, i) => sum + i.calories, 0); const bmr = calculateBMR(); const totalOut = totalActivity + bmr; const net = totalFood - totalOut;
+            document.getElementById("totalFoodCal").innerText = totalFood.toLocaleString() + " kkal"; document.getElementById("totalBurnCal").innerText = totalOut.toLocaleString() + " kkal"; document.getElementById("dailyBmrVal").innerText = bmr.toLocaleString() + " kkal";
+            const netEl = document.getElementById("netCalVal"); const statusEl = document.getElementById("netCalStatus"); netEl.innerText = (net > 0 ? "+" : "") + net.toLocaleString();
+            if(net > 200) { netEl.className = "text-4xl font-black text-red-500"; statusEl.innerText = "SURPLUS (NAIK BERAT)"; statusEl.className = "text-xs font-bold uppercase tracking-widest text-red-500"; }
+            else if (net < -200) { netEl.className = "text-4xl font-black text-yellow-500"; statusEl.innerText = "DEFISIT (TURUN BERAT)"; statusEl.className = "text-xs font-bold uppercase tracking-widest text-yellow-500"; }
+            else { netEl.className = "text-4xl font-black text-green-500"; statusEl.innerText = "MAINTENANCE (SEIMBANG)"; statusEl.className = "text-xs font-bold uppercase tracking-widest text-green-500"; }
+            document.getElementById("dailyAnalysisResult").classList.add("hidden");
+        }
+        async function generateDailyAnalysis() {
+            const apiKey = localStorage.getItem("geminiApiKey"); if(!apiKey) { alert("API Key belum diset!"); return; }
+            const totalFood = currentLog.food.reduce((sum, i) => sum + i.calories, 0); const totalAct = currentLog.activity.reduce((sum, i) => sum + i.calories, 0); const bmr = calculateBMR(); const totalOut = bmr + totalAct; const net = totalFood - totalOut;
+            const resDiv = document.getElementById("dailyAnalysisResult"); resDiv.classList.remove("hidden"); resDiv.innerHTML = "<div class='flex gap-2'><div class='w-2 h-2 bg-indigo-500 rounded-full typing-dot'></div><span class='italic text-gray-500'>AI sedang menganalisa data harianmu...</span></div>";
+            const prompt = `Saya adalah ${userProfile.gender}, ${userProfile.age} tahun, berat ${userProfile.weight}kg. Hari ini: - Makan Total: ${totalFood} kkal. Detail: ${currentLog.food.map(f=>f.name).join(", ")}. - Aktivitas Total: ${totalAct} kkal (ditambah BMR ${bmr} kkal = Total Out ${totalOut}). Detail: ${currentLog.activity.map(a=>a.name).join(", ")}. - Net Kalori: ${net} kkal. Berikan analisa singkat dan saran kesehatan, gizi, dan olahraga dalam format HTML (gunakan <ul>, <li>, <strong>, <p>). Jangan gunakan tag <div>, jangan gunakan style css atau class. Jangan markdown. Fokus pada apakah surplus/defisit ini baik untuk kesehatan saya.`;
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });
+                const json = await res.json(); let text = json.candidates[0].content.parts[0].text.replace(/```html/g, "").replace(/```/g, "").trim(); resDiv.innerHTML = text;
+            } catch(e) { resDiv.innerHTML = `<p class="text-red-500">Gagal analisa: ${e.message}</p>`; }
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById("geminiApiKey").value;
+            if(key) {
+                localStorage.setItem("geminiApiKey", key);
+                document.getElementById("geminiApiModal").classList.add("hidden");
+                alert("API Key tersimpan!");
+            } else {
+                alert("API Key tidak boleh kosong.");
+            }
+        }
+    </script>
+</body>
+</html>
