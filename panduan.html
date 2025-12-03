@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Panduan Penggunaan - BMI Calculator PRO</title>
+    <link rel="icon" type="image/png" href="favicon-32x32.png">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#10B981',
+                        danger: '#EF4444',
+                        warning: '#F59E0B',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body, div, p, h1, h2, h3, h4, input, button, span { transition: all 0.3s ease; font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100 flex flex-col items-center min-h-screen font-sans py-6">
+
+    <!-- Container Utama -->
+    <div class="w-full md:max-w-5xl px-4 pb-20">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700">
+
+            <!-- Header -->
+            <div class="p-5 flex justify-between items-center bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
+                <div>
+                    <h1 class="text-2xl font-black text-primary dark:text-indigo-400">Panduan Penggunaan</h1>
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wide">Cara Menggunakan Aplikasi BMI Calculator PRO</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="themeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
+                        <span class="dark:hidden">🌙</span><span class="hidden dark:block">☀️</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+                <nav class="flex overflow-x-auto">
+                    <a href="index.html" class="px-6 py-4 text-sm font-bold text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-white transition border-b-2 border-transparent hover:border-primary whitespace-nowrap">
+                        🏠 Beranda
+                    </a>
+                    <a href="pengetahuan.html" class="px-6 py-4 text-sm font-bold text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-white transition border-b-2 border-transparent hover:border-primary whitespace-nowrap">
+                        📚 Pengetahuan
+                    </a>
+                    <a href="totalkalori.html" class="px-6 py-4 text-sm font-bold text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-white transition border-b-2 border-transparent hover:border-primary whitespace-nowrap">
+                        🔥 Total Kalori
+                    </a>
+                    <a href="#" class="px-6 py-4 text-sm font-bold text-primary border-b-2 border-primary dark:text-white bg-gray-50 dark:bg-gray-700/50 whitespace-nowrap">
+                        📖 Panduan
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 md:p-10 space-y-10 text-gray-700 dark:text-gray-300 leading-relaxed">
+
+                <!-- Section 1: Intro -->
+                <section>
+                    <h2 class="text-xl font-black text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                        <span class="bg-primary text-white p-1 rounded-lg text-sm">1</span> Apa Aplikasi Ini?
+                    </h2>
+                    <p>Aplikasi ini adalah asisten kesehatan pribadi Anda. Fungsinya bukan hanya menghitung berat badan ideal, tapi juga membantu Anda memahami tubuh Anda, menghitung kalori makanan, dan merencanakan diet yang sehat menggunakan bantuan kecerdasan buatan (AI).</p>
+                </section>
+
+                <!-- Section 2: Halaman Utama -->
+                <section class="border-t border-gray-100 dark:border-gray-700 pt-8">
+                    <h2 class="text-xl font-black text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                        <span class="bg-primary text-white p-1 rounded-lg text-sm">2</span> Halaman Utama (Kalkulator BMI)
+                    </h2>
+                    <p class="mb-3">Di halaman ini, Anda bisa mengecek status kesehatan dasar Anda.</p>
+                    <ul class="list-disc pl-5 space-y-2 text-sm">
+                        <li><strong>Isi Data Diri:</strong> Masukkan berat, tinggi, usia, dan jenis kelamin. Jika Anda tahu lingkar pinggang Anda, masukkan juga untuk hasil lebih akurat (Metode RFM).</li>
+                        <li><strong>Food Scanner AI:</strong> Ingin tahu kalori makanan di depan Anda? Klik tombol "Food Scanner AI", lalu ambil foto atau upload gambar makanan. AI akan mendeteksi nama makanan dan perkiraan kalorinya.</li>
+                        <li><strong>Hitung Kalori Terbakar:</strong> Pilih jenis olahraga (misal: Lari, Ping Pong) dan durasi waktunya. Aplikasi akan menghitung berapa kalori yang Anda bakar.</li>
+                        <li><strong>Hasil & Laporan:</strong> Setelah klik "Hitung & Analisa", Anda akan melihat skor BMI, persentase lemak tubuh, dan kebutuhan kalori harian (TDEE). Anda juga bisa mengunduh laporan lengkap dalam bentuk PDF.</li>
+                    </ul>
+                </section>
+
+                <!-- Section 3: Total Kalori -->
+                <section class="border-t border-gray-100 dark:border-gray-700 pt-8">
+                    <h2 class="text-xl font-black text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                        <span class="bg-primary text-white p-1 rounded-lg text-sm">3</span> Halaman Total Kalori
+                    </h2>
+                    <p class="mb-3">Gunakan halaman ini setiap hari untuk mencatat apa yang Anda makan dan aktivitas Anda.</p>
+                    <ul class="list-disc pl-5 space-y-2 text-sm">
+                        <li><strong>Calorie In (Makanan):</strong> Catat makanan yang Anda konsumsi. Bisa pakai Manual Input (ketik sendiri) atau AI Scanner (foto makanan).</li>
+                        <li><strong>Calorie Out (Aktivitas):</strong> Catat olahraga atau aktivitas fisik Anda.</li>
+                        <li><strong>Rekapitulasi Harian:</strong> Lihat apakah hari ini Anda "Surplus" (makan lebih banyak dari yang dibakar) atau "Defisit" (makan lebih sedikit). Ini kunci untuk naik/turun berat badan.</li>
+                        <li><strong>Edit Item:</strong> Salah input angka? Klik tombol pensil (✏️) di daftar item untuk mengubah nama, porsi, atau kalori.</li>
+                    </ul>
+                </section>
+
+                <!-- Section 4: Pengetahuan -->
+                <section class="border-t border-gray-100 dark:border-gray-700 pt-8">
+                    <h2 class="text-xl font-black text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                        <span class="bg-primary text-white p-1 rounded-lg text-sm">4</span> Halaman Pengetahuan
+                    </h2>
+                    <p class="mb-3">Kamus kesehatan lengkap. Jika Anda bingung dengan istilah seperti "BMR", "TDEE", atau "Makronutrisi", buka halaman ini untuk membaca penjelasan yang mudah dipahami.</p>
+                </section>
+
+                <!-- Section 5: Tanya Ahli & API Key -->
+                <section class="border-t border-gray-100 dark:border-gray-700 pt-8">
+                    <h2 class="text-xl font-black text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                        <span class="bg-primary text-white p-1 rounded-lg text-sm">5</span> Fitur Pintar (AI) & Pengaturan
+                    </h2>
+                    <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-xl border border-yellow-200 dark:border-yellow-700 mb-4">
+                        <p class="font-bold text-yellow-800 dark:text-yellow-500 mb-1">Penting: API Key</p>
+                        <p class="text-xs text-gray-700 dark:text-gray-300">Untuk menggunakan fitur canggih seperti <strong>Tanya Dokter AI</strong>, <strong>Scan Makanan</strong>, dan <strong>Analisa Menu</strong>, Anda memerlukan "Kunci Rahasia" (API Key) dari Google. Ini GRATIS.</p>
+                    </div>
+                    <ul class="list-disc pl-5 space-y-2 text-sm">
+                        <li>Klik tombol <strong>Gerigi (⚙️)</strong> di pojok kanan atas.</li>
+                        <li>Ikuti panduan di sana untuk mendapatkan API Key Google Gemini.</li>
+                        <li>Tempel (Paste) kuncinya dan simpan.</li>
+                        <li>Sekarang Anda bisa chatting dengan Dokter AI (tombol biru di pojok kanan bawah) untuk bertanya apa saja tentang kesehatan!</li>
+                    </ul>
+                </section>
+
+                <!-- Footer-like note -->
+                <div class="mt-10 text-center text-xs text-gray-400">
+                    <p>Aplikasi ini dibuat untuk membantu gaya hidup sehat Anda.</p>
+                    <p class="mt-1">Gunakan dengan bijak sebagai referensi.</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple script for theme toggling consistent with other pages
+        const htmlEl = document.documentElement;
+        if(localStorage.getItem('theme') === 'dark') htmlEl.classList.add('dark');
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            htmlEl.classList.toggle('dark');
+            localStorage.setItem('theme', htmlEl.classList.contains('dark') ? 'dark' : 'light');
+        });
+    </script>
+</body>
+</html>
