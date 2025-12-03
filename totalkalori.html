@@ -291,11 +291,11 @@
                     <div id="editActFields" class="hidden grid grid-cols-2 gap-3">
                         <div>
                             <label class="text-xs font-bold text-gray-500 uppercase">Duration (min)</label>
-                            <input type="number" id="editItemDuration" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold text-sm">
+                            <input type="number" id="editItemDuration" oninput="recalcEditModal()" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 font-bold text-sm">
                         </div>
                         <div>
                             <label class="text-xs font-bold text-gray-500 uppercase">MET</label>
-                            <input type="number" id="editItemMet" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 text-sm">
+                            <input type="number" id="editItemMet" oninput="recalcEditModal()" class="w-full p-3 rounded-xl border dark:bg-gray-700 dark:border-gray-600 text-sm">
                         </div>
                     </div>
 
@@ -532,6 +532,7 @@
         window.deleteItem = deleteItem;
         window.editItem = editItem;
         window.saveEdit = saveEdit;
+        window.recalcEditModal = recalcEditModal;
         window.predictNutrition = predictNutrition;
         window.predictActivityMET = predictActivityMET;
         window.toggleExpertChat = toggleExpertChat;
@@ -820,6 +821,11 @@
             document.getElementById('editItemName').value = item.name;
             document.getElementById('editItemCal').value = item.calories;
 
+            // Ensure calorie field is editable
+            const calInput = document.getElementById('editItemCal');
+            calInput.readOnly = false;
+            calInput.classList.remove('bg-gray-100', 'text-gray-500');
+
             const foodFields = document.getElementById('editFoodFields');
             const actFields = document.getElementById('editActFields');
 
@@ -830,20 +836,22 @@
                 document.getElementById('editItemProt').value = item.macros.p || "";
                 document.getElementById('editItemCarb').value = item.macros.c || "";
                 document.getElementById('editItemFat').value = item.macros.f || "";
-                // Calories editable for food
-                document.getElementById('editItemCal').readOnly = false;
-                document.getElementById('editItemCal').classList.remove('bg-gray-100', 'text-gray-500');
             } else {
                 foodFields.classList.add('hidden');
                 actFields.classList.remove('hidden');
                 document.getElementById('editItemDuration').value = item.duration || "";
                 document.getElementById('editItemMet').value = item.met || "";
-                // Calories read-only (auto-calculated) for activity to maintain consistency
-                document.getElementById('editItemCal').readOnly = true;
-                document.getElementById('editItemCal').classList.add('bg-gray-100', 'text-gray-500');
             }
 
             document.getElementById('editItemModal').classList.remove('hidden');
+        }
+
+        function recalcEditModal() {
+            const duration = parseFloat(document.getElementById('editItemDuration').value) || 0;
+            const met = parseFloat(document.getElementById('editItemMet').value) || 0;
+            const bmr = calculateBMR();
+            const burned = Math.round(met * (bmr / 24) * (duration / 60));
+            document.getElementById('editItemCal').value = burned;
         }
 
         async function saveEdit() {
@@ -864,14 +872,11 @@
             } else {
                 const duration = parseFloat(document.getElementById('editItemDuration').value) || 0;
                 const met = parseFloat(document.getElementById('editItemMet').value) || 0;
-                const bmr = calculateBMR();
-
-                // Auto Recalculate Logic
-                const burned = Math.round(met * (bmr / 24) * (duration / 60));
 
                 const idx = currentLog.activity.findIndex(i => i.id === editTarget.id);
                 if(idx !== -1) {
-                    currentLog.activity[idx] = { ...currentLog.activity[idx], name, calories: burned, duration, met };
+                    // Use 'cal' (manual input) instead of recalculating
+                    currentLog.activity[idx] = { ...currentLog.activity[idx], name, calories: cal, duration, met };
                 }
             }
 
