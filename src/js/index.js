@@ -1,0 +1,2027 @@
+        let userData; // Will hold user's calculation data
+        let currentLang = localStorage.getItem('lang') || 'id';
+        const htmlEl = document.documentElement;
+
+        // --- Attach Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Regular Buttons
+            document.getElementById('themeToggle').addEventListener('click', () => {
+                htmlEl.classList.toggle('dark');
+                localStorage.setItem('theme', htmlEl.classList.contains('dark') ? 'dark' : 'light');
+            });
+
+            document.getElementById('langToggle').addEventListener('click', () => {
+                currentLang = currentLang === 'id' ? 'en' : 'id';
+                localStorage.setItem('lang', currentLang);
+                updateLanguage();
+            });
+
+            // API Modal Buttons
+            document.getElementById('settingsBtn').addEventListener('click', openApiModal);
+            document.getElementById('closeApiModal').addEventListener('click', closeApiModal);
+            document.getElementById('saveApiKey').addEventListener('click', saveApiKey);
+            document.getElementById('deleteApiKey').addEventListener('click', deleteApiKey);
+            document.getElementById('toggleApiGuide').addEventListener('click', toggleApiGuide);
+
+            // Initial Setup
+            if(localStorage.getItem('theme') === 'dark') htmlEl.classList.add('dark');
+            updateLanguage();
+
+            // Generate Tip on Load
+            generateHealthTip();
+        });
+
+        // --- Global Functions for onclick="" ---
+        // We need to attach functions to window when using modules to make them accessible from HTML onclick attributes.
+        window.calculateBMI = calculateBMI;
+        window.generateReport = generateReport;
+        window.handleAiMenuGeneration = handleAiMenuGeneration;
+        window.openApiModal = openApiModal;
+        // window.triggerFoodScan = triggerFoodScan; // Removed
+        window.handleImageSelect = handleImageSelect;
+        window.closeScanResult = closeScanResult;
+        window.handleCorrection = handleCorrection;
+
+        function closeApiModal() {
+            document.getElementById('geminiApiModal').classList.add('hidden');
+        }
+        window.closeApiModal = closeApiModal;
+
+        window.saveApiKey = saveApiKey;
+        window.deleteApiKey = deleteApiKey;
+        window.toggleApiGuide = toggleApiGuide;
+        window.closeModal = closeModal;
+        window.resetForm = resetForm;
+        window.toggleInfo = toggleInfo;
+        window.downloadPDF = downloadPDF;
+        window.toggleCustomMet = toggleCustomMet;
+        window.calculateBurn = calculateBurn;
+
+        // Chat Functions
+        window.toggleExpertChat = toggleExpertChat;
+        window.handleChatEnter = handleChatEnter;
+        window.sendChatMessage = sendChatMessage;
+        window.generateHealthTip = generateHealthTip;
+
+        function openApiModal() {
+            const geminiApiKeyInput = document.getElementById('geminiApiKey');
+            const deleteApiKeyBtn = document.getElementById('deleteApiKey');
+            const savedKey = localStorage.getItem('geminiApiKey');
+            if (savedKey) {
+                geminiApiKeyInput.value = savedKey;
+                deleteApiKeyBtn.classList.remove('hidden');
+            } else {
+                geminiApiKeyInput.value = '';
+                deleteApiKeyBtn.classList.add('hidden');
+            }
+            document.getElementById('geminiApiModal').classList.remove('hidden');
+        }
+
+        window.closeModal = function() { document.getElementById('reportModal').classList.add('hidden'); }
+        window.resetForm = function() { document.getElementById('weight').value=''; document.getElementById('height').value=''; document.getElementById('resultArea').classList.add('hidden'); }
+        window.toggleInfo = function() {
+            const content = document.getElementById('infoContent');
+            const icon = document.getElementById('infoIcon');
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                content.classList.add('fade-in-up');
+                icon.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                content.classList.remove('fade-in-up');
+                icon.classList.remove('rotate-180');
+            }
+        }
+        window.downloadPDF = function() {
+            const element = document.getElementById('printableArea');
+            element.classList.remove('max-w-xl');
+
+            const opt = {
+                margin: [25.4, 30.48, 25.4, 25.4], // [top, left, bottom, right] in mm
+                filename: `BMI_Report_${userData.k}_${new Date().toISOString().slice(0,10)}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().from(element).set(opt).toPdf().get('pdf').then(function (pdf) {
+                var totalPages = pdf.internal.getNumberOfPages();
+                var pageWidth = pdf.internal.pageSize.getWidth();
+                var pageHeight = pdf.internal.pageSize.getHeight();
+
+                pdf.setFont('helvetica', 'italic');
+                pdf.setFontSize(8);
+                pdf.setTextColor(150);
+
+                for (var i = 1; i <= totalPages; i++) {
+                    pdf.setPage(i);
+                    pdf.line(opt.margin[1], pageHeight - 18, pageWidth - opt.margin[3], pageHeight - 18);
+                    pdf.text('Generated by BMI CALCULATOR Pro - https://bmicalculator.isparmo.com', opt.margin[1], pageHeight - 10);
+                    var pageNumText = 'Page ' + i + ' of ' + totalPages;
+                    pdf.text(pageNumText, pageWidth - opt.margin[3], pageHeight - 10, { align: 'right' });
+                }
+            }).save().then(() => {
+                element.classList.add('max-w-xl');
+            });
+        }
+
+        window.saveApiKey = function() {
+            const apiKey = document.getElementById('geminiApiKey').value.trim();
+            if (apiKey) {
+                localStorage.setItem('geminiApiKey', apiKey);
+                alert('API Key berhasil disimpan!');
+                closeApiModal();
+            } else {
+                alert('API Key tidak boleh kosong.');
+            }
+        }
+
+        window.deleteApiKey = function() {
+            if (confirm('Apakah Anda yakin ingin menghapus API Key?')) {
+                localStorage.removeItem('geminiApiKey');
+                document.getElementById('geminiApiKey').value = '';
+                alert('API Key berhasil dihapus.');
+                closeApiModal();
+            }
+        }
+
+        window.toggleApiGuide = function() {
+            const apiGuideContent = document.getElementById('apiGuideContent');
+            const apiGuideIcon = document.getElementById('apiGuideIcon');
+            if (apiGuideContent.classList.contains('hidden')) {
+                apiGuideContent.classList.remove('hidden');
+                apiGuideIcon.classList.add('rotate-180');
+            } else {
+                apiGuideContent.classList.add('hidden');
+                apiGuideIcon.classList.remove('rotate-180');
+            }
+        }
+
+        function updateLanguage() {
+            const T = translations[currentLang];
+            const langToggleBtn = document.getElementById('langToggle');
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if(T[key]) el.innerText = T[key];
+            });
+            document.querySelectorAll('[data-i18n-html]').forEach(el => {
+                const key = el.getAttribute('data-i18n-html');
+                if(T[key]) el.innerHTML = T[key];
+            });
+            langToggleBtn.innerText = currentLang.toUpperCase();
+            document.getElementById('waist').placeholder = (currentLang === 'id') ? "cm (Ops)" : "cm (Opt)";
+        }
+
+        // --- CALORIE BURN CALCULATOR FUNCTIONS ---
+        function toggleCustomMet() {
+            const val = document.getElementById('sportType').value;
+            const container = document.getElementById('customMetContainer');
+            if(val === 'custom') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        async function calculateBurn() {
+            const T = translations[currentLang];
+            if (!userData || !userData.bmr) {
+                alert(currentLang === 'id' ? "Silakan hitung BMI Anda terlebih dahulu di form atas." : "Please calculate your BMI first in the form above.");
+                return;
+            }
+
+            const sportSelect = document.getElementById('sportType');
+            let met = parseFloat(sportSelect.value);
+            let activityName = sportSelect.options[sportSelect.selectedIndex].text;
+
+            // Remove emoji from name
+            activityName = activityName.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '').trim();
+
+            if (sportSelect.value === 'custom') {
+                const customName = document.getElementById('customSportName').value.trim();
+                const customMet = parseFloat(document.getElementById('customMetValue').value);
+
+                if (!customName || !customMet) {
+                    alert(currentLang === 'id' ? "Mohon isi Nama Aktivitas dan Estimasi MET." : "Please fill in Activity Name and Estimated MET.");
+                    return;
+                }
+                met = customMet;
+                activityName = customName;
+            }
+
+            const durationMins = parseFloat(document.getElementById('burnDuration').value);
+            if (!durationMins || durationMins <= 0) {
+                alert(currentLang === 'id' ? "Mohon isi durasi dengan benar." : "Please enter a valid duration.");
+                return;
+            }
+
+            // Formula: MET * (BMR / 24) * Duration(hours)
+            const durationHours = durationMins / 60;
+            const bmrHourly = userData.bmr / 24;
+            const caloriesBurned = Math.round(met * bmrHourly * durationHours);
+
+            const resultDiv = document.getElementById('burnResult');
+            resultDiv.classList.remove('hidden');
+
+            resultDiv.innerHTML = `
+                <div class="flex justify-between items-center mb-3 border-b border-orange-200 dark:border-orange-800 pb-2">
+                    <div>
+                        <p class="text-xs font-bold text-gray-500 uppercase">${activityName}</p>
+                        <p class="text-[10px] text-gray-400">${durationMins} min @ MET ${met}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-2xl font-black text-orange-600 dark:text-orange-400">${caloriesBurned} kkal</p>
+                        <p class="text-[9px] font-bold text-gray-500 uppercase">Kalori Terbakar</p>
+                    </div>
+                </div>
+
+                <div id="burnAnalysis" class="text-xs text-gray-700 dark:text-gray-300 space-y-2">
+                    <div class="flex items-center gap-2 text-gray-500 italic">
+                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                        <span data-i18n="analyzing_benefits">${currentLang === 'id' ? 'Menganalisa manfaat kesehatan...' : 'Analyzing health benefits...'}</span>
+                    </div>
+                </div>
+            `;
+
+            // Call AI
+            await generateBurnAnalysis(activityName, durationMins, caloriesBurned);
+        }
+
+        async function generateBurnAnalysis(activity, duration, calories) {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            const analysisDiv = document.getElementById('burnAnalysis');
+
+            if (!apiKey) {
+                analysisDiv.innerHTML = `<p class="text-gray-500 text-[10px] italic">${currentLang==='id' ? 'Set API Key untuk melihat manfaat kesehatan.' : 'Set API Key to see health benefits.'}</p>`;
+                return;
+            }
+
+            const prompt = currentLang === 'id'
+                ? `Saya baru saja melakukan olahraga ${activity} selama ${duration} menit dan membakar sekitar ${calories} kkal.
+                   Jelaskan secara singkat dan menarik dalam format HTML:
+                   1. Apa manfaat spesifik olahraga ini bagi tubuh (otot mana yang terlatih, dampak ke jantung/otak).
+                   2. Berikan 1 fakta unik tentang olahraga ini.
+                   Gunakan tag <strong> untuk penekanan. Jangan pakai Markdown. Buat maksimal 2 paragraf pendek.`
+                : `I just did ${activity} for ${duration} minutes and burned about ${calories} kcal.
+                   Explain briefly and engagingly in HTML format:
+                   1. Specific health benefits (muscles worked, heart/brain impact).
+                   2. One unique fact about this sport.
+                   Use <strong> tags for emphasis. Do not use Markdown. Keep it to max 2 short paragraphs.`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
+
+                if (!response.ok) throw new Error("API Error");
+                const result = await response.json();
+                let text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (text) {
+                    text = text.replace(/```html/g, '').replace(/```/g, '').trim();
+                    analysisDiv.innerHTML = `<div class="rich-text leading-relaxed">${text}</div>`;
+                } else {
+                     throw new Error("Empty response");
+                }
+
+            } catch (e) {
+                console.error(e);
+                analysisDiv.innerHTML = `<p class="text-red-500 text-[10px]">${currentLang==='id'?'Gagal memuat analisa AI.':'Failed to load AI analysis.'}</p>`;
+            }
+        }
+
+        // --- FOOD SCANNER FUNCTIONS ---
+        let lastScannedImage = null; // Store base64 image for regeneration
+
+        // Removed triggerFoodScan() as we now use direct ID calls, but kept for legacy if needed or cleanup
+        // We now check API key inside handleImageSelect to prevent opening camera if no key?
+        // Better: Check key when button is clicked.
+        // Since we put onclick="document.getElementById...click()" in HTML, we need to intercept or check before.
+        // However, standard UX: Let them take photo, then ask for key if missing. Or check first.
+
+        // Let's modify handleImageSelect to check key first.
+
+        function closeScanResult() {
+             document.getElementById('scanResult').classList.add('hidden');
+             document.getElementById('scanResult').innerHTML = '';
+             document.getElementById('imagePreviewContainer').classList.add('hidden'); // Hide preview on close
+             lastScannedImage = null;
+        }
+
+        function handleImageSelect(event) {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            if (!apiKey) {
+                alert(currentLang === 'id' ? "Silakan masukkan API Key Gemini terlebih dahulu di menu Pengaturan." : "Please enter your Gemini API Key first in Settings.");
+                openApiModal();
+                event.target.value = ''; // Reset input
+                return;
+            }
+
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const scanLoading = document.getElementById('scanLoading');
+            const scanResult = document.getElementById('scanResult');
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            const previewImg = document.getElementById('foodPreview');
+
+            scanResult.classList.add('hidden');
+            scanLoading.classList.remove('hidden');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewContainer.classList.remove('hidden');
+
+                const img = new Image();
+                img.onload = function() {
+                    // Resize logic
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const base64String = canvas.toDataURL('image/jpeg', 0.8).split(',')[1]; // Remove prefix
+                    lastScannedImage = base64String;
+                    analyzeFoodImage(base64String);
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+
+            // Reset input so same file can be selected again
+            event.target.value = '';
+        }
+
+        async function handleCorrection() {
+            const correctionText = document.getElementById('correctionInput').value.trim();
+            if (!correctionText) return;
+            if (!lastScannedImage) {
+                alert("Gambar tidak ditemukan. Silakan scan ulang.");
+                return;
+            }
+
+            // Show loading again
+            const scanResult = document.getElementById('scanResult');
+            const scanLoading = document.getElementById('scanLoading');
+            scanResult.classList.add('hidden');
+            scanLoading.classList.remove('hidden');
+
+            await analyzeFoodImage(lastScannedImage, correctionText);
+        }
+
+        async function analyzeFoodImage(base64Image, correctionText = null) {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            const scanLoading = document.getElementById('scanLoading');
+            const scanResult = document.getElementById('scanResult');
+            const T = translations[currentLang];
+
+            try {
+                let promptInstruction = currentLang === 'id'
+                    ? `Kamu adalah ahli nutrisi klinis. Tugasmu adalah menganalisa makanan dari gambar ini secara mendalam.`
+                    : `You are a clinical nutritionist. Your task is to analyze the food in this image in depth.`;
+
+                if (correctionText) {
+                    promptInstruction += currentLang === 'id'
+                        ? ` PENGGUNA MEMBERIKAN KOREKSI: "${correctionText}". Abaikan hasil analisamu sebelumnya jika berbeda, dan gunakan informasi dari pengguna ini sebagai kebenaran mutlak untuk nama makanan dan porsinya. Hitung ulang nutrisi berdasarkan koreksi ini.`
+                        : ` USER PROVIDED CORRECTION: "${correctionText}". Ignore your previous analysis if different, and use this user information as absolute truth for food name and portion. Recalculate nutrition based on this.`;
+                }
+
+                const jsonStructure = `
+                {
+                    "food_name": "string",
+                    "portion_estimation": "string",
+                    "calories": number,
+                    "nutrition_table": {
+                        "energy": "string (e.g. '450 - 550 kkal')",
+                        "protein": "string (e.g. '35 - 45 gram')",
+                        "fat": "string (e.g. '25 - 35 gram')",
+                        "carbs": "string (e.g. '15 - 25 gram')",
+                        "cholesterol": "string (e.g. '100 - 130 mg')"
+                    },
+                    "breakdown": [
+                        {
+                            "category": "string (e.g. '1. Energi (Kalori)')",
+                            "description": "string (Detailed explanation. Use HTML <ul><li> or <b> tags for formatting. Explain where the calories come from, e.g., meat vs sauce.)"
+                        }
+                    ],
+                    "health_facts": {
+                        "title": "string (e.g. 'Fakta Kesehatan [Food Name]')",
+                        "content": ["string (Fact 1)", "string (Fact 2)"]
+                    },
+                    "health_tips": ["string (Tip 1)", "string (Tip 2)"]
+                }`;
+
+                const prompt = `${promptInstruction}
+                    Berikan output HANYA dalam format JSON valid tanpa markdown block code.
+                    Jika gambar tidak jelas/bukan makanan, return JSON dengan field "error".
+                    Format JSON HARUS persis seperti ini: ${jsonStructure}`;
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { text: prompt },
+                                { inline_data: { mime_type: "image/jpeg", data: base64Image } }
+                            ]
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error?.message || 'API Request Failed');
+                }
+
+                const result = await response.json();
+                let text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (!text) throw new Error("No response from AI");
+
+                text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+                const data = JSON.parse(text);
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                renderFoodResult(data);
+
+            } catch (error) {
+                console.error("Food Scan Error:", error);
+                scanResult.innerHTML = `
+                    <div class="p-5 text-center">
+                        <div class="text-red-500 mb-2"><svg class="w-10 h-10 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+                        <h3 class="font-bold text-gray-800 dark:text-gray-100">${T.scan_error_title}</h3>
+                        <p class="text-xs text-gray-500 mt-1">${error.message || T.scan_error_generic}</p>
+                        <button onclick="closeScanResult()" class="mt-3 text-xs text-gray-400 underline">${T.scan_cancel}</button>
+                    </div>
+                `;
+                scanResult.classList.remove('hidden');
+            } finally {
+                scanLoading.classList.add('hidden');
+            }
+        }
+
+        function renderFoodResult(data) {
+             const scanResult = document.getElementById('scanResult');
+             const T = translations[currentLang];
+
+             // Construct Nutrition Table Rows
+             const nt = data.nutrition_table;
+             const tableHtml = `
+                <table class="w-full text-xs text-left border-collapse mt-2 mb-4">
+                    <thead class="bg-gray-100 dark:bg-gray-700 font-bold text-gray-600 dark:text-gray-300">
+                        <tr><th class="p-2 rounded-l-lg">Komponen</th><th class="p-2 rounded-r-lg text-right">Estimasi</th></tr>
+                    </thead>
+                    <tbody class="text-gray-700 dark:text-gray-200 divide-y divide-gray-100 dark:divide-gray-700">
+                        <tr><td class="p-2 font-semibold">Energi</td><td class="p-2 text-right font-bold text-primary">${nt.energy}</td></tr>
+                        <tr><td class="p-2">Protein</td><td class="p-2 text-right">${nt.protein}</td></tr>
+                        <tr><td class="p-2">Lemak Total</td><td class="p-2 text-right">${nt.fat}</td></tr>
+                        <tr><td class="p-2">Karbohidrat</td><td class="p-2 text-right">${nt.carbs}</td></tr>
+                        <tr><td class="p-2 text-gray-500">Kolesterol</td><td class="p-2 text-right text-gray-500">${nt.cholesterol}</td></tr>
+                    </tbody>
+                </table>
+             `;
+
+             // Construct Breakdown
+             const breakdownHtml = data.breakdown.map(item => `
+                <div class="mb-3">
+                    <p class="font-bold text-gray-800 dark:text-gray-200 text-xs mb-1">${item.category}</p>
+                    <div class="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed pl-2 border-l-2 border-gray-200 dark:border-gray-600">
+                        ${item.description}
+                    </div>
+                </div>
+             `).join('');
+
+             // Construct Facts
+             const factsHtml = `
+                <div class="bg-yellow-50 dark:bg-yellow-900/10 p-4 rounded-xl border border-yellow-100 dark:border-yellow-800 mb-4">
+                    <h4 class="font-bold text-yellow-800 dark:text-yellow-500 text-xs mb-2 flex items-center gap-2">
+                        💡 ${data.health_facts.title}
+                    </h4>
+                    <ul class="list-disc pl-4 space-y-1 text-[11px] text-gray-700 dark:text-gray-300">
+                        ${data.health_facts.content.map(f => `<li>${f}</li>`).join('')}
+                    </ul>
+                </div>
+             `;
+
+             // Construct Tips
+             const tipsHtml = `
+                <div class="bg-green-50 dark:bg-green-900/10 p-4 rounded-xl border border-green-100 dark:border-green-800 mb-4">
+                    <h4 class="font-bold text-green-800 dark:text-green-500 text-xs mb-2 flex items-center gap-2">
+                        🥗 Tips Sehat
+                    </h4>
+                    <ul class="list-decimal pl-4 space-y-1 text-[11px] text-gray-700 dark:text-gray-300">
+                        ${data.health_tips.map(t => `<li>${t}</li>`).join('')}
+                    </ul>
+                </div>
+             `;
+
+             scanResult.innerHTML = `
+                <div class="p-4 bg-white dark:bg-gray-800 relative">
+                    <button onclick="closeScanResult()" class="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 z-10">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+
+                    <h3 class="font-black text-xl text-gray-800 dark:text-gray-100 leading-tight pr-8">${data.food_name}</h3>
+                    <p class="text-xs text-gray-500 font-medium mt-1 mb-4">${data.portion_estimation}</p>
+
+                    ${tableHtml}
+
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-bold text-gray-400 text-[10px] uppercase tracking-wider mb-2 border-b border-gray-100 pb-1">Rincian Penjelasan</h4>
+                            ${breakdownHtml}
+                        </div>
+                        ${factsHtml}
+                        ${tipsHtml}
+                    </div>
+
+                    <!-- Correction Section -->
+                    <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Salah identifikasi? Koreksi di sini:</p>
+                        <div class="flex gap-2">
+                            <input type="text" id="correctionInput" placeholder="Contoh: Sate Sapi 8 Tusuk..." class="flex-1 p-2 text-xs rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+                            <button onclick="handleCorrection()" class="px-3 py-2 bg-gray-800 dark:bg-gray-600 text-white text-xs font-bold rounded-lg shadow hover:bg-gray-700 transition">Update</button>
+                        </div>
+                    </div>
+                </div>
+             `;
+
+             scanResult.classList.remove('hidden');
+        }
+
+        const translations = {
+            id: {
+                subtitle: "Calculator: BMI, RFM, Deurenberg & Target Kalori",
+                lbl_gender: "Gender",
+                val_male: "👨 Pria",
+                val_female: "👩 Wanita",
+                btn_scan_food: "Scan Makanan",
+                scan_loading: "Menganalisa Makanan...",
+                scan_error_title: "Gagal Menganalisa",
+                scan_error_apikey: "API Key belum diatur. Silakan klik tombol pengaturan di pojok kanan atas.",
+                scan_error_generic: "Terjadi kesalahan saat memproses gambar.",
+                scan_retry: "Scan Ulang",
+                scan_cancel: "Tutup",
+                nut_energy: "Energi",
+                nut_protein: "Protein",
+                nut_carbs: "Karbo",
+                nut_fat: "Lemak",
+                nut_advice: "Saran Ahli:",
+                lbl_age: "Usia",
+                lbl_weight: "Berat",
+                lbl_height: "Tinggi",
+                lbl_waist: "L. Pinggang",
+                tooltip_waist_desc: `<p class='font-bold text-yellow-400 mb-1'>Posisi Ukur:</p>
+                                    <p class='mb-2'>Diukur pada titik tengah antara tulang rusuk paling bawah dan tulang panggul atas (iliac crest).</p>
+                                    <p class='font-bold text-yellow-400 mb-1'>Cara Mudah Menemukannya:</p>
+                                    <ul class='list-disc pl-3 space-y-1'>
+                                        <li><strong>Wanita:</strong> Biasanya di bagian terkecil/teramping dari perut (sedikit di atas pusar).</li>
+                                        <li><strong>Pria:</strong> Biasanya tepat di garis pusar (umbilicus).</li>
+                                    </ul>`,
+                lbl_activity: "Aktivitas Harian",
+                act_sedentary: "Sedentary (Jarang bergerak, kerja duduk)",
+                act_light: "Light Active (Olahraga ringan 1-3 hari/minggu)",
+                act_moderate: "Moderate Active (Olahraga sedang 3-5 hari/minggu)",
+                act_heavy: "Very Active (Olahraga berat 6-7 hari/minggu)",
+                act_extra: "Extra Active (Fisik sangat berat/Atlet)",
+                btn_calc: "Hitung & Analisa",
+                acc_title: "ℹ️ Apa itu BMI & Mengapa Penting?",
+                acc_bmi_desc: `<p><strong>Body Mass Index (BMI)</strong> adalah indeks sederhana dari berat badan terhadap tinggi badan yang digunakan untuk mengklasifikasikan kelebihan berat badan dan obesitas pada orang dewasa.</p>
+                                <p>Mengetahui skor BMI penting karena BMI yang tinggi merupakan faktor risiko utama untuk penyakit tidak menular seperti:</p>
+                                <ul class="list-disc pl-4 space-y-1">
+                                    <li>Penyakit kardiovaskular (jantung & stroke)</li>
+                                    <li>Diabetes</li>
+                                    <li>Gangguan muskuloskeletal (khususnya osteoartritis)</li>
+                                    <li>Beberapa jenis kanker (termasuk endometrium, payudara, ovarium, prostat, hati, kantung empedu, ginjal, dan usus besar)</li>
+                                </ul>`,
+                acc_method_title: "Metode Perhitungan",
+                acc_method_1: "1. Rumus BMI (Body Mass Index)",
+                acc_formula_bmi: "Berat (kg) / (Tinggi (m))²",
+                acc_method_2: "2. Est. Lemak Tubuh (Deurenberg)",
+                acc_desc_deurenberg: "Mengestimasi persentase lemak tubuh berdasarkan nilai BMI, Usia, dan Jenis Kelamin.",
+                acc_formula_deurenberg: "(1.20 × BMI) + (0.23 × Usia) - (10.8 × Sex) - 5.4",
+                acc_note_sex_1: "*Sex: Pria=1, Wanita=0",
+                acc_method_3: "3. RFM (Relative Fat Mass)",
+                acc_desc_rfm: "Metode alternatif yang diklaim lebih akurat karena menggunakan Lingkar Pinggang.",
+                acc_formula_rfm: "64 - (20 × (Tinggi (m) / L.Pinggang (m))) + (12 × Sex)",
+                acc_note_sex_2: "*Sex: Wanita=1, Pria=0",
+                acc_meta_title: "Konsep Metabolisme & Energi",
+                acc_bmr_section: `<p class="font-bold text-pink-600">1. BMR (Basal Metabolic Rate)</p>
+                                    <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Biaya Operasional Tetap.</strong> Jumlah kalori minimal untuk sekadar bertahan hidup (jantung, otak, napas).</p>
+                                    <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border-l-4 border-red-500 text-[10px] space-y-1">
+                                        <p><strong>🚗 Analogi Mobil:</strong> Mobil dipanaskan (Idling) di parkiran. Mesin nyala, bensin terbakar, tapi tidak bergerak.</p>
+                                        <p class="text-red-600 dark:text-red-400 font-bold"><strong>⚠️ ZONA BAHAYA:</strong> Jangan makan di bawah angka BMR! Tubuh akan masuk "Mode Kelaparan" (menyimpan lemak) dan merusak metabolisme.</p>
+                                    </div>`,
+                acc_tdee_section: `<p class="font-bold text-orange-600">2. TDEE (Total Daily Energy Expenditure)</p>
+                                    <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Total Pengeluaran Harian.</strong> BMR + Aktivitas Fisik + Energi Cerna Makanan.</p>
+                                    <div class="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border-l-4 border-orange-400 text-[10px]">
+                                        <p><strong>🚕 Analogi Mobil:</strong> Mobil keliling kota. AC nyala, gas, rem. Bensin lebih boros daripada saat diam.</p>
+                                    </div>`,
+                acc_strategy_section: `<p class="font-bold text-purple-600">3. Strategi "Matematika Diet"</p>
+                                    <div class="mt-1 space-y-2 text-[10px]">
+                                        <div class="bg-green-50 dark:bg-green-900/20 p-2 rounded border border-green-100 dark:border-green-800">
+                                            <p class="font-bold text-green-700 dark:text-green-400">✅ ZONA AMAN DIET</p>
+                                            <p>Makanlah di antara <strong>BMR</strong> s.d. <strong>TDEE</strong>.</p>
+                                        </div>
+                                        <ul class="list-disc pl-4 space-y-1">
+                                            <li><strong>Maintenance:</strong> Makan = TDEE (Berat Stabil)</li>
+                                            <li><strong>Cutting (Turun):</strong> Makan < TDEE (Ideal: TDEE - 500)</li>
+                                            <li><strong>Bulking (Naik):</strong> Makan > TDEE (Simpan Otot/Lemak)</li>
+                                        </ul>
+                                    </div>`,
+                acc_formula_title: "Rumus Perhitungan: Mifflin-St Jeor",
+                acc_formula_note: "*TB dalam cm, BB dalam kg",
+                acc_fat_cat_title: "Panduan Kategori Lemak Tubuh",
+                acc_rfm_cat_title: "1. Kategori RFM (Aturan 30/40)",
+                acc_rfm_cat_desc: "Batas sederhana untuk diagnosa obesitas oleh Woolcott & Bergman.",
+                th_status: "Status",
+                th_male: "Pria",
+                th_female: "Wanita",
+                val_healthy: "Sehat",
+                val_obese: "Obesitas",
+                val_risk_inc: "Perlu Waspada",
+                val_risk_high: "Risiko Tinggi",
+                msg_whtr_healthy: "Jantung Anda aman. Pertahankan!",
+                msg_whtr_risk: "Mulai menimbun lemak berbahaya.",
+                msg_whtr_danger: "Segera konsultasi dokter/diet ketat.",
+                tooltip_whtr: "Rasio Lingkar Pinggang-Tinggi: Indikator risiko kesehatan jantung.",
+                tip_title: "Daily Health Byte",
+                btn_regen_tip: "RE-GENERATE",
+                acc_ace_title: "2. Kategori Deurenberg (Standar ACE)",
+                acc_ace_desc: "Standar internasional American Council on Exercise.",
+                th_cat: "Kategori",
+                val_essential: "Esensial (Kritis)",
+                val_athlete: "Atlet",
+                val_fitness: "Fitness",
+                val_normal: "Normal",
+                acc_comparison: `<p class="font-bold text-yellow-700 dark:text-yellow-500 mb-1">💡 Mengapa Hasilnya Beda?</p>
+                                    <p class="text-gray-700 dark:text-gray-300 mb-2 text-justify">Kategori Persentase Lemak (RFM/Deurenberg) lebih <strong>jujur</strong> daripada BMI.</p>
+                                    <ul class="list-disc pl-3 space-y-1 text-gray-600 dark:text-gray-400">
+                                        <li><strong>BMI:</strong> Hanya ukur berat vs tinggi. Otot berat bisa dianggap gemuk.</li>
+                                        <li><strong>Body Fat:</strong> Langsung menunjuk timbunan lemak.</li>
+                                    </ul>
+                                    <p class="mt-2 font-medium italic text-gray-500">"Misal Pria dengan 26% lemak. Di BMI mungkin hanya Overweight, tapi secara medis sudah Obesitas."</p>`,
+                source_label: "Sumber Resmi:",
+                btn_report: "📄 Buka Laporan Lengkap",
+                btn_reset: "Reset Data",
+                report_title: "Laporan Kesehatan",
+                report_analysis_title: "Analisa Metabolisme",
+                report_menu_title: "🥗 Rencana Menu 7 Hari",
+                report_exercise_title: "Saran Aktivitas",
+                report_footer: "Dokumen ini dihasilkan oleh AI sebagai rekomendasi awal.",
+                btn_close: "Tutup",
+                lbl_drag: "Geser tombol jika menghalangi",
+                loading: "Memproses Data AI...",
+                // Dynamic Text (Needs logic handling)
+                status_underweight: "KURUS",
+                status_normal: "NORMAL",
+                status_overweight: "GEMUK",
+                status_obese: "OBESITAS",
+                cat_essential: "Esensial",
+                cat_athlete: "Atlet",
+                cat_fitness: "Fitness",
+                cat_normal: "Normal",
+                cat_obese: "Obesitas (ACE)",
+                cat_obese_rfm: "Obesitas (>{limit}%)",
+                cal_cutting: "Cutting (Turun Berat)",
+                cal_maint: "Maintenance (Stabil)",
+                cal_bulk: "Bulking (Naik Berat)",
+                cal_def: "Defisit 500 kkal",
+                cal_surp: "Surplus 500 kkal",
+                cal_stab: "Sesuai TDEE",
+                target_header: "🎯 Menu Pilihan Anda (Target Harian)",
+                warn_fat: "<br><br><strong class='text-red-600'>⚠️ PERINGATAN:</strong> Meskipun BMI Anda belum Obesitas, namun Persentase Lemak Tubuh Anda sudah masuk kategori <strong>OBESITAS</strong>. Ini sering disebut 'Skinny Fat' atau 'Normal Weight Obesity'. Fokuslah menurunkan lemak (Cutting) daripada sekadar menurunkan berat badan.",
+                warn_fat_en: "<br><br><strong class='text-red-600'>⚠️ WARNING:</strong> Although your BMI is not Obese, your Body Fat Percentage is in the <strong>OBESE</strong> category. This is often called 'Skinny Fat' or 'Normal Weight Obesity'. Focus on losing fat (Cutting) rather than just losing weight.",
+                guide_title: "💡 PANDUAN MEMBACA HASIL",
+                guide_bmi: "<strong>1. BMI (Rapor Kepadatan):</strong> Ibarat menilai apakah sebuah truk kelebihan muatan atau tidak. Angka <strong>{bmi}</strong> menunjukkan rasio berat Anda terhadap tinggi badan. Semakin tinggi angkanya, semakin 'padat' tubuh Anda.",
+                guide_fat: "<strong>2. Lemak Tubuh (Cek Fakta Komposisi):</strong> BMI saja bisa tertipu (misal: binaragawan berat karena otot). Maka kita cek <strong>RFM & Deurenberg</strong>. Ini membedakan apakah 'berat' Anda berasal dari lemak jahat atau otot.",
+                guide_note: `"Jika BMI Normal tapi Lemak Tinggi, itu tanda Skinny Fat. Jika BMI Besar tapi Lemak Rendah, Anda berotot."`,
+                energy_title: "🔥 Profil Energi & Metabolisme",
+                energy_intro_q: "Apa maksud angka-angka ini?",
+                energy_intro_a: "Tubuh Anda seperti mesin yang butuh anggaran bensin (kalori) harian. Angka ini membantu Anda menentukan <strong>berapa banyak yang harus dimakan</strong> agar berat badan terkontrol.",
+                bmr_desc: "Biaya Operasional Tetap (Tidur/Napas). Ibarat mobil <i>idling</i>.",
+                bmr_danger: "ZONA BAHAYA (Batas Minimal)",
+                bmr_warn: "⛔ JANGAN makan di bawah angka ini!",
+                safe_title: "Zona Aman Diet",
+                safe_desc: "Rentang kalori ideal untuk diet sehat tanpa merusak metabolisme.",
+                safe_upper: "Batas Atas",
+                safe_target: "Target Ideal",
+                // Company Analogy
+                energy_analogy_company_bmr: "<strong>BMR</strong> ibarat <strong>'Biaya Sewa & Listrik'</strong> Perusahaan. Harus dibayar lunas setiap hari meskipun tubuh sedang istirahat total (tidur).",
+                energy_analogy_company_tdee: "<strong>TDEE</strong> ibarat <strong>'Total Biaya Operasional'</strong> saat perusahaan beroperasi penuh, termasuk biaya produksi untuk melayani pelanggan (Aktivitas Fisik).",
+                energy_analogy_header: "🏢 Analogi Perusahaan (Untuk Orang Awam)",
+                // Tooltips (Restored)
+                tooltip_bmi: "Indeks Massa Tubuh: Mengukur berat badan ideal berdasarkan tinggi badan.",
+                tooltip_deurenberg: "Rumus estimasi lemak tubuh berdasarkan BMI, usia, dan jenis kelamin.",
+                tooltip_rfm: "Relative Fat Mass: Estimasi persentase lemak tubuh menggunakan lingkar pinggang.",
+                tooltip_bmr: "Basal Metabolic Rate: Energi minimal untuk hidup saat diam.",
+                tooltip_tdee: "Total Daily Energy Expenditure: Total energi harian termasuk aktivitas.",
+                // New
+                btn_pdf: "SIMPAN PDF",
+                btn_regen: "Re-generate AI",
+                // Calorie Burn
+                burn_title: "🔥 Hitung Kalori Terbakar",
+                lbl_sport: "Jenis Olahraga",
+                lbl_duration: "Durasi (Menit)",
+                btn_calc_burn: "Hitung Kalori",
+                analyzing_benefits: "Menganalisa manfaat kesehatan...",
+                // Water
+                lbl_exercise_plan: "Rencana Olahraga (Menit/Hari)",
+                water_title: "Kebutuhan Air Minum",
+                water_equiv: "Setara",
+                water_glass: "Gelas (250ml)",
+                // Nav
+                nav_home: "Beranda",
+                nav_know: "Pengetahuan",
+                nav_total: "Total Kalori",
+                // Expert Chat
+                expert_tooltip: "Tanya Ahli Kesehatan",
+                chat_header_name: "Dr. AI Expert",
+                chat_header_status: "Ahli Gizi & Olahraga",
+                chat_welcome: "Halo! Saya ahli kesehatan dengan pengalaman puluhan tahun. Ada yang bisa saya bantu terkait nutrisi, olahraga, atau kesehatan tubuh?",
+                chat_placeholder: "Tulis pertanyaan Anda...",
+                chat_thinking: "Sedang mengetik..."
+            },
+            en: {
+                subtitle: "Calculator: BMI, RFM, Deurenberg & Calorie Target",
+                lbl_gender: "Gender",
+                val_male: "👨 Male",
+                val_female: "👩 Female",
+                btn_scan_food: "Scan Food (AI)",
+                scan_loading: "Analyzing Food...",
+                scan_error_title: "Analysis Failed",
+                scan_error_apikey: "API Key not set. Please click the settings button in the top right.",
+                scan_error_generic: "An error occurred while processing the image.",
+                scan_retry: "Re-scan",
+                scan_cancel: "Close",
+                nut_energy: "Energy",
+                nut_protein: "Protein",
+                nut_carbs: "Carbs",
+                nut_fat: "Fat",
+                nut_advice: "Expert Advice:",
+                lbl_age: "Age",
+                lbl_weight: "Weight",
+                lbl_height: "Height",
+                lbl_waist: "Waist",
+                tooltip_waist_desc: `<p class='font-bold text-yellow-400 mb-1'>Measurement Position:</p>
+                                    <p class='mb-2'>Measured at the midpoint between the lowest rib and the top of the hip bone (iliac crest).</p>
+                                    <p class='font-bold text-yellow-400 mb-1'>Easy Way to Find It:</p>
+                                    <ul class='list-disc pl-3 space-y-1'>
+                                        <li><strong>Women:</strong> Usually at the narrowest part of the waist (slightly above the navel).</li>
+                                        <li><strong>Men:</strong> Usually right at the navel line (umbilicus).</li>
+                                    </ul>`,
+                lbl_activity: "Daily Activity",
+                act_sedentary: "Sedentary (Little/no exercise, desk job)",
+                act_light: "Light Active (Exercise 1-3 days/week)",
+                act_moderate: "Moderate Active (Exercise 3-5 days/week)",
+                act_heavy: "Very Active (Exercise 6-7 days/week)",
+                act_extra: "Extra Active (Hard physical labor/Athlete)",
+                btn_calc: "Calculate & Analyze",
+                acc_title: "ℹ️ What is BMI & Why it Matters?",
+                acc_bmi_desc: `<p><strong>Body Mass Index (BMI)</strong> is a simple index of weight-for-height that is commonly used to classify underweight, overweight and obesity in adults.</p>
+                                <p>Knowing your BMI is important because a high BMI is a major risk factor for noncommunicable diseases such as:</p>
+                                <ul class="list-disc pl-4 space-y-1">
+                                    <li>Cardiovascular diseases (heart disease and stroke)</li>
+                                    <li>Diabetes</li>
+                                    <li>Musculoskeletal disorders (especially osteoarthritis)</li>
+                                    <li>Some cancers (including endometrial, breast, ovarian, prostate, liver, gallbladder, kidney, and colon)</li>
+                                </ul>`,
+                acc_method_title: "Calculation Methods",
+                acc_method_1: "1. BMI Formula (Body Mass Index)",
+                acc_formula_bmi: "Weight (kg) / (Height (m))²",
+                acc_method_2: "2. Body Fat Est. (Deurenberg)",
+                acc_desc_deurenberg: "Estimates body fat percentage based on BMI, Age, and Sex.",
+                acc_formula_deurenberg: "(1.20 × BMI) + (0.23 × Age) - (10.8 × Sex) - 5.4",
+                acc_note_sex_1: "*Sex: Male=1, Female=0",
+                acc_method_3: "3. RFM (Relative Fat Mass)",
+                acc_desc_rfm: "Alternative method claimed to be more accurate as it uses Waist Circumference.",
+                acc_formula_rfm: "64 - (20 × (Height (m) / Waist (m))) + (12 × Sex)",
+                acc_note_sex_2: "*Sex: Female=1, Male=0",
+                acc_meta_title: "Metabolism & Energy Concepts",
+                acc_bmr_section: `<p class="font-bold text-pink-600">1. BMR (Basal Metabolic Rate)</p>
+                                    <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Fixed Operating Cost.</strong> Minimum calories just to survive (heart, brain, breathing).</p>
+                                    <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border-l-4 border-red-500 text-[10px] space-y-1">
+                                        <p><strong>🚗 Car Analogy:</strong> Car Idling in the parking lot. Engine on, fuel burning, but not moving.</p>
+                                        <p class="text-red-600 dark:text-red-400 font-bold"><strong>⚠️ DANGER ZONE:</strong> Do not eat below BMR! Body enters "Starvation Mode" (stores fat) and damages metabolism.</p>
+                                    </div>`,
+                acc_tdee_section: `<p class="font-bold text-orange-600">2. TDEE (Total Daily Energy Expenditure)</p>
+                                    <p class="mb-2"><strong class="text-gray-700 dark:text-gray-300">Total Daily Expenditure.</strong> BMR + Physical Activity + Thermic Effect of Food.</p>
+                                    <div class="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border-l-4 border-orange-400 text-[10px]">
+                                        <p><strong>🚕 Car Analogy:</strong> Car driving around town. AC on, gas, brakes. Burns more fuel than just idling.</p>
+                                    </div>`,
+                acc_strategy_section: `<p class="font-bold text-purple-600">3. "Diet Math" Strategy</p>
+                                    <div class="mt-1 space-y-2 text-[10px]">
+                                        <div class="bg-green-50 dark:bg-green-900/20 p-2 rounded border border-green-100 dark:border-green-800">
+                                            <p class="font-bold text-green-700 dark:text-green-400">✅ SAFE DIET ZONE</p>
+                                            <p>Eat between <strong>BMR</strong> and <strong>TDEE</strong>.</p>
+                                        </div>
+                                        <ul class="list-disc pl-4 space-y-1">
+                                            <li><strong>Maintenance:</strong> Eat = TDEE (Stable Weight)</li>
+                                            <li><strong>Cutting (Lose):</strong> Eat < TDEE (Ideal: TDEE - 500)</li>
+                                            <li><strong>Bulking (Gain):</strong> Eat > TDEE (Gain Muscle/Fat)</li>
+                                        </ul>
+                                    </div>`,
+                acc_formula_title: "Calculation Formula: Mifflin-St Jeor",
+                acc_formula_note: "*Height in cm, Weight in kg",
+                acc_fat_cat_title: "Body Fat Categories Guide",
+                acc_rfm_cat_title: "1. RFM Category (30/40 Rule)",
+                acc_rfm_cat_desc: "Simple cutoff for obesity diagnosis by Woolcott & Bergman.",
+                th_status: "Status",
+                th_male: "Male",
+                th_female: "Female",
+                val_healthy: "Healthy",
+                val_obese: "Obese",
+                val_risk_inc: "Consider Action",
+                val_risk_high: "High Risk",
+                msg_whtr_healthy: "Your heart is safe. Keep it up!",
+                msg_whtr_risk: "Starting to store dangerous fat.",
+                msg_whtr_danger: "Consult doctor/strict diet immediately.",
+                tooltip_whtr: "Waist-to-Height Ratio: Heart health risk indicator.",
+                tip_title: "Daily Health Byte",
+                btn_regen_tip: "RE-GENERATE",
+                acc_ace_title: "2. Deurenberg Category (ACE Standard)",
+                acc_ace_desc: "International standard by American Council on Exercise.",
+                th_cat: "Category",
+                val_essential: "Essential",
+                val_athlete: "Athlete",
+                val_fitness: "Fitness",
+                val_normal: "Normal",
+                acc_obese: "Obese (ACE)",
+                acc_obese_rfm: "Obese (>{limit}%)",
+                cal_cutting: "Cutting (Weight Loss)",
+                cal_maint: "Maintenance (Stable)",
+                cal_bulk: "Bulking (Weight Gain)",
+                cal_def: "Deficit 500 kcal",
+                cal_surp: "Surplus 500 kcal",
+                cal_stab: "Match TDEE",
+                target_header: "🎯 Your Target Menu (Daily Goals)",
+                warn_fat: "<br><br><strong class='text-red-600'>⚠️ WARNING:</strong> Although your BMI is not Obese, your Body Fat Percentage is in the <strong>OBESE</strong> category. This is often called 'Skinny Fat' or 'Normal Weight Obesity'. Focus on losing fat (Cutting) rather than just losing weight.",
+                warn_fat_en: "<br><br><strong class='text-red-600'>⚠️ WARNING:</strong> Although your BMI is not Obese, your Body Fat Percentage is in the <strong>OBESE</strong> category. This is often called 'Skinny Fat' or 'Normal Weight Obesity'. Focus on losing fat (Cutting) rather than just losing weight.",
+                guide_title: "💡 HOW TO READ RESULTS",
+                guide_bmi: "<strong>1. BMI (Density Report):</strong> Like checking if a truck is overloaded. The score <strong>{bmi}</strong> shows your weight-to-height ratio. The higher the score, the more 'dense' your body.",
+                guide_fat: "<strong>2. Body Fat (Composition Check):</strong> BMI can be fooled (e.g., bodybuilders heavy due to muscle). So we check <strong>RFM & Deurenberg</strong>. This distinguishes if your 'weight' comes from bad fat or muscle.",
+                guide_note: `"If BMI is Normal but Fat is High, it's Skinny Fat. If BMI is High but Fat is Low, you are muscular."`,
+                energy_title: "🔥 Energy Profile & Metabolism",
+                energy_intro_q: "What do these numbers mean?",
+                energy_intro_a: "Your body is like a machine that needs a daily fuel (calorie) budget. These numbers help you determine <strong>how much to eat</strong> to control your weight.",
+                bmr_desc: "Fixed Operating Cost (Sleep/Breath). Like a car <i>idling</i>.",
+                bmr_danger: "DANGER ZONE (Minimum Limit)",
+                bmr_warn: "⛔ DO NOT eat below this number!",
+                safe_title: "Safe Diet Zone",
+                safe_desc: "Ideal calorie range for healthy diet without damaging metabolism.",
+                safe_upper: "Upper Limit",
+                safe_target: "Ideal Target",
+                // Company Analogy
+                energy_analogy_company_bmr: "<strong>BMR</strong> is like a Company's <strong>'Rent & Utilities'</strong>. Must be paid daily even if the body is resting (sleeping).",
+                energy_analogy_company_tdee: "<strong>TDEE</strong> is like <strong>'Total Operating Costs'</strong> when the business is fully active, including production costs to serve customers (Physical Activity).",
+                energy_analogy_header: "🏢 Company Analogy (Layman's Terms)",
+                // Tooltips (Restored)
+                tooltip_bmi: "Body Mass Index: Measures ideal weight based on height.",
+                tooltip_deurenberg: "Body fat estimation formula based on BMI, age, and sex.",
+                tooltip_rfm: "Relative Fat Mass: Body fat percentage estimation using waist circumference.",
+                tooltip_bmr: "Basal Metabolic Rate: Minimum energy to survive when resting.",
+                tooltip_tdee: "Total Daily Energy Expenditure: Total daily energy including activity.",
+                // New
+                btn_pdf: "SAVE PDF",
+                btn_regen: "Re-generate AI",
+                // Calorie Burn
+                burn_title: "🔥 Calorie Burn Calculator",
+                lbl_sport: "Sport Type",
+                lbl_duration: "Duration (Mins)",
+                btn_calc_burn: "Calculate Calories",
+                analyzing_benefits: "Analyzing health benefits...",
+                // Water
+                lbl_exercise_plan: "Exercise Plan (Mins/Day)",
+                water_title: "Water Intake Needs",
+                water_equiv: "Approx.",
+                water_glass: "Glasses (250ml)",
+                // Nav
+                nav_home: "Home",
+                nav_know: "Knowledge Base",
+                nav_total: "Total Calories",
+                // Expert Chat
+                expert_tooltip: "Ask Health Expert",
+                chat_header_name: "Dr. AI Expert",
+                chat_header_status: "Nutrition & Sports Expert",
+                chat_welcome: "Hello! I am a health expert with decades of experience. How can I help you regarding nutrition, exercise, or body health?",
+                chat_placeholder: "Type your question...",
+                chat_thinking: "Thinking..."
+            }
+        };
+
+        // ADVICE CONTENT (MISSING IN PREVIOUS VERSION)
+        const advice = {
+            id: {
+                underweight: {
+                    txt: `<p><strong>Tubuh Anda kekurangan 'bahan bakar' cadangan.</strong></p>
+                          <p>Kondisi ini berisiko menurunkan imunitas, massa otot, dan energi harian. Fokus utama Anda adalah <strong>Surplus Kalori</strong> dengan makanan padat gizi.</p>
+                          <ul class="list-disc pl-4 mt-2">
+                            <li>Tambah frekuensi makan (5-6x sehari).</li>
+                            <li>Pilih karbohidrat kompleks & protein tinggi.</li>
+                            <li>Jangan minum air sebelum makan agar lambung tidak penuh.</li>
+                          </ul>`,
+                    ex: `<p><strong>Latihan Beban (Strength Training)</strong> adalah kunci. Kardio berlebihan akan membakar kalori yang seharusnya disimpan.</p>
+                         <p>Lakukan angkat beban 3-4x seminggu untuk memicu pertumbuhan otot (hipertrofi).</p>`
+                },
+                normal: {
+                    txt: `<p><strong>Mesin tubuh Anda berjalan efisien!</strong></p>
+                          <p>Proporsi berat dan tinggi badan seimbang. Tantangan Anda adalah <strong>mempertahankan</strong> kondisi ini (Maintenance).</p>
+                          <ul class="list-disc pl-4 mt-2">
+                            <li>Makan sesuai angka TDEE.</li>
+                            <li>Jaga asupan protein (1.2g - 1.5g per kg berat badan).</li>
+                            <li>Variasikan sumber makanan agar nutrisi mikro terpenuhi.</li>
+                          </ul>`,
+                    ex: `<p>Kombinasi <strong>Kardio</strong> (Jantung) dan <strong>Latihan Beban</strong> (Otot) secara seimbang.</p>
+                         <p>Contoh: Jogging 30 menit (2x seminggu) + Gym/Calisthenics (3x seminggu).</p>`
+                },
+                overweight: {
+                    txt: `<p><strong>Peringatan Lampu Kuning!</strong></p>
+                          <p>Ada kelebihan muatan energi yang mulai disimpan sebagai lemak. Jika dibiarkan, ini pintu gerbang menuju Obesitas.</p>
+                          <ul class="list-disc pl-4 mt-2">
+                            <li>Segera lakukan <strong>Defisit Kalori Ringan</strong> (kurangi 300-500 kkal dari TDEE).</li>
+                            <li>Kurangi gula sederhana dan tepung-tepungan.</li>
+                            <li>Perbanyak serat (sayur) di setiap makan.</li>
+                          </ul>`,
+                    ex: `<p>Tingkatkan aktivitas harian (NEAT) seperti jalan kaki, naik tangga, bersih-bersih rumah.</p>
+                         <p>Mulai rutin Kardio Low Impact (Jalan Cepat, Berenang) durasi 45 menit.</p>`
+                },
+                obese: {
+                    txt: `<p><strong>Peringatan Merah (Red Alert)!</strong></p>
+                          <p>Beban berlebih membebani jantung, sendi, dan organ vital secara signifikan. Penurunan berat badan bukan lagi pilihan gaya hidup, tapi <strong>keharusan medis</strong>.</p>
+                          <ul class="list-disc pl-4 mt-2">
+                            <li>Wajib <strong>Defisit Kalori</strong> (Konsisten di angka BMR s.d. TDEE-500).</li>
+                            <li>Konsultasikan dengan dokter/ahli gizi jika perlu.</li>
+                            <li>Fokus pada "Whole Foods" (makanan utuh), hindari makanan kemasan.</li>
+                          </ul>`,
+                    ex: `<p><strong>Jalan Kaki Rutin</strong> adalah olahraga terbaik saat ini. Durasi 45-60 menit setiap hari.</p>
+                         <p>Hindari lari atau lompat (High Impact) untuk melindungi lutut Anda dari cedera.</p>`
+                }
+            },
+            en: {
+                underweight: {
+                    txt: `<p><strong>Your body lacks reserve 'fuel'.</strong></p>
+                          <p>This risks lowered immunity, muscle loss, and low energy. Your focus is <strong>Calorie Surplus</strong> with nutrient-dense foods.</p>
+                          <ul class="list-disc pl-4 mt-2">
+                            <li>Increase meal frequency (5-6x daily).</li>
+                            <li>Choose complex carbs & high protein.</li>
+                            <li>Avoid drinking water before meals to keep stomach room.</li>
+                          </ul>`,
+                    ex: `<p><strong>Strength Training</strong> is key. Excessive cardio will burn calories meant for storage.</p>
+                         <p>Lift weights 3-4x a week to trigger muscle growth (hypertrophy).</p>`
+                },
+                normal: {
+                    txt: `<p><strong>Your body engine is running efficiently!</strong></p>
+                          <p>Weight and height proportion is balanced. Your challenge is to <strong>maintain</strong> this condition.</p>
+                          <ul class="list-disc pl-4 mt-2">
+                            <li>Eat according to TDEE.</li>
+                            <li>Maintain protein intake (1.2g - 1.5g per kg body weight).</li>
+                            <li>Vary food sources for micronutrients.</li>
+                          </ul>`,
+                    ex: `<p>Combine <strong>Cardio</strong> (Heart) and <strong>Strength Training</strong> (Muscle) balancedly.</p>
+                         <p>Example: Jogging 30 mins (2x week) + Gym/Calisthenics (3x week).</p>`
+                },
+                overweight: {
+                    txt: `<p><strong>Yellow Light Warning!</strong></p>
+                          <p>Excess energy load is starting to be stored as fat. If left unchecked, this is the gateway to Obesity.</p>
+                          <ul class="list-disc pl-4 mt-2">
+                            <li>Start a <strong>Slight Calorie Deficit</strong> immediately (reduce 300-500 kcal from TDEE).</li>
+                            <li>Reduce simple sugars and refined flour.</li>
+                            <li>Increase fiber (vegetables) in every meal.</li>
+                          </ul>`,
+                    ex: `<p>Increase daily activity (NEAT) like walking, taking stairs, house cleaning.</p>
+                         <p>Start routine Low Impact Cardio (Brisk Walk, Swimming) for 45 mins.</p>`
+                },
+                obese: {
+                    txt: `<p><strong>Red Alert!</strong></p>
+                          <p>Excess load significantly burdens heart, joints, and vital organs. Weight loss is no longer a lifestyle choice, but a <strong>medical necessity</strong>.</p>
+                          <ul class="list-disc pl-4 mt-2">
+                            <li>Mandatory <strong>Calorie Deficit</strong> (Consistent at BMR to TDEE-500).</li>
+                            <li>Consult a doctor/nutritionist if needed.</li>
+                            <li>Focus on "Whole Foods", avoid processed foods.</li>
+                          </ul>`,
+                    ex: `<p><strong>Routine Walking</strong> is the best exercise right now. Duration 45-60 mins daily.</p>
+                         <p>Avoid running or jumping (High Impact) to protect your knees from injury.</p>`
+                }
+            }
+        };
+
+        // MEAL DATABASE FOR RE-GENERATION
+        const mealDatabase = {
+            underweight: {
+                breakfast: [
+                    "Roti Gandum Selai Kacang Extra + Susu Full Cream (~550 kkal)", "Bubur Ayam Komplit Telur Puyuh (~450 kkal)", "Pancake Pisang Madu + Yoghurt (~500 kkal)",
+                    "Omelet Keju Smoked Beef + Roti (~550 kkal)", "Sandwich Tuna Mayo Double (~500 kkal)", "Smoothie Alpukat Coklat Tinggi Kalori (~400 kkal)", "Nasi Kuning Komplit Ayam Suwir (~700 kkal)",
+                    "Nasi Goreng Sosis + Telur Dadar (~600 kkal)", "Mie Goreng Spesial + Ayam (~550 kkal)"
+                ],
+                lunch: [
+                    "Nasi Padang Ayam Bakar Bumbu Rendang + Sayur Nangka (~850 kkal)", "Nasi Goreng Spesial Sosis Bakso + Telur Dadar (~800 kkal)", "Mie Ayam Jamur Bakso Pangsit (~650 kkal)",
+                    "Nasi Uduk Ayam Goreng Lengkap (~850 kkal)", "Soto Betawi Daging Santan + Nasi (~750 kkal)", "Gulai Ikan Kakap + Nasi Putih (~700 kkal)", "Steak Daging Sapi Sirloin + Mashed Potato (~850 kkal)",
+                    "Sate Kambing + Lontong (~800 kkal)", "Nasi Campur Bali Komplit (~750 kkal)"
+                ],
+                dinner: [
+                    "Sate Ayam 10 Tusuk + Lontong Bumbu Kacang (~700 kkal)", "Martabak Telur Spesial Daging Sapi + Sup (~750 kkal)", "Ikan Gurame Goreng Tepung Asam Manis (~700 kkal)",
+                    "Pasta Carbonara Creamy + Garlic Bread (~800 kkal)", "Burger Sapi Homemade Cheese + Kentang (~900 kkal)", "Pizza Meat Lovers (3 Slice) + Salad (~800 kkal)", "Sup Iga Sapi Kuah Kental + Nasi (~800 kkal)",
+                    "Ayam Geprek Mozzarella + Nasi (~750 kkal)", "Beef Teriyaki + Nasi (~700 kkal)"
+                ]
+            },
+            normal: {
+                breakfast: [
+                    "Oatmeal Buah Beri & Madu (~350 kkal)", "Roti Gandum Telur Mata Sapi & Alpukat (~400 kkal)", "Smoothie Bayam Nanas Segar (~250 kkal)", "Telur Orak-arik Sayuran (~300 kkal)",
+                    "Yoghurt Greek Plain + Granola (~300 kkal)", "Bubur Manado Kaya Sayur (~350 kkal)", "Pancake Oatmeal Pisang (~400 kkal)", "Roti Bakar Alpukat (~300 kkal)", "Bubur Kacang Hijau (Sedikit Santan) (~300 kkal)"
+                ],
+                lunch: [
+                    "Gado-gado Telur Rebus + Lontong (~450 kkal)", "Soto Ayam Kampung Bening (Tanpa Santan) (~350 kkal)", "Pepes Tahu Jamur + Sayur Asem (~350 kkal)", "Pecel Sayur Bumbu Sedang + Tempe (~400 kkal)",
+                    "Ikan Kembung Bakar Bumbu Kuning (~400 kkal)", "Sushi Roll Salmon Alpukat (~500 kkal)", "Steak Tempe Saus Lada Hitam (~350 kkal)", "Nasi Merah + Ayam Bakar (~450 kkal)", "Sup Ikan Patin Kuah Bening (~350 kkal)"
+                ],
+                dinner: [
+                    "Pepes Ikan Kembung + Nasi Merah (~400 kkal)", "Tumis Brokoli Udang Bawang Putih (~300 kkal)", "Ayam Bakar Dada (Tanpa Kulit) + Lalap (~450 kkal)", "Sup Jamur Tahu Putih Bening (~250 kkal)",
+                    "Capcay Kuah Ayam Sayur Lengkap (~350 kkal)", "Salad Ayam Panggang Dressing Lemon (~400 kkal)", "Sapo Tahu Seafood Sayuran (~450 kkal)", "Tumis Kangkung Belacan + Tempe (~300 kkal)", "Bistik Ayam Saus Mentega (~400 kkal)"
+                ]
+            },
+            overweight: {
+                breakfast: [
+                    "Telur Rebus 2 Butir + Teh Tawar (~150 kkal)", "Apel Merah + 1 sdm Selai Kacang (~200 kkal)", "Smoothie Hijau (Timun Seledri) (~150 kkal)", "Ubi Rebus Ukuran Sedang (~150 kkal)",
+                    "Yoghurt Plain Rendah Lemak + Pir (~150 kkal)", "Omelet Sayur Putih Telur (~200 kkal)", "Roti Gandum 1 Lembar Tanpa Selai (~100 kkal)", "Jus Alpukat Tanpa Gula (~180 kkal)", "Pisang Rebus (~120 kkal)"
+                ],
+                lunch: [
+                    "Nasi Merah 5 Sdm + Ikan Bakar (~400 kkal)", "Pepes Tahu Kemangi + Sayur Bening Bayam (~300 kkal)", "Soto Ayam Bening (Pisah Kulit) (~350 kkal)", "Gado-gado (Bumbu Dipisah) (~350 kkal)",
+                    "Ayam Suwir Pedas (Dada) + Tumis Tauge (~350 kkal)", "Ikan Pepes Bumbu Merah (Kukus) (~300 kkal)", "Urab Sayuran + Tahu Rebus (~250 kkal)", "Lotek Sayur (Sedikit Bumbu) (~350 kkal)", "Pindang Ikan (Tanpa Santan) (~300 kkal)"
+                ],
+                dinner: [
+                    "Sup Dada Ayam Jahe (Tanpa Nasi) (~300 kkal)", "Tumis Buncis Tempe Rebus (Sedikit Minyak) (~350 kkal)", "Ikan Tim Kecap Jahe + Sawi Putih (~300 kkal)", "Salad Telur Rebus Dressing Yoghurt (~250 kkal)",
+                    "Sup Tahu Putih Sawi Hijau (~200 kkal)", "Buah Potong Segar (Pepaya/Melon) (~100 kkal)", "Kaldu Ayam Bening + Jamur Kuping (~200 kkal)", "Tumis Labu Siam (~150 kkal)", "Edamame Rebus (~100 kkal)"
+                ]
+            },
+            obese: {
+                breakfast: [
+                    "Kopi Hitam Tawar + 2 Putih Telur Rebus (~100 kkal)", "Teh Hijau Panas + 1 Potong Pepaya (~80 kkal)", "Chia Pudding Air Kelapa (Tanpa Gula) (~150 kkal)", "Dadar Putih Telur + Tomat Panggang (~150 kkal)",
+                    "Jus Tomat Wortel Murni (~80 kkal)", "Air Lemon Hangat + Apel Hijau (~60 kkal)", "Puasa Intermittent (Jendela Makan 8 Jam) (0 kkal)", "Timun Rebus + Sambal Terasi (~50 kkal)", "Agar-agar Plain Tanpa Gula (~40 kkal)"
+                ],
+                lunch: [
+                    "Shirataki Goreng Ayam Suwir + Sayur (~300 kkal)", "Ikan Kukus Jahe Bawang Putih (~250 kkal)", "Pepes Jamur Tahu Kukus (~200 kkal)", "Sop Ikan Batam Kuah Bening Segar (~250 kkal)",
+                    "Ayam Pop Kukus (Tanpa Kulit) (~250 kkal)", "Tahu Tempe Bacem Rebus (Bukan Goreng) (~200 kkal)", "Protein Shake Whey Isolate Air Dingin (~120 kkal)", "Sayur Asem Tanpa Jagung (~150 kkal)", "Sup Ayam Kampung Ginseng (~250 kkal)"
+                ],
+                dinner: [
+                    "Salad Timun Tomat (Tanpa Dressing Minyak) (~150 kkal)", "Sup Jamur Kuping Tahu Sutra Bening (~200 kkal)", "Tumis Bayam Bawang Putih Rebus (Air) (~100 kkal)", "Brokoli Rebus + Sedikit Saus Tiram (~100 kkal)",
+                    "Edamame Rebus Tanpa Garam (~100 kkal)", "Sup Oyong Soun Sedikit (~150 kkal)", "Sayuran Kukus Lengkap (Wortel Buncis Kol) (~150 kkal)", "Sawi Putih Rebus Siram Kecap Asin (~80 kkal)", "Sup Asparagus Kepiting (~150 kkal)"
+                ]
+            }
+        };
+
+        // INITIAL WEEKLY PLANS
+        let weeklyPlans = {
+            underweight: [], normal: [], overweight: [], obese: []
+        };
+
+        // Generate Initial Plans
+        function generateRandomPlan(category) {
+            const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+            const plan = [];
+            const opts = mealDatabase[category];
+
+            // Simple randomizer to ensure variety
+            // We shuffle a temp array of indices or just pick random
+            for(let i=0; i<7; i++) {
+                plan.push({
+                    d: days[i],
+                    m: [
+                        opts.breakfast[Math.floor(Math.random() * opts.breakfast.length)],
+                        opts.lunch[Math.floor(Math.random() * opts.lunch.length)],
+                        opts.dinner[Math.floor(Math.random() * opts.dinner.length)]
+                    ]
+                });
+            }
+            return plan;
+        }
+
+        // Initialize Plans
+        Object.keys(weeklyPlans).forEach(k => {
+            weeklyPlans[k] = generateRandomPlan(k);
+        });
+
+        async function handleAiMenuGeneration() {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            if (!apiKey) {
+                openApiModal();
+                return;
+            }
+            if (!userData) {
+                alert("Silakan hitung BMI Anda terlebih dahulu.");
+                return;
+            }
+
+            const menuLoading = document.getElementById('menuLoading');
+            const menuContainer = document.getElementById('menuContainer');
+            menuLoading.classList.remove('hidden');
+            menuLoading.classList.add('flex');
+
+            let targetCalories;
+            let dietType;
+
+            switch (userData.k) {
+                case 'underweight':
+                    targetCalories = userData.tdee + 500;
+                    dietType = "Bulking (surplus kalori)";
+                    break;
+                case 'overweight':
+                case 'obese':
+                    targetCalories = userData.tdee - 500;
+                    dietType = "Cutting (defisit kalori)";
+                    break;
+                default: // 'normal'
+                    targetCalories = userData.tdee;
+                    dietType = "Maintenance (menjaga berat badan)";
+            }
+
+            console.log(`Generating AI menu for: ${dietType} at ~${targetCalories} kkal`);
+
+            void menuLoading.offsetHeight;
+
+            const prompt = `Buatkan saya rencana menu makanan sehat untuk 7 hari (Senin-Minggu) bagi seseorang di Indonesia.
+                - Target kalori harian adalah sekitar ${targetCalories} kkal.
+                - Tujuan diet: ${dietType}.
+                - Gunakan bahan makanan yang umum, mudah ditemukan, dan terjangkau di Indonesia.
+                - WAJIB format jawaban sebagai HTML. Gunakan tag <strong> untuk nama hari, <ul> untuk daftar makanan per hari, dan <li> untuk setiap item makanan (Sarapan, Makan Siang, Makan Malam). Jangan gunakan Markdown.
+                - Contoh format untuk satu hari:
+                  <strong>Senin</strong>
+                  <ul>
+                    <li>Sarapan: [Nama Makanan] (~[Kalori] kkal)</li>
+                    <li>Makan Siang: [Nama Makanan] (~[Kalori] kkal)</li>
+                    <li>Makan Malam: [Nama Makanan] (~[Kalori] kkal)</li>
+                  </ul>
+            `;
+            console.log("Prompt to be sent to AI:", prompt);
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error?.message || 'API Request Failed');
+                }
+
+                const result = await response.json();
+                let text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (!text) throw new Error("No response from AI");
+
+                // Clean Markdown artifacts
+                text = text.replace(/```html/g, '').replace(/```/g, '').trim();
+
+                menuContainer.innerHTML = `<div class="col-span-2 space-y-2 text-xs leading-relaxed rich-text">${text}</div>`;
+
+            } catch (error) {
+                console.error("Error generating AI menu:", error);
+                alert("Gagal membuat menu. Pastikan API Key Anda valid dan coba lagi. (Model: gemini-2.5-flash)");
+                menuContainer.innerHTML = `<p class="col-span-2 text-center text-xs text-red-500">Terjadi kesalahan saat menghubungi AI.</p>`;
+            } finally {
+                menuLoading.classList.add('hidden');
+                menuLoading.classList.remove('flex');
+            }
+        }
+
+
+        function calculateBMI() {
+            const w = parseFloat(document.getElementById('weight').value);
+            const h = parseFloat(document.getElementById('height').value);
+            const a = parseInt(document.getElementById('age').value);
+            const waist = parseFloat(document.getElementById('waist').value);
+            const g = document.querySelector('input[name="gender"]:checked').value;
+
+            if(!w || !h || !a) { alert("Data belum lengkap!"); return; }
+
+            const T = translations[currentLang];
+
+            // Helper Tooltip
+            const createTooltip = (text) => `
+                <div class="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 px-3 py-2 bg-gray-800 text-white text-[10px] rounded-lg w-48 text-center z-50 mb-2 shadow-xl leading-snug">
+                    ${text}
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-gray-800"></div>
+                </div>
+            `;
+
+            // 1. BMI Calculation
+            const bmi = (w/((h/100)**2)).toFixed(1);
+            let k='', l='';
+            if(bmi<18.5){k='underweight';l=T.status_underweight;} else if(bmi<25){k='normal';l=T.status_normal;}
+            else if(bmi<30){k='overweight';l=T.status_overweight;} else {k='obese';l=T.status_obese;}
+
+            // 2. Deurenberg Body Fat % Calculation
+            const deurenbergSex = g === 'male' ? 1 : 0;
+            const deurenbergBF = ((1.20 * bmi) + (0.23 * a) - (10.8 * deurenbergSex) - 5.4).toFixed(1);
+
+            // Deurenberg Categorization
+            let dStatus = T.cat_normal, dColor = 'text-green-600';
+            const bf = parseFloat(deurenbergBF);
+            if (g === 'male') {
+                if (bf < 6) { dStatus = T.cat_essential; dColor = 'text-blue-600'; }
+                else if (bf < 14) { dStatus = T.cat_athlete; dColor = 'text-green-600'; }
+                else if (bf < 18) { dStatus = T.cat_fitness; dColor = 'text-green-600'; }
+                else if (bf < 25) { dStatus = T.cat_normal; dColor = 'text-yellow-600'; }
+                else { dStatus = T.cat_obese; dColor = 'text-red-600'; }
+            } else {
+                if (bf < 14) { dStatus = T.cat_essential; dColor = 'text-blue-600'; }
+                else if (bf < 21) { dStatus = T.cat_athlete; dColor = 'text-green-600'; }
+                else if (bf < 25) { dStatus = T.cat_fitness; dColor = 'text-green-600'; }
+                else if (bf < 32) { dStatus = T.cat_normal; dColor = 'text-yellow-600'; }
+                else { dStatus = T.cat_obese; dColor = 'text-red-600'; }
+            }
+
+            // 3. RFM Calculation & WHtR
+            let rfm = null;
+            let rStatus = '', rColor = '';
+            let whtr = null;
+            let whtrStatus = '', whtrColor = '', whtrMsg = '';
+
+            if (waist && waist > 0) {
+                const rfmSex = g === 'female' ? 1 : 0;
+                rfm = (64 - (20 * (h / waist)) + (12 * rfmSex)).toFixed(1);
+
+                const rfmVal = parseFloat(rfm);
+                const limit = g === 'male' ? 30 : 40;
+                if (rfmVal >= limit) {
+                    rStatus = T.cat_obese_rfm.replace('{limit}', limit);
+                    rColor = 'text-red-600';
+                } else {
+                    rStatus = T.cat_normal;
+                    rColor = 'text-green-600';
+                }
+
+                // WHtR Calculation
+                whtr = (waist / h).toFixed(2);
+                const whtrVal = parseFloat(whtr);
+                if (whtrVal < 0.5) {
+                    whtrStatus = T.val_healthy || "Sehat";
+                    whtrColor = 'text-green-600';
+                    whtrMsg = T.msg_whtr_healthy;
+                } else if (whtrVal >= 0.5 && whtrVal <= 0.6) {
+                    whtrStatus = T.val_risk_inc || "Perlu Waspada";
+                    whtrColor = 'text-yellow-600';
+                    whtrMsg = T.msg_whtr_risk;
+                } else {
+                    whtrStatus = T.val_risk_high || "Risiko Tinggi";
+                    whtrColor = 'text-red-600';
+                    whtrMsg = T.msg_whtr_danger;
+                }
+            }
+
+            // 4. BMR & TDEE
+            const activity = parseFloat(document.getElementById('activity').value);
+            let bmr = (10 * w) + (6.25 * h) - (5 * a);
+            if (g === 'male') bmr += 5; else bmr -= 161;
+            bmr = Math.round(bmr);
+            const tdee = Math.round(bmr * activity);
+
+            // 5. Water Intake Calculation
+            const dailyDuration = parseFloat(document.getElementById('dailyExercise').value) || 0;
+            let waterFactor = a > 50 ? 30 : 35;
+            const waterBasal = w * waterFactor;
+            const waterExercise = (dailyDuration / 30) * 350;
+            const waterTotal = Math.round(waterBasal + waterExercise);
+            const glasses = (waterTotal / 250).toFixed(1);
+
+            userData = {w, h, a, g, bmi, k, l, deurenbergBF, dStatus, dColor, rfm, rStatus, rColor, whtr, whtrStatus, whtrColor, whtrMsg, waist, bmr, tdee, activity, waterTotal, glasses};
+
+            // Display Logic
+            const resultValue = document.getElementById('bmiValue');
+            const resultCategory = document.getElementById('bmiCategory');
+
+            resultValue.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase mb-1 cursor-help group relative">
+                        BMI SCORE
+                        ${createTooltip(T.tooltip_bmi)}
+                    </span>
+                    ${bmi}
+                </div>
+            `;
+
+            resultCategory.innerText = l;
+            resultCategory.className = `text-xl font-bold ${k==='underweight'?'text-blue-600':k==='normal'?'text-green-600':k==='overweight'?'text-yellow-600':'text-red-600'}`;
+
+            const metricsContainer = document.getElementById('additionalMetrics');
+            let metricsHtml = '';
+
+            const deurenbergBox = `
+                <div class="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm flex flex-col items-center justify-center relative group">
+                    <p class="text-[10px] text-gray-400 uppercase font-bold cursor-help mb-1 border-b border-dotted border-gray-300">
+                        Est. Deurenberg
+                        ${createTooltip(T.tooltip_deurenberg)}
+                    </p>
+                    <p class="text-xl font-black text-gray-700 dark:text-gray-200">${deurenbergBF}%</p>
+                    <p class="text-[9px] font-bold ${dColor} uppercase mt-1">${dStatus}</p>
+                </div>
+            `;
+
+            if (rfm && whtr) {
+                const rfmBox = `
+                    <div class="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm flex flex-col items-center justify-center relative group">
+                        <p class="text-[10px] text-gray-400 uppercase font-bold cursor-help mb-1 border-b border-dotted border-gray-300">
+                            RFM
+                            ${createTooltip(T.tooltip_rfm)}
+                        </p>
+                        <p class="text-xl font-black text-indigo-600">${rfm}%</p>
+                        <p class="text-[9px] font-bold ${rColor} uppercase mt-1 text-center leading-tight">${rStatus}</p>
+                    </div>
+                `;
+
+                const whtrBox = `
+                    <div class="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm flex flex-col items-center justify-center relative group">
+                        <p class="text-[10px] text-gray-400 uppercase font-bold cursor-help mb-1 border-b border-dotted border-gray-300">
+                            WHtR
+                            ${createTooltip(T.tooltip_whtr || "Waist-to-Height Ratio: Rasio Lingkar Pinggang terhadap Tinggi Badan.")}
+                        </p>
+                        <p class="text-xl font-black text-indigo-600">${whtr}</p>
+                        <p class="text-[9px] font-bold ${whtrColor} uppercase mt-1 text-center leading-tight mb-1">${whtrStatus}</p>
+                        <p class="text-[8px] text-gray-500 text-center leading-tight italic px-1">"${whtrMsg}"</p>
+                    </div>
+                `;
+
+                metricsHtml = `
+                    <div class="grid grid-cols-3 gap-2">
+                        ${deurenbergBox}
+                        ${rfmBox}
+                        ${whtrBox}
+                    </div>
+                `;
+            } else {
+                metricsHtml = `
+                    <div class="flex justify-center">
+                        <div class="w-1/2">
+                           ${deurenbergBox}
+                        </div>
+                    </div>
+                `;
+            }
+
+            metricsContainer.innerHTML = metricsHtml;
+
+            const calorieContainer = document.getElementById('calorieMetrics');
+            const cutting = userData.tdee - 500;
+            const bulking = userData.tdee + 500;
+
+            // Render Water Intake
+            const waterContainer = document.getElementById('waterMetric');
+            if (waterContainer) {
+                waterContainer.innerHTML = `
+                    <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl border border-blue-100 dark:border-blue-800 relative overflow-hidden">
+                        <div class="flex justify-between items-center relative z-10">
+                            <div>
+                                <p data-i18n="water_title" class="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase mb-1">Kebutuhan Air Minum</p>
+                                <p class="text-2xl font-black text-gray-800 dark:text-gray-100">${userData.waterTotal} ml</p>
+                                <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+                                    <span data-i18n="water_equiv">Setara</span> ~${userData.glasses} <span data-i18n="water_glass">Gelas</span>
+                                </p>
+                            </div>
+                            <div class="text-4xl opacity-80">💧</div>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-blue-200 dark:bg-blue-700 opacity-50"></div>
+                    </div>
+                `;
+            }
+
+            calorieContainer.innerHTML = `
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-pink-50 dark:bg-pink-900/20 p-3 rounded-xl border border-pink-100 dark:border-pink-800 text-center relative group">
+                            <p class="text-[10px] font-bold text-pink-600 uppercase cursor-help mb-1 border-b border-dotted border-pink-300 inline-block">
+                                BMR
+                                ${createTooltip(T.tooltip_bmr)}
+                            </p>
+                            <p class="text-lg font-black text-gray-800 dark:text-gray-100">${userData.bmr.toLocaleString('id-ID')}</p>
+                            <p class="text-[9px] text-gray-500">kkal</p>
+                        </div>
+                        <div class="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-xl border border-orange-100 dark:border-orange-800 text-center relative group">
+                             <p class="text-[10px] font-bold text-orange-600 uppercase cursor-help mb-1 border-b border-dotted border-orange-300 inline-block">
+                                TDEE
+                                ${createTooltip(T.tooltip_tdee)}
+                            </p>
+                            <p class="text-lg font-black text-gray-800 dark:text-gray-100">${userData.tdee.toLocaleString('id-ID')}</p>
+                            <p class="text-[9px] text-gray-500">kkal</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+                        <div class="p-3 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-700/50">
+                            <span class="text-xs font-bold text-gray-500 uppercase">Target</span>
+                        </div>
+                        <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                            <div class="p-3 flex justify-between items-center bg-yellow-50/50 dark:bg-yellow-900/10">
+                                <div>
+                                    <p class="text-[11px] font-bold text-yellow-700 dark:text-yellow-400">${T.cal_cutting}</p>
+                                    <p class="text-[9px] text-gray-500">${T.cal_def}</p>
+                                </div>
+                                <p class="font-black text-yellow-600 dark:text-yellow-400 text-sm">${cutting.toLocaleString('id-ID')}</p>
+                            </div>
+                            <div class="p-3 flex justify-between items-center">
+                                <div>
+                                    <p class="text-[11px] font-bold text-green-700 dark:text-green-400">${T.cal_maint}</p>
+                                    <p class="text-[9px] text-gray-500">${T.cal_stab}</p>
+                                </div>
+                                <p class="font-black text-green-600 dark:text-green-400 text-sm">${userData.tdee.toLocaleString('id-ID')}</p>
+                            </div>
+                            <div class="p-3 flex justify-between items-center">
+                                <div>
+                                    <p class="text-[11px] font-bold text-blue-700 dark:text-blue-400">${T.cal_bulk}</p>
+                                    <p class="text-[9px] text-gray-500">${T.cal_surp}</p>
+                                </div>
+                                <p class="font-black text-blue-600 dark:text-blue-400 text-sm">${bulking.toLocaleString('id-ID')}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const minG = 15; const maxG = 40;
+            let percent = ((bmi - minG) / (maxG - minG)) * 100;
+            if (percent < 0) percent = 0; if (percent > 100) percent = 100;
+            document.getElementById('quickResultMarker').style.left = `${percent}%`;
+
+            document.getElementById('resultArea').classList.remove('hidden');
+        }
+
+        function generateReport() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            document.getElementById('loadingOverlay').classList.add('flex');
+
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                document.getElementById('loadingOverlay').classList.remove('flex');
+
+                const today = new Date();
+                const d = today.toLocaleDateString(currentLang === 'id' ? 'id-ID' : 'en-US', {day: 'numeric', month: 'short', year: 'numeric'});
+                const inf = advice[currentLang][userData.k];
+                const T = translations[currentLang];
+
+                let mainScore = userData.bmi;
+                let mainLabel = "BMI";
+
+                const rScoreEl = document.getElementById('reportScore');
+                rScoreEl.innerText = mainScore;
+                rScoreEl.previousElementSibling.innerText = mainLabel;
+
+                document.getElementById('reportStatus').innerText = userData.l;
+                document.getElementById('reportProfile').innerText = `${userData.g=='male' ? T.val_male.split(' ')[1] : T.val_female.split(' ')[1]}, ${userData.a} ${currentLang==='id'?'Th':'Yo'}, ${userData.w}kg${userData.waist ? ', LP: '+userData.waist+'cm' : ''}`;
+                document.getElementById('reportDate').innerText = d;
+
+                const reportStatContainer = document.createElement('div');
+                reportStatContainer.className = "flex justify-center gap-6 mb-4 mt-2";
+
+                let statsHtml = `
+                    <div class="text-center group">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase border-b border-dotted border-gray-300 inline-block mb-1">Deurenberg</p>
+                        <p class="text-xl font-black text-gray-700">${userData.deurenbergBF}%</p>
+                        <p class="text-[9px] font-bold ${userData.dColor} uppercase">${userData.dStatus}</p>
+                    </div>
+                `;
+
+                if (userData.rfm) {
+                    statsHtml += `
+                    <div class="text-center group">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase border-b border-dotted border-gray-300 inline-block mb-1">RFM</p>
+                        <p class="text-xl font-black text-indigo-600">${userData.rfm}%</p>
+                        <p class="text-[9px] font-bold ${userData.rColor} uppercase">${userData.rStatus}</p>
+                    </div>`;
+                }
+
+                if (userData.whtr) {
+                    statsHtml += `
+                    <div class="text-center group">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase border-b border-dotted border-gray-300 inline-block mb-1">WHtR</p>
+                        <p class="text-xl font-black text-indigo-600">${userData.whtr}</p>
+                        <p class="text-[9px] font-bold ${userData.whtrColor} uppercase mb-0.5">${userData.whtrStatus}</p>
+                        <p class="text-[7px] text-gray-500 italic leading-none max-w-[80px] mx-auto">"${userData.whtrMsg}"</p>
+                    </div>`;
+                }
+
+                reportStatContainer.innerHTML = statsHtml;
+                const statusBadge = document.getElementById('reportStatus').parentElement;
+                if(statusBadge.previousElementSibling.id !== 'secondaryStats') {
+                    reportStatContainer.id = 'secondaryStats';
+                    statusBadge.parentNode.insertBefore(reportStatContainer, statusBadge);
+                } else {
+                    statusBadge.previousElementSibling.innerHTML = statsHtml;
+                }
+
+                const explanationHtml = `
+                    <div id="reportLaymanGuide" class="avoid-page-break bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 mb-6 text-justify">
+                        <h4 class="text-xs font-extrabold text-indigo-800 uppercase mb-2 flex items-center gap-2">
+                            ${T.guide_title}
+                        </h4>
+                        <div class="space-y-3 text-[11px] text-gray-700 leading-relaxed font-medium">
+                            <p>${T.guide_bmi.replace('{bmi}', userData.bmi)}</p>
+                            <p>${T.guide_fat}</p>
+                            <span class="block mt-1 text-indigo-700 italic text-[10px]">${T.guide_note}</span>
+                        </div>
+                    </div>
+                `;
+
+                const cutTarget = userData.tdee - 500;
+                const bulkTarget = userData.tdee + 500;
+
+                const energyHtml = `
+                    ${explanationHtml}
+
+                    <div class="avoid-page-break bg-white border rounded-xl overflow-hidden shadow-sm">
+                        <div class="bg-gray-50 p-4 border-b border-gray-100">
+                            <h3 class="font-extrabold text-gray-800 text-sm uppercase tracking-wide flex items-center gap-2">${T.energy_title}</h3>
+                        </div>
+
+                        <div class="px-4 pt-4 pb-2 text-[10px] text-gray-600 border-b border-dashed border-gray-200">
+                            <p class="mb-1"><strong>${T.energy_intro_q}</strong></p>
+                            <p>${T.energy_intro_a}</p>
+                        </div>
+
+                        <div class="p-4">
+                            <!-- SIDE BY SIDE BMR & TDEE CARDS -->
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <!-- BMR Card -->
+                                <div class="border-2 border-pink-500 rounded-xl p-4 text-center bg-pink-50/50 relative overflow-hidden">
+                                    <div class="absolute top-0 right-0 p-1 opacity-10"><svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg></div>
+                                    <p class="text-xs font-bold text-pink-600 uppercase tracking-widest mb-1 relative z-10">BMR</p>
+                                    <p class="text-3xl font-black text-gray-800 relative z-10">${userData.bmr.toLocaleString('id-ID')}</p>
+                                    <p class="text-[9px] text-gray-500 relative z-10">kkal/hari</p>
+                                </div>
+                                <!-- TDEE Card -->
+                                <div class="border-2 border-orange-500 rounded-xl p-4 text-center bg-orange-50/50 relative overflow-hidden">
+                                    <div class="absolute top-0 right-0 p-1 opacity-10"><svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg></div>
+                                    <p class="text-xs font-bold text-orange-600 uppercase tracking-widest mb-1 relative z-10">TDEE</p>
+                                    <p class="text-3xl font-black text-gray-800 relative z-10">${userData.tdee.toLocaleString('id-ID')}</p>
+                                    <p class="text-[9px] text-gray-500 relative z-10">kkal/hari</p>
+                                </div>
+                            </div>
+
+                            <!-- COMPANY ANALOGY EXPLANATION -->
+                            <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 text-[10px] leading-relaxed text-gray-700 space-y-2 text-justify">
+                                <h4 class="font-bold text-gray-500 uppercase text-[9px] tracking-wide mb-1 border-b border-gray-200 pb-1">${T.energy_analogy_header}</h4>
+                                <p>${T.energy_analogy_company_bmr}</p>
+                                <p>${T.energy_analogy_company_tdee}</p>
+                            </div>
+
+                            <!-- ZONA AMAN DIET ROW (Simplified) -->
+                            <div class="mt-4 flex items-center justify-between bg-green-50 p-3 rounded-lg border border-green-100">
+                                <div>
+                                    <p class="font-bold text-green-800 text-[10px] uppercase">${T.safe_title}</p>
+                                    <p class="text-[9px] text-gray-600">${T.safe_desc}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs font-black text-green-700">${userData.bmr.toLocaleString('id-ID')} - ${userData.tdee.toLocaleString('id-ID')}</p>
+                                    <p class="text-[8px] text-gray-400">kkal</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 px-4 py-2 border-t border-gray-100 border-b border-gray-100">
+                             <p class="text-[9px] font-bold text-gray-500 uppercase tracking-wider text-center">${T.target_header}</p>
+                        </div>
+
+                        <div class="grid grid-cols-3 divide-x divide-gray-100 text-center">
+                            <div class="p-3 bg-yellow-50/30 hover:bg-yellow-50 transition">
+                                <p class="text-[9px] uppercase font-extrabold text-gray-400 mb-1">Cutting</p>
+                                <p class="font-black text-gray-800 text-sm">${cutTarget.toLocaleString('id-ID')}</p>
+                            </div>
+                            <div class="p-3 bg-green-50/30 hover:bg-green-50 transition">
+                                <p class="text-[9px] uppercase font-extrabold text-green-600 mb-1">Stable</p>
+                                <p class="font-black text-green-600 text-sm">${userData.tdee.toLocaleString('id-ID')}</p>
+                            </div>
+                            <div class="p-3 bg-blue-50/30 hover:bg-blue-50 transition">
+                                <p class="text-[9px] uppercase font-extrabold text-gray-400 mb-1">Bulking</p>
+                                <p class="font-black text-gray-800 text-sm">${bulkTarget.toLocaleString('id-ID')}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const repEnergy = document.getElementById('reportEnergyProfile');
+                repEnergy.className = "hidden";
+                repEnergy.innerHTML = energyHtml;
+                repEnergy.classList.remove('hidden');
+
+                // ADD WATER INTAKE SECTION TO REPORT
+                const waterHtml = `
+                    <div class="mt-4 bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex justify-between items-center avoid-page-break">
+                        <div>
+                            <h4 class="font-bold text-blue-800 text-[10px] uppercase mb-1 flex items-center gap-1">
+                                💧 ${T.water_title || "Kebutuhan Air Minum"}
+                            </h4>
+                            <p class="text-[9px] text-gray-600 max-w-[200px] leading-tight">
+                                ${userData.a > 50 ? "Basis: 30ml/kg (Usia >50)" : "Basis: 35ml/kg (Usia ≤50)"}
+                                ${userData.waterTotal - (userData.w * (userData.a > 50 ? 30 : 35)) > 0 ? "+ Kompensasi Olahraga" : ""}
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xl font-black text-blue-600">${userData.waterTotal} ml</p>
+                            <p class="text-[9px] text-gray-500">~${userData.glasses} ${T.water_glass || "Gelas"}</p>
+                        </div>
+                    </div>
+                `;
+
+                // Inject Water HTML after Energy Profile
+                // Since reportEnergyProfile is just a div, we can append to it?
+                // Or better, modify how we set innerHTML of repEnergy to include waterHtml.
+                repEnergy.innerHTML += waterHtml;
+
+                let analysisText = inf.txt;
+                const bmiVal = parseFloat(userData.bmi);
+                const isBmiObese = bmiVal >= 30;
+                let isFatObese = false;
+                if (userData.dStatus.includes('Obesitas') || userData.dStatus.includes('Obese')) isFatObese = true;
+                if (userData.rfm && (userData.rStatus.includes('Obesitas') || userData.rStatus.includes('Obese'))) isFatObese = true;
+
+                if (!isBmiObese && isFatObese) {
+                    analysisText += currentLang === 'id' ? T.warn_fat : T.warn_fat_en;
+                }
+
+                document.getElementById('aiAnalysis').innerHTML = analysisText;
+                document.getElementById('aiExercise').innerHTML = inf.ex;
+
+                const bg = {underweight:'bg-blue-100 text-blue-800 border-blue-200', normal:'bg-green-100 text-green-800 border-green-200', overweight:'bg-yellow-100 text-yellow-800 border-yellow-200', obese:'bg-red-100 text-red-800 border-red-200'};
+                document.getElementById('reportStatus').className = `inline-block px-6 py-2 rounded-full text-sm font-extrabold uppercase tracking-widest border shadow-sm ${bg[userData.k]}`;
+
+                const mc = document.getElementById('menuContainer');
+                mc.innerHTML = '';
+                // Keep menu in ID for now as decided above
+                weeklyPlans[userData.k].forEach((m, i) => {
+                    const bgColor = i % 4 < 2 ? 'bg-white' : 'bg-gray-50/80';
+                    mc.innerHTML += `
+                    <div class="${bgColor} border border-gray-100 p-3 rounded-xl shadow-sm text-[11px] leading-snug font-medium relative overflow-hidden">
+                        <div class="font-bold text-primary mb-2 border-b border-gray-100 pb-1 text-xs flex justify-between">
+                            <span>${m.d}</span>
+                            <span class="text-gray-300 text-[10px]">Day ${i+1}</span>
+                        </div>
+                        <div class="space-y-2 text-gray-700">
+                            <div class="flex items-start gap-2 border-l-2 border-yellow-200 pl-2"><span class="font-bold text-gray-500 w-5 shrink-0">Pg</span><span class="break-words">${m.m[0]}</span></div>
+                            <div class="flex items-start gap-2 border-l-2 border-orange-200 pl-2"><span class="font-bold text-gray-500 w-5 shrink-0">Si</span><span class="break-words">${m.m[1]}</span></div>
+                            <div class="flex items-start gap-2 border-l-2 border-indigo-200 pl-2"><span class="font-bold text-gray-500 w-5 shrink-0">Ma</span><span class="break-words">${m.m[2]}</span></div>
+                        </div>
+                    </div>`;
+                });
+
+                const minG = 15; const maxG = 40;
+                let percent = ((userData.bmi - minG) / (maxG - minG)) * 100;
+                if (percent < 0) percent = 0; if (percent > 100) percent = 100;
+                document.getElementById('headerMarker').style.left = `${percent}%`;
+
+                document.getElementById('reportModal').classList.remove('hidden');
+            }, 1000);
+        }
+
+        function closeModal() { document.getElementById('reportModal').classList.add('hidden'); }
+        function resetForm() { document.getElementById('weight').value=''; document.getElementById('height').value=''; document.getElementById('resultArea').classList.add('hidden'); }
+
+        function toggleInfo() {
+            const content = document.getElementById('infoContent');
+            const icon = document.getElementById('infoIcon');
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                content.classList.add('fade-in-up');
+                icon.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                content.classList.remove('fade-in-up');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('printableArea');
+            element.classList.remove('max-w-xl');
+
+            const opt = {
+                margin: [25.4, 30.48, 25.4, 25.4], // [top, left, bottom, right] in mm
+                filename: `BMI_Report_${userData.k}_${new Date().toISOString().slice(0,10)}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().from(element).set(opt).toPdf().get('pdf').then(function (pdf) {
+                var totalPages = pdf.internal.getNumberOfPages();
+                var pageWidth = pdf.internal.pageSize.getWidth();
+                var pageHeight = pdf.internal.pageSize.getHeight();
+
+                pdf.setFont('helvetica', 'italic');
+                pdf.setFontSize(8);
+                pdf.setTextColor(150);
+
+                for (var i = 1; i <= totalPages; i++) {
+                    pdf.setPage(i);
+                    // Draw a separator line
+                    pdf.line(opt.margin[1], pageHeight - 18, pageWidth - opt.margin[3], pageHeight - 18);
+
+                    // Footer text on the left
+                    pdf.text('Generated by BMI CALCULATOR Pro - https://bmicalculator.isparmo.com', opt.margin[1], pageHeight - 10);
+
+                    // Page number on the right
+                    var pageNumText = 'Page ' + i + ' of ' + totalPages;
+                    pdf.text(pageNumText, pageWidth - opt.margin[3], pageHeight - 10, { align: 'right' });
+                }
+            }).save().then(() => {
+                // Restore the class after the PDF is saved and the promise chain is complete
+                element.classList.add('max-w-xl');
+            });
+        }
+
+        // --- DRAG LOGIC FOR FLOATING ACTIONS ---
+        const floatBtn = document.getElementById('floatingActions');
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        const handleStart = (e) => {
+            // If the user's action starts on a button, do not initiate drag.
+            // This prevents the drag logic from interfering with button clicks.
+            if (e.target.closest('button')) {
+                return;
+            }
+
+            // Allow dragging only if target is NOT a button
+            // Actually, user might want to drag from anywhere.
+            // But clicking a button should fire the button action, not start dragging immediately if it's a tap.
+            // However, standard behavior for floating widgets is draggable from the container area.
+            // If I prevent default on button, click won't work.
+            // So: Only start drag if not clicking a button? Or distinguish click vs drag?
+            // Simple approach: Drag starts, but if movement is small (< 5px), it's a click.
+            // But here we are attaching handlers to the container.
+
+            if (e.target.tagName.toLowerCase() === 'button' || e.target.closest('button')) {
+                // e.preventDefault(); // If we do this, buttons won't click on mobile?
+                // Let buttons handle themselves?
+                // If we return here, we can't drag from the button area. That's fine.
+                // Let's allow dragging only from the "handle" or the empty space.
+                // But the handle is small.
+                // Better: Standard drag logic.
+            }
+
+            isDragging = true;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const rect = floatBtn.getBoundingClientRect();
+
+            if (floatBtn.style.transform !== 'none') {
+                floatBtn.style.left = rect.left + 'px';
+                floatBtn.style.top = rect.top + 'px';
+                floatBtn.style.bottom = 'auto';
+                floatBtn.style.transform = 'none';
+            }
+
+            offsetX = clientX - rect.left;
+            offsetY = clientY - rect.top;
+
+            floatBtn.classList.add('cursor-grabbing');
+            floatBtn.classList.remove('cursor-grab');
+        };
+
+        const handleMove = (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            floatBtn.style.left = `${clientX - offsetX}px`;
+            floatBtn.style.top = `${clientY - offsetY}px`;
+        };
+
+        const handleEnd = () => {
+            isDragging = false;
+            floatBtn.classList.remove('cursor-grabbing');
+            floatBtn.classList.add('cursor-grab');
+        };
+
+        floatBtn.addEventListener('mousedown', handleStart);
+        document.addEventListener('mousemove', handleMove);
+        document.addEventListener('mouseup', handleEnd);
+
+        floatBtn.addEventListener('touchstart', handleStart, {passive: false});
+        document.addEventListener('touchmove', handleMove, {passive: false});
+        document.addEventListener('touchend', handleEnd);
+
+        // --- EXPERT CHAT LOGIC (Index.html Version) ---
+        let isChatOpen = false;
+
+        function toggleExpertChat() {
+            const chatWindow = document.getElementById('expertChatWindow');
+            const chatBtn = document.getElementById('expertBtn');
+            const apiKey = localStorage.getItem('geminiApiKey');
+            const errorMsg = document.getElementById('chatApiError');
+
+            isChatOpen = !isChatOpen;
+
+            if (isChatOpen) {
+                chatWindow.classList.remove('hidden');
+                setTimeout(() => chatWindow.classList.add('scale-100', 'opacity-100'), 10);
+                chatWindow.classList.remove('scale-90', 'opacity-0');
+
+                // Focus input
+                document.getElementById('chatInput').focus();
+
+                // Check API
+                if (!apiKey) {
+                    errorMsg.classList.remove('hidden');
+                    document.getElementById('chatInput').disabled = true;
+                    document.getElementById('sendBtn').disabled = true;
+                } else {
+                    errorMsg.classList.add('hidden');
+                    document.getElementById('chatInput').disabled = false;
+                    document.getElementById('sendBtn').disabled = false;
+                }
+
+            } else {
+                chatWindow.classList.add('scale-90', 'opacity-0');
+                setTimeout(() => chatWindow.classList.add('hidden'), 300);
+                chatWindow.classList.remove('scale-100', 'opacity-100');
+            }
+        }
+
+        function handleChatEnter(e) {
+            if (e.key === 'Enter') sendChatMessage();
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            const apiKey = localStorage.getItem('geminiApiKey');
+            const T = translations[currentLang];
+
+            if (!message || !apiKey) return;
+
+            // 1. Add User Message
+            appendMessage('user', message);
+            input.value = '';
+            input.disabled = true;
+
+            // 2. Add Loading State
+            const loadingId = 'loading-' + Date.now();
+            appendMessage('bot', `<em>${T.chat_thinking}</em>`, loadingId);
+
+            try {
+                // 3. Call API
+                const systemPrompt = currentLang === 'id'
+                    ? "Anda adalah ahli kesehatan, ahli olahraga, dan ahli gizi berpengalaman. Jawab pertanyaan pengguna dengan ramah, akurat, dan bijaksana. Gunakan format HTML seperti <ul>, <li>, <strong>, dan <p> untuk memformat jawaban agar rapi. Gunakan poin-poin (bullet points) agar mudah dibaca. Jangan gunakan Markdown (seperti ** atau -). Batasi paragraf agar singkat."
+                    : "You are an experienced health, sports, and nutrition expert. Answer user questions politely, accurately, and wisely. Use HTML formats like <ul>, <li>, <strong>, and <p> to format your answer neatly. Use bullet points to make it easy to read. Do not use Markdown (like ** or -). Keep paragraphs short.";
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [
+                            {
+                                role: "user",
+                                parts: [{ text: systemPrompt + "\n\nUser Question: " + message }]
+                            }
+                        ],
+                        safetySettings: [
+                            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
+                            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
+                            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_ONLY_HIGH" },
+                            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_ONLY_HIGH" }
+                        ]
+                    })
+                });
+
+                const result = await response.json();
+                console.log("Gemini API Result:", result);
+
+                // Remove loading
+                document.getElementById(loadingId).remove();
+
+                if (result.error) {
+                    appendMessage('bot', `<span class="text-red-500">API Error: ${result.error.message}</span>`);
+                    return;
+                }
+
+                let text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (text) {
+                    // Clean Markdown artifacts
+                    text = text.replace(/```html/g, '').replace(/```/g, '').trim();
+                    // Format bold text for better readability if needed
+                    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    appendMessage('bot', text);
+                } else {
+                    let reason = result.candidates?.[0]?.finishReason || result.promptFeedback?.blockReason || "Unknown";
+                    appendMessage('bot', `<span class="text-red-500">Error: No response text. Reason: ${reason}</span>`);
+                }
+
+            } catch (error) {
+                console.error(error);
+                if(document.getElementById(loadingId)) document.getElementById(loadingId).remove();
+                appendMessage('bot', currentLang === 'id' ? `Terjadi kesalahan: ${error.message}` : `Error occurred: ${error.message}`);
+            } finally {
+                input.disabled = false;
+                input.focus();
+            }
+        }
+
+        function appendMessage(role, text, id = null) {
+            const chatContainer = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = "flex gap-2 items-start " + (role === 'user' ? "flex-row-reverse" : "");
+
+            if (id) div.id = id;
+
+            const icon = role === 'user' ? '👤' : '👨‍⚕️';
+            const bgClass = role === 'user'
+                ? 'bg-blue-600 text-white rounded-tr-none'
+                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-tl-none border border-gray-100 dark:border-gray-600 rich-text max-h-60 overflow-y-auto pr-2 custom-scrollbar';
+
+            div.innerHTML = `
+                <div class="w-8 h-8 ${role==='user'?'bg-gray-200':'bg-blue-100'} rounded-full flex items-center justify-center shrink-0 text-lg shadow-sm">${icon}</div>
+                <div class="${bgClass} p-3 rounded-2xl shadow-sm text-xs leading-relaxed max-w-[80%]">
+                    ${text}
+                </div>
+            `;
+
+            chatContainer.appendChild(div);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // --- HEALTH TIP GENERATOR ---
+        async function generateHealthTip() {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            const contentDiv = document.getElementById('healthTipContent');
+            const btn = document.getElementById('regenTipBtn');
+            const T = translations[currentLang];
+
+            // Loading State
+            contentDiv.innerHTML = `
+                <div class="flex items-center gap-2 text-gray-400">
+                    <div class="w-2 h-2 bg-blue-400 rounded-full typing-dot"></div>
+                    <span class="italic">${currentLang === 'id' ? 'Mencari fakta menarik...' : 'Finding interesting fact...'}</span>
+                </div>
+            `;
+            btn.classList.add('animate-pulse');
+            btn.disabled = true;
+
+            if (!apiKey) {
+                setTimeout(() => {
+                    contentDiv.innerHTML = currentLang === 'id'
+                        ? `<span class="text-blue-500 font-bold">Tips:</span> Atur API Key di menu pengaturan untuk mendapatkan fakta kesehatan harian yang unik dari AI! Untuk sekarang: "Minumlah 8 gelas air sehari."`
+                        : `<span class="text-blue-500 font-bold">Tip:</span> Set API Key in settings to get unique daily health facts from AI! For now: "Drink 8 glasses of water daily."`;
+                    btn.classList.remove('animate-pulse');
+                    btn.disabled = false;
+                }, 1000);
+                return;
+            }
+
+            const prompt = currentLang === 'id'
+                ? `Berikan 1 fakta atau anjuran kesehatan singkat (max 2 kalimat) yang MENARIK dan JARANG DIKETAHUI tentang (pilih acak satu topik: Makanan, Olahraga, Tidur, Stress, atau Penyakit Umum). Mulai kalimat langsung dengan isinya. Jangan pakai judul. Jangan pakai markdown.`
+                : `Give me 1 short health fact or tip (max 2 sentences) that is INTERESTING and LESSER KNOWN about (randomly pick one topic: Food, Exercise, Sleep, Stress, or Common Diseases). Start directly with the content. No title. No markdown.`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
+
+                if (!response.ok) throw new Error("API Error");
+                const result = await response.json();
+                let text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (text) {
+                    text = text.trim();
+                    contentDiv.innerHTML = text;
+                } else {
+                    throw new Error("Empty");
+                }
+
+            } catch (e) {
+                console.error(e);
+                contentDiv.innerHTML = currentLang === 'id' ? "Gagal memuat tips. Coba lagi nanti." : "Failed to load tip. Try again.";
+            } finally {
+                btn.classList.remove('animate-pulse');
+                btn.disabled = false;
+            }
+        }
