@@ -1,0 +1,25 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "BMI Calculator",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/masisparmo/bmicalculator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/masisparmo/bmicalculator/issues"
+  },
+  "homepage": "https://github.com/masisparmo/bmicalculator#readme",
+  "devDependencies": {
+    "fs-extra": "^11.3.2",
+    "javascript-obfuscator": "^5.0.1"
+  }
+}
