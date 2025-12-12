@@ -1470,16 +1470,16 @@
         function generateReport() {
             document.getElementById('loadingOverlay').classList.remove('hidden');
             document.getElementById('loadingOverlay').classList.add('flex');
-            
+
             setTimeout(() => {
                 document.getElementById('loadingOverlay').classList.add('hidden');
                 document.getElementById('loadingOverlay').classList.remove('flex');
-                
+
                 const today = new Date();
                 const d = today.toLocaleDateString(currentLang === 'id' ? 'id-ID' : 'en-US', {day: 'numeric', month: 'short', year: 'numeric'});
                 const inf = advice[currentLang][userData.k];
                 const T = translations[currentLang];
-                
+
                 let mainScore = userData.bmi;
                 let mainLabel = "BMI";
 
